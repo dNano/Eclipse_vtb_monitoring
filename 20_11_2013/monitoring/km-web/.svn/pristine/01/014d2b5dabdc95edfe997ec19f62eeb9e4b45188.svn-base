@@ -1,0 +1,73 @@
+package ru.masterdm.km.web.base;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import org.apache.tapestry5.annotations.SessionState;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.common.entity.User;
+import ru.masterdm.km.web.state.Visit;
+
+/**
+ * Общая функциональность для страниц.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class SimpleBasePage {
+	@SessionState
+	private Visit visit;
+	private boolean visitExists;
+
+	@Inject
+	private Messages messages;
+
+	protected Messages getMessages() {
+		return messages;
+	}
+
+	public Visit getVisit() {
+		return visit;
+	}
+
+	protected void setVisit(Visit visit) {
+		this.visit = visit;
+	}
+
+	public boolean isVisitExists() {
+		return visitExists;
+	}
+
+	public String getDateInputPattern() {
+		return visitExists ? visit.getDateInputPattern() : User.defaultDateInputPattern;
+	}
+
+	public String getDateViewPattern() {
+		return visitExists ? visit.getDateViewPattern() : User.defaultDateViewPattern;
+	}
+
+	public String getDateListPattern() {
+		return visitExists ? visit.getDateListPattern() : User.defaultDateListPattern;
+	}
+
+	public DateFormat getDateInputFormat() {
+		// If you want to make this static or move it into Visit, first read
+		// http://thread.gmane.org/gmane.comp.java.tapestry.user/20925
+		return new SimpleDateFormat(visit.getDateInputPattern());
+	}
+
+	public DateFormat getDateViewFormat() {
+		// If you want to make this static or move it into Visit, first read
+		// http://thread.gmane.org/gmane.comp.java.tapestry.user/20925
+		return new SimpleDateFormat(visit.getDateViewPattern());
+	}
+
+	public DateFormat getDateListFormat() {
+		// If you want to make this static or move it into Visit, first read
+		// http://thread.gmane.org/gmane.comp.java.tapestry.user/20925
+		return new SimpleDateFormat(visit.getDateListPattern());
+	}
+
+}

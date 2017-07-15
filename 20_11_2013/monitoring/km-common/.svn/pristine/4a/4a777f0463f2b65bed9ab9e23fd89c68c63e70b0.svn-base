@@ -1,0 +1,40 @@
+package ru.masterdm.km.common.entity;
+
+import ru.masterdm.km.common.dictionary.ContractorStatus;
+
+/**
+ * 
+ * Сущность Списка клиентов.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ContractorInstance {
+	private ContractorStatus status;
+	private Contractor contractor;
+	private ContractorGroup contractorGroup;
+
+	public Contractor getContractor() {
+		return contractor;
+	}
+
+	public void setContractor(Contractor contractor) {
+		this.contractor = contractor;
+	}
+
+	public ContractorGroup getContractorGroup() {
+		return contractorGroup;
+	}
+
+	public void setContractorGroup(ContractorGroup contractorGroup) {
+		this.contractorGroup = contractorGroup;
+	}
+
+	public ContractorStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(ContractorStatus status) {
+		this.status = status;
+	}
+}

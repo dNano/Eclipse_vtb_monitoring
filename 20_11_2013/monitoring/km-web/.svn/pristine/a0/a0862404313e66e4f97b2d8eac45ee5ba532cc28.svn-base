@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd" xmlns:p="tapestry:parameter">
+    <t:content>
+    	 <h4>Хронология мероприятия: ${eventInstance?.event?.name}<br/>${info}</h4>
+    	<!-- t:ProgressiveDisplay t:id="showChronology" t:initial="block:loadingBlock"-->
+	 		<table t:type="grid" t:source="events" t:row="event" t:rowsPerPage="20" t:lean="true" t:pagerPosition="bottom"
+				t:inPlace="true" t:include="planExecutionDate" t:model="eventsModel" t:rowClass="prop:eventRowClass"
+				t:add="result, eventName, statusName, executor" style="width: 100%; text-align: left;">
+				<p:planExecutionDateCell>
+					<span t:type="output" t:format="dateFormat" t:value="event.planExecutionDate"></span>
+				</p:planExecutionDateCell>
+				<p:resultCell>
+		     		<t:if test="okResult">
+		     			<img src="${context:img/allowed.png}" title="${event?.result?.name}"/>
+		     			<p:else>
+		     				<t:if test="sanctionOrRemarkResult">
+		     					<img src="${context:img/yes.gif}" title="${event?.result?.name}"/>
+		    						<p:else>
+		    							<t:if test="fkrResult">
+		    								<img src="${context:img/arrow.gif}" title="${event?.result?.name}"/>
+		    							</t:if>
+		    						</p:else>
+		     				</t:if>
+		     			</p:else>
+		     		</t:if>
+		     		<t:if test="sanctionResult">
+		     			<img src="${context:img/ihigh_obj.gif}" title="${event?.result?.name}"/>
+		     		</t:if>
+		        </p:resultCell>				
+				<p:statusNameCell>
+		     		${event?.status?.name}
+		        </p:statusNameCell>
+				<p:eventNameCell>
+					<t:pagelink t:page="executionEvent/viewDealEvent" t:context="[event?.id, returnPageName]"
+						 title="Просмотр мероприятия сделки" style="text-decoration: none;">
+		            	${event?.name}
+		            </t:pagelink>
+		        </p:eventNameCell>
+				<p:executorCell>
+		            ${event?.executor?.shortFullName}
+		        </p:executorCell>
+				<p:empty>
+					<h4>Мероприятия не найдены</h4>
+				</p:empty>
+			</table>
+        <!-- /t:ProgressiveDisplay-->
+        <t:block t:id="loadingBlock">
+	        <div style="font-weight: bold; text-decoration: blink;">
+	            Подождите, идет загрузка ...
+	        </div>
+    	</t:block>
+	</t:content>
+</html>

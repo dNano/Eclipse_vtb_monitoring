@@ -1,0 +1,164 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список мероприятий сделки № ${spkpNumber}">
+
+<t:jquery.tabs  t:tabs="TabsPlan,TabsCalendar" t:activePanelId="curTab">
+	
+	<p:TabsPlan>
+		<h3>Формирование Плана мероприятий сделки № ${spkpNumber}"</h3><hr/>
+		<form t:type="form" t:id="dealPlanForm">
+			<table>
+				<tr valign="top">
+		            <td width="50%">
+				        <fieldset style="border:0;">
+			                <legend>Добавление мероприятий в План</legend>
+					        <t:tree class="test-hook" t:id="tree" model="treeModel" value="valueWrapper" label="block:renderTreeNodeLabel" />
+					        <t:block id="renderTreeNodeLabel">
+						        <t:if test="selectedLeaf">
+						        	<B style="color: orange;"> ${valueWrapper.label}</B>
+						        	<p:else>
+								        <t:if test="disabledLeaf">
+								        <B style="color: gray;"> ${valueWrapper.label}</B>						        	
+								        	<p:else>
+								        		<t:if test="valueWrapper.type">
+									                <a t:type="actionLink" t:id="addEventType" t:context="[valueWrapper.pageName, valueWrapper.label]" onmouseover="setStyle('text-decoration: underline');" 
+									                	 t:mixins="clickOnce" onmouseout="setStyle('text-decoration: none');" style="text-decoration: none" title="Добавить в план">
+									                     <img src="${context:/img/right.gif}"/>${valueWrapper.label}</a>
+									                <p:else>${valueWrapper.label}</p:else>
+									            </t:if>
+									        </p:else>
+									    </t:if>
+									</p:else>
+							    </t:if>
+					        </t:block>
+				        </fieldset>
+		            </td>	
+		            <td width="50%">
+					    <fieldset style="border:0;">
+					       <legend>План</legend>
+					        <table t:type="grid" t:source="planList" t:row="calendar" t:rowsPerPage="15" t:lean="true" t:pagerPosition="bottom" 
+					            t:exclude="id, name, startDate, endDate, periodDate, periodDetails, excludeHoliday, periodWeekend, docTypeByHand" t:add="edit, eventTypeName, remove">
+					            <p:editCell>
+					                <t:pagelink t:page="eventInstances/EditPlanForDeal" t:context="[calendar.id, pageName, dealID, spkpNumber]">
+					                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+					                </t:pagelink>           
+					            </p:editCell>
+					            <p:eventTypeNameCell>
+					                <t:if test="selectedRow">
+							        	<B style="color: orange;">${calendar?.classifier?.eventType?.name}</B>
+							        	<p:else>
+						                	${calendar?.classifier?.eventType?.name}
+						                </p:else>
+						            </t:if>
+					            </p:eventTypeNameCell>
+					            <p:removeCell>
+					            	<t:if test="!rowInCalendar">
+						                <a t:type="actionLink" t:id="removeEventType" t:context="calendar.classifier.eventType.id" t:mixins="Confirm"
+						                	t:message="Удалить мероприятие '${calendar?.classifier?.eventType?.name}' из плана?">
+						                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+						                </a>
+						                <p:else><img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/></p:else>
+						            </t:if>
+					            </p:removeCell>
+					            
+					            <p:empty>
+										<h2>Плановые мероприятия не найдены</h2>
+								</p:empty>			            
+					        </table>
+					    </fieldset>
+		            </td>		            	            
+				</tr>
+			</table>
+		
+		</form>			
+	</p:TabsPlan>
+	
+	<p:TabsCalendar>
+		<h3>Формирование Календаря мероприятий сделки № ${spkpNumber}"</h3><hr/>
+		<form t:type="form" t:id="dealCalendarForm" t:clientValidation="none" t:autofocus="false" t:zone="^">
+			<table>
+				<tr valign="top">
+		            <td width="50%">
+			        <fieldset style="border:0;">
+		                <legend>Календарь</legend>
+							<table t:type="grid" t:source="calendarList" t:row="eventInstance"
+								t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom"
+								t:inPlace="true" t:include="planExecutionDate" t:model="eventInstanceModel"
+								t:add="eventName, contractNumber, spkpNumber, amount, currency, mailTo, executor, remove"
+								style="width: 100%; text-align: left;">
+								<p:planExecutionDate>
+									<span t:type="output" t:format="literal:dd.MM.yyyy"	t:value="eventInstance.planExecutionDate"></span>
+								</p:planExecutionDate>
+								<p:eventNameCell>
+						            ${eventInstance?.event?.name}
+						        </p:eventNameCell>
+								<p:contractNumberCell>
+						            ${eventInstance?.event?.contractNumber}
+						        </p:contractNumberCell>
+								<p:spkpNumberCell>
+						            ${eventInstance?.event?.deal?.spkpNumber}
+						        </p:spkpNumberCell>
+								<p:amountCell>
+						            ${eventInstance?.event?.deal?.amount}
+						        </p:amountCell>
+								<p:currencyCell>
+						            ${eventInstance?.event?.deal?.currency?.id}
+						        </p:currencyCell>
+								<p:executorCell>
+						            ${eventInstance?.executor?.shortFullName}
+						        </p:executorCell>
+								<p:mailToCell>
+									<a href="mailto:${eventInstance?.executor?.email}" t:type="if"
+										t:test="eventInstance?.executor?.email"> <img
+										src="${context:/img/mailto.png}" />
+									</a>
+								</p:mailToCell>
+								<p:removeCell>
+					                <a t:type="actionLink" t:id="removeEventInstance" t:context="eventInstance?.id" t:mixins="Confirm"
+					                	t:message="Удалить календарное мероприятие '${eventInstance?.event?.name}?'">
+					                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+					                </a>
+					            </p:removeCell>
+								
+								<p:empty>
+									<h2>Мероприятия не найдены</h2>
+								</p:empty>
+							</table>
+					</fieldset>
+	            </td>
+		            <td width="50%">
+				    <fieldset style="border:0;">
+				       <legend>План</legend>
+				        <table t:type="grid" t:source="planList" t:row="calendar" t:rowsPerPage="15" t:lean="true" t:pagerPosition="bottom" 
+				            t:exclude="id, name, startDate, endDate, periodDate, periodDetails, excludeHoliday, periodWeekend, docTypeByHand" t:add="accept, eventTypeName">
+				            <p:acceptCell>
+				            	<t:if test="!rowInCalendar">
+					                <a t:type="actionLink" t:id="acceptEventType" t:context="calendar.id" t:mixins="clickOnce">
+					                	<B style="color: blue;">Акцептовать</B></a>
+					            	<p:else><img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/></p:else>
+					            </t:if>
+				            </p:acceptCell>
+				            <p:eventTypeNameCell>
+			            		<t:if test="selectedRow">
+						        	<B style="color: orange;">${calendar?.classifier?.eventType?.name}</B>
+						        	<p:else>
+					                	${calendar?.classifier?.eventType?.name}
+					                </p:else>
+					            </t:if>
+				            </p:eventTypeNameCell>
+				            <p:empty>
+									<h2>Плановые мероприятия не найдены</h2>
+							</p:empty>
+				        </table><br/>
+						<div style="text-align: center;" t:type="if" t:test="renderAcceptAllButton">
+			                 <a t:type="actionLink" t:id="acceptAll" t:mixins="clickOnce"><B style="color: blue;">Акцептовать ВСЕ</B></a>
+			            </div>				       
+				    </fieldset>
+	            </td>
+	        	</tr>			
+			</table>	
+		</form>
+	</p:TabsCalendar>
+	
+</t:jquery.tabs>
+		
+</t:layout>

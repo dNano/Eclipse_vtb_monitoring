@@ -1,0 +1,230 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Список мероприятий по сделкам">
+    <h1 style="text-align: center;">Список сделок</h1>
+    <fieldset>
+    	<form t:type="form" t:id="searchEventsForm" t:clientValidation="none" t:autofocus="false">
+    	<legend>
+    		Фильтр<input t:type="submit" t:value="Очистить" class="button" t:mode="cancel" t:id="clearFilterButtonForDeal"/>
+    	</legend>
+    		<table style="width: 100%">
+                <tr>
+               		<td t:type="zone" t:id="searchPeriodZone" id="searchPeriodZone" t:clientValidation="none" t:autofocus="false"  t:update="show" style="vertical-align: top;">
+                        <table>
+                        	<tr><td colspan="2">Дата заключения сделки:</td></tr>
+                            <tr>
+                                <td>Период с&nbsp;</td>
+                                <td>
+                                    <t:dynarchCalendar t:value="filter.dateFrom"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>по&nbsp;</td>
+                                <td>
+                                    <t:dynarchCalendar t:value="filter.dateTo"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    
+                    <td style="vertical-align: top;">
+                        <table>
+                            <tr t:type="loop" t:source="statuses" t:value="status" t:formState="iteration">
+                                <td>
+                                    <input t:type="checkbox" t:id="statusCheckbox" t:value="statusSelected"/>
+                                    <span t:type="label" t:for="statusCheckbox">${status.name}</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    
+                    <td style="vertical-align: top;">
+                        <table>
+                          	<tr>
+                                <td style="text-align: right;">
+                                    <span t:type="label" t:for="amountFromInput">Сумма от</span>&nbsp;
+                                </td>
+                                <td>
+                                    <input t:type="textField" t:id="amountFromInput" t:value="filter.amountFrom" style="width: 80px"/>
+                                    	&nbsp;<span t:type="label" t:for="amountToInput">до</span>&nbsp;
+                                    <input t:type="textField" t:id="amountToInput" t:value="filter.amountTo" style="width: 80px"/>
+                                </td>
+           						<td style="text-align: right;">
+                                    &nbsp;<span t:type="label" t:for="currencySelect">Валюта</span>&nbsp;
+                                </td>
+                                <td>
+                                    <input t:type="select" t:id="currencySelect" t:model="currencySelectModel" t:value="filter.currency" t:encoder="currencyValueEncoder"/>
+                                </td>                   
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <span t:type="label" t:for="spkpNumberInput">№ СПКП</span>&nbsp;
+                                </td>
+                                <td>
+                                    <input t:type="textField" t:id="spkpNumberInput" t:value="filter.spkpNumber"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    <span t:type="label" t:for="dealTypeSelect">Вид сделки</span>&nbsp;
+                                </td>
+                                <td colspan="1">
+                                    <input t:type="select" t:id="dealTypeSelect" t:model="dealTypeSelectModel"
+                                           t:value="filter.dealType" t:encoder="dealTypeValueEncoder" style="width: 100%"/>
+                                </td>      
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <span t:type="label" t:for="contractNumberInput">№ Дог./Согл.</span>&nbsp;
+                                </td>
+                                <td>
+                                    <input t:type="textField" t:id="contractNumberInput" t:value="filter.contractNumber"/>
+                                </td>
+                                <td style="text-align: right;">
+                                    Клиент&nbsp;
+                                </td>
+                                <td colspan="1" style="white-space: nowrap;">
+                                    <span t:type="zone" t:id="contractorZone" id="contractorZone" t:update="show">
+                                        <input type="text" value="${filter.contractor?.name}" disabled="disabled" style="width: 88%;"/>
+                                    </span>
+                                    <a t:type="jquery/dialogAjaxLink" t:id="showContractorListDialogLink"
+                                       t:dialog="selectContractorDialog" t:zone="contractorListZone" t:mixins="dialogAjaxLinkFix">
+                                        <img src="${context:/img/view.png}" style="margin-bottom: -6px; margin-right: 2px; margin-left: 2px;"/>
+                                    </a>
+                                    <a t:type="actionLink" t:id="deleteContractorLink" t:zone="contractorZone">
+                                        <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: right;">
+                                    <span>Исполнитель</span>&nbsp;
+                                </td>
+                                <td colspan="1" style="white-space: nowrap;">
+                                    <span t:type="zone" t:id="executorZone" id="executorZone">
+                                        <input type="text" value="${filter.executor?.fullName}" disabled="disabled" style="width: 77%;"/>
+                                    </span>
+                                    <a t:type="jquery/dialogAjaxLink" t:id="showExecutorListDialogLink"
+                                       t:dialog="selectExecutorDialog" t:zone="executorListZone" t:mixins="dialogAjaxLinkFix">
+                                        <img src="${context:/img/view.png}" style="margin-bottom: -6px; margin-right: 2px; margin-left: 2px;"/>
+                                    </a>
+                                    <a t:type="actionLink" t:id="deleteExecutorLink" t:zone="executorZone">
+                                        <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+                                    </a>
+                                </td>
+                                <td style="text-align: right;">
+                                    <span>Группа клиентов</span>&nbsp;
+                                </td>
+                                <td colspan="1" style="white-space: nowrap;">
+                                    <span t:type="zone" t:id="contractorGroupZone" id="contractorGroupZone" t:update="show">
+                                        <input type="text" value="${filter.contractorGroup?.name}" disabled="disabled" style="width: 88%;"/>
+                                    </span>
+                                    <a t:type="jquery/dialogAjaxLink" t:id="showContractorGroupListDialogLink"
+                                       t:dialog="selectContractorGroupDialog" t:zone="contractorGroupListZone" t:mixins="dialogAjaxLinkFix">
+                                        <img src="${context:/img/view.png}" style="margin-bottom: -6px; margin-right: 2px; margin-left: 2px;"/>
+                                    </a>
+                                    <a t:type="actionLink" t:id="deleteContractorGroupLink" t:zone="contractorGroupZone">
+                                        <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+               	</tr>
+            </table>
+            <div class="buttons">
+                <input t:type="submit" t:value="Искать" class="button"/>                
+            </div>
+    	</form>
+    </fieldset>
+    
+    <table t:type="grid" t:source="dealInstances" t:row="dealInstance" t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom" t:inPlace="true"
+     			t:remove="id" t:add="contractNumber, dealId, contractorName, amount, currency, dealType" t:model="dealInstanceModel" style="width: 100%; text-align: center;">
+     	<p:contractNumberCell>
+            ${dealInstance?.deal?.contractNumber}
+        </p:contractNumberCell>
+        <p:dealIdCell>
+            ${dealInstance?.deal?.id}
+        </p:dealIdCell>
+        <p:contractorNameCell>
+            ${dealInstance?.contractor?.name}
+        </p:contractorNameCell>
+     	<p:amountCell>
+            ${dealInstance?.deal?.amount}
+        </p:amountCell>
+        <p:currencyCell>
+            ${dealInstance?.deal?.currency?.id}
+        </p:currencyCell>
+        <p:dealTypeCell>
+            ${dealInstance?.deal?.type?.name}
+        </p:dealTypeCell>        
+        
+        <p:empty>
+            <h2>Сделки не найдены</h2>
+        </p:empty>
+    </table>
+    
+    <div t:type="jquery/dialog" t:id="selectContractorDialog" t:clientId="selectContractorDialog" t:params="literal:{title:'Выбор клиента', modal:'true', height:350, width:500}">
+        <span t:type="zone" t:id="contractorListZone" id="contractorListZone" t:update="show">
+            <form t:type="form" t:id="contractorListForm" id="contractorListForm" t:zone="^" t:clientValidation="none" t:autofocus="false">
+                <div style="text-align: center;">
+                    Название:&nbsp;<input t:type="textField" t:value="contractorNamePattern" class="input"/>
+                    <input t:type="submit" t:id="contractorSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+                </div>
+            </form>
+            <span t:type="unless" t:test="contractorDialogAppeared">
+                <table t:type="grid" t:source="contractors" t:row="contractor" t:rowsPerPage="10" t:inPlace="true"
+                       t:include="name" t:model="contractorModel" style="width: 100%" t:pagerPosition="bottom" t:lean="true">
+                    <p:nameCell>
+                        <a t:type="actionLink" t:id="selectContractorLink" t:context="contractor.id" t:zone="contractorZone">${contractor.name}</a>
+                    </p:nameCell>
+                    <p:empty>
+                        <div style="text-align: center;">Клиенты не найдены</div>
+                    </p:empty>
+                </table>
+            </span>
+        </span>
+    </div>
+    
+    <div t:type="jquery/dialog" t:id="selectExecutorDialog" t:clientId="selectExecutorDialog" t:params="literal:{title:'Выбор исполнителя', modal:'true', height:350, width:500}">
+        <span t:type="zone" t:id="executorListZone" id="executorListZone" t:update="show">
+            <form t:type="form" t:id="executorListForm" id="executorListForm" t:zone="^" t:clientValidation="none" t:autofocus="false">
+                <div style="text-align: center;">
+                    Фамилия:&nbsp;<input t:type="textField" t:value="executorLastNamePattern" class="input"/>
+                    <input t:type="submit" t:id="executorSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+                </div>
+            </form>
+            <span t:type="unless" t:test="executorDialogAppeared">
+                <table t:type="grid" t:source="executors" t:row="executor" t:rowsPerPage="10" t:inPlace="true"
+                       t:include="fullName, email" t:model="executorModel" style="width: 100%" t:pagerPosition="bottom" t:lean="true">
+                    <p:fullNameCell>
+                        <a t:type="actionLink" t:id="selectExecutorLink" t:context="executor.id" t:zone="executorZone">${executor.fullName}</a>
+                    </p:fullNameCell>
+                    <p:empty>
+                        <div style="text-align: center;">Исполнители не найдены</div>
+                    </p:empty>
+                </table>
+            </span>            
+        </span>
+    </div>
+    
+    <div t:type="jquery/dialog" t:id="selectContractorGroupDialog" t:clientId="selectContractorGroupDialog" t:params="literal:{title:'Выбор Группы клиентов', modal:'true', height:350, width:500}">
+        <span t:type="zone" t:id="contractorGroupListZone" id="contractorGroupListZone" t:update="show">
+            <form t:type="form" t:id="contractorGroupListForm" id="contractorGroupListForm" t:zone="^" t:clientValidation="none" t:autofocus="false">
+                <div style="text-align: center;">
+                    Название:&nbsp;<input t:type="textField" t:value="contractorGroupNamePattern" class="input"/>
+                    <input t:type="submit" t:id="contractorGroupSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+                </div>
+            </form>
+            <span t:type="unless" t:test="contractorGroupDialogAppeared">
+                <table t:type="grid" t:source="contractorGroups" t:row="contractorGroup" t:rowsPerPage="10" t:inPlace="true"
+                       t:include="name" t:model="contractorGroupModel" style="width: 100%" t:pagerPosition="bottom" t:lean="true">
+                    <p:nameCell>
+                        <a t:type="actionLink" t:id="selectContractorGroupLink" t:context="contractorGroup.id" t:zone="contractorGroupZone">${contractorGroup.name}</a>
+                    </p:nameCell>
+                    <p:empty>
+                        <div style="text-align: center;">Группы клиентов не найдены</div>
+                    </p:empty>
+                </table>
+            </span>
+        </span>
+    </div>    
+    
+</t:layout>

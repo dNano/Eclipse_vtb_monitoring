@@ -1,0 +1,225 @@
+-- таблицы, которые пока не используются, но могут быть добавлены в будущем.
+
+prompt PL/SQL Developer import file
+prompt Created on 19 Апрель 2013 г. by Admin
+set feedback off
+set define off
+prompt Dropping R_KM_SOURCE_DOC_EVENT_GROUP...
+drop table R_KM_SOURCE_DOC_EVENT_GROUP cascade constraints;
+prompt Creating R_KM_SOURCE_DOC_EVENT_GROUP...
+create table R_KM_SOURCE_DOC_EVENT_GROUP
+(
+  id             NUMBER(38) not null,
+  id_event_group NUMBER(38) not null,
+  id_source_doc  NUMBER(38) not null
+)
+;
+comment on table R_KM_SOURCE_DOC_EVENT_GROUP
+  is 'Соответствие между km_source_doc и km_event_group';
+alter table R_KM_SOURCE_DOC_EVENT_GROUP
+  add constraint R_KM_SOURCE_GROUP_PK primary key (ID);
+alter table R_KM_SOURCE_DOC_EVENT_GROUP
+  add constraint FK2 foreign key (ID_SOURCE_DOC)
+  references KM_SOURCE_DOC (ID_KM_SOURCE_DOC);
+
+prompt Loading R_KM_SOURCE_DOC_EVENT_GROUP...
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (1, 2, 9);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (2, 4, 9);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (3, 3, 9);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (4, 1, 9);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (5, 5, 2);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (6, 5, 1);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (7, 6, 1);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (8, 7, 4);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (9, 8, 1);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (10, 10, 2);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (11, 10, 1);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (12, 9, 10);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (13, 11, 1);
+insert into R_KM_SOURCE_DOC_EVENT_GROUP (id, id_event_group, id_source_doc)
+values (14, 12, 11);
+commit;
+prompt 14 records loaded
+set feedback on
+set define on
+prompt Done.
+
+
+prompt PL/SQL Developer import file
+prompt Created on 19 Апрель 2013 г. by Admin
+set feedback off
+set define off
+prompt Dropping KM_LOG...
+drop table KM_LOG cascade constraints;
+prompt Creating KM_LOG...
+create table KM_LOG
+(
+  id_log    NUMBER(38) not null,
+  id_user   NUMBER(38),
+  id_event  NUMBER(38),
+  id_fkr    NUMBER(38),
+  date_time TIMESTAMP(6),
+  message   VARCHAR2(2000)
+)
+;
+comment on table KM_LOG
+  is 'Лог действий пользователя с операцией или со связанным бизнес - объектом.';
+alter table KM_LOG
+  add constraint KM_LOG_PK primary key (ID_LOG);
+alter table KM_LOG
+  add constraint KM_LOG_EVENT_FK foreign key (ID_EVENT)
+  references KM_EVENT (ID_EVENT);
+alter table KM_LOG
+  add constraint KM_LOG_FKR_FK foreign key (ID_FKR)
+  references KM_FKR (ID_FKR);
+alter table KM_LOG
+  add constraint KM_LOG_USERS_FK foreign key (ID_USER)
+  references USERS (ID_USER);
+
+prompt Loading KM_LOG...
+prompt Table is empty
+set feedback on
+set define on
+prompt Done.
+
+
+prompt PL/SQL Developer import file
+prompt Created on 19 Апрель 2013 г. by Admin
+set feedback off
+set define off
+prompt Dropping KM_EXCEPTION_DAY...
+drop table KM_EXCEPTION_DAY cascade constraints;
+prompt Creating KM_EXCEPTION_DAY...
+create table KM_EXCEPTION_DAY
+(
+  id_exception_day NUMBER(38) not null,
+  day              DATE,
+  is_working       NUMBER(38)
+)
+;
+comment on table KM_EXCEPTION_DAY
+  is 'Праздничные дни и выходные, на которые перенесены рабочие дни.';
+alter table KM_EXCEPTION_DAY
+  add constraint KM_EXCEPTION_DAY_PK primary key (ID_EXCEPTION_DAY);
+
+prompt Loading KM_EXCEPTION_DAY...
+prompt Table is empty
+set feedback on
+set define on
+prompt Done.
+
+
+prompt PL/SQL Developer import file
+prompt Created on 19 Апрель 2013 г. by Admin
+set feedback off
+set define off
+prompt Dropping KM_SOURCE_DOC...
+drop table KM_SOURCE_DOC cascade constraints;
+prompt Creating KM_SOURCE_DOC...
+create table KM_SOURCE_DOC
+(
+  id_km_source_doc NUMBER(38) not null,
+  source_name      VARCHAR2(256) not null,
+  type             NUMBER(1) not null,
+  type_txt         VARCHAR2(256) not null,
+  id_cond_category NUMBER(38)
+)
+;
+comment on table KM_SOURCE_DOC
+  is 'Источники – основания для мероприятий';
+comment on column KM_SOURCE_DOC.source_name
+  is 'Источник-основание для создания мероприятий';
+comment on column KM_SOURCE_DOC.type
+  is 'Тип источника. 0 - Д/С, 1 - ОРД';
+comment on column KM_SOURCE_DOC.type_txt
+  is 'Дубль поля TYPE в виде текста';
+comment on column KM_SOURCE_DOC.id_cond_category
+  is 'Ссылка на категорию условия';
+alter table KM_SOURCE_DOC
+  add constraint KM_SOURCE_DOC_PK primary key (ID_KM_SOURCE_DOC);
+alter table KM_SOURCE_DOC
+  add constraint KM_SOURCE_DOC_FK1 foreign key (ID_COND_CATEGORY)
+  references CONDITION_TYPES (ID_TYPE);
+
+prompt Loading KM_SOURCE_DOC...
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (1, 'Кредитное соглашение (Дополнительные условия)', 0, 'Д/С', 3);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (2, 'Кредитное соглашение (Стоимостные параметры сделки)', 0, 'Д/С', 7);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (3, 'Кредитное соглашение (Отлагательные условия использования средств)', 0, 'Д/С', 2);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (4, 'Кредитное соглашение (Цели кредитования)', 0, 'Д/С', 8);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (5, 'Кредитное соглашение (Прочие условия)', 0, 'Д/С', 6);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (6, 'Договор залога', 0, 'Д/С', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (7, 'Договор поручительства', 0, 'Д/С', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (8, 'Другие договорные документы', 0, 'Д/С', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (9, 'Инструкция о порядке проведения мониторинга кредитных сделок', 1, 'ОРД', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (10, 'Методические указания по проведению мониторинга заложенного имущества', 1, 'ОРД', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (11, 'Решения УО/УЛ', 1, 'ОРД', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (12, 'Другие ОРД', 1, 'ОРД', null);
+insert into KM_SOURCE_DOC (id_km_source_doc, source_name, type, type_txt, id_cond_category)
+values (13, 'Инструкция о порядке проведения мониторинга кредитных сделок', 1, 'ОРД', null);
+commit;
+prompt 13 records loaded
+set feedback on
+set define on
+prompt Done.
+
+prompt PL/SQL Developer import file
+prompt Created on 19 Апрель 2013 г. by Admin
+set feedback off
+set define off
+prompt Dropping KM_DOC...
+drop table KM_DOC cascade constraints;
+prompt Creating KM_DOC...
+create table KM_DOC
+(
+  id_doc      NUMBER(38) not null,
+  id_event    NUMBER(38),
+  id_appfiles VARCHAR2(128),
+  id_doc_type NUMBER(38)
+)
+;
+alter table KM_DOC
+  add constraint KM_DOC_PK primary key (ID_DOC);
+alter table KM_DOC
+  add constraint KM_DOC_APPFILES_FK foreign key (ID_APPFILES)
+  references APPFILES (UNID);
+alter table KM_DOC
+  add constraint KM_DOC_DOC_TYPE_FK foreign key (ID_DOC_TYPE)
+  references DOCUMENTS_TYPE (ID_DOCUMENT_TYPE);
+alter table KM_DOC
+  add constraint KM_DOC_EVENT_FK foreign key (ID_EVENT)
+  references KM_EVENT (ID_EVENT);
+
+prompt Loading KM_DOC...
+prompt Table is empty
+set feedback on
+set define on
+prompt Done.
+
+
+ 
+  

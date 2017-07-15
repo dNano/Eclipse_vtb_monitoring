@@ -1,0 +1,14 @@
+/**
+ * 
+ */
+package ru.masterdm.km.web.pages.eventInstances;
+
+/**
+ * Список мероприятий по клиентам.
+ * 
+ * @author Shafigullin Ildar
+ *
+ */
+public class ByContractor {
+
+}

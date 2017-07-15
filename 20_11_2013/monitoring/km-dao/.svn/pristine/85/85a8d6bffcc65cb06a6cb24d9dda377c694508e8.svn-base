@@ -1,0 +1,26 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+
+/**
+ * Mok-реализация DAO интерфейса для сущности "Контрагент".
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ContractorDaoMockImpl implements ContractorDao {
+
+	@Override
+	public List<KmEventInstance> getContractorCalendar(int startIndex, int amount, String contractorID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getContractorCalendarCount(String contractorID) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+}

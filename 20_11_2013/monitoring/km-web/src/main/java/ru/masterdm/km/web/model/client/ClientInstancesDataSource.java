@@ -1,0 +1,53 @@
+package ru.masterdm.km.web.model.client;
+
+import java.util.List;
+
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+
+import ru.masterdm.km.common.entity.ContractorInstance;
+import ru.masterdm.km.common.searchfilter.EventsByContractorFilter;
+import ru.masterdm.km.dao.ContractorDao;
+import ru.masterdm.km.util.query.SortCriterion;
+import ru.masterdm.km.web.util.SortUtil;
+
+/**
+ * DataSource для "Список клиентов при формирование мероприятий".
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ClientInstancesDataSource implements GridDataSource {
+	private int startIndex;
+	private List<ContractorInstance> instances;
+	private ContractorDao contractorDao;
+	private EventsByContractorFilter filter;
+
+	public ClientInstancesDataSource(ContractorDao contractorDao, EventsByContractorFilter filter) {
+		super();
+		this.contractorDao = contractorDao;
+		this.filter = filter;
+	}
+
+	@Override
+	public int getAvailableRows() {
+		return contractorDao.getInstanceCount(filter);
+	}
+
+	@Override
+	public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+		this.startIndex = startIndex;
+		List<SortCriterion> sortCriteria = SortUtil.toSortCriteria(sortConstraints);
+		instances = contractorDao.getInstances(startIndex, endIndex - startIndex + 1, filter, sortCriteria);
+	}
+
+	@Override
+	public Object getRowValue(int index) {
+		return instances.get(index - startIndex);
+	}
+
+	@Override
+	public Class<?> getRowType() {
+		return ContractorInstance.class;
+	}
+}

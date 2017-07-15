@@ -1,0 +1,58 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Новое мероприятие">
+    <h1 style="text-align: center;">Настройки пользователя</h1><BR/>
+		<form t:type="form" t:id="form">
+			<table style="width: 100%">
+				<tr>
+					<td>
+						<t:errors />
+						<div class="record">
+							<table>
+								<tr>
+									<th><t:label for="dateListPattern"/></th>
+									<td>
+										<select t:id="dateListPattern" t:type="Select" t:value="user.dateListPattern" t:model="datePatterns" t:validate="required"></select>
+									</td>
+								</tr>
+								<tr>
+									<th><t:label for="dateViewPattern"/></th>
+									<td>
+										<select t:id="dateViewPattern" t:type="Select" t:value="user.dateViewPattern" t:model="datePatterns" t:validate="required"></select>
+									</td>
+								</tr>
+								<tr>
+									<th><t:label for="dateInputPattern"/></th>
+									<td>
+										<select t:id="dateInputPattern" t:type="Select" t:value="user.dateInputPattern" t:model="datePatterns" t:validate="required"></select>
+									</td>
+								</tr>
+								<tr>
+									<th><t:label for="amountListPattern"/></th>
+									<td>
+										<select t:id="amountListPattern" t:type="Select" t:value="user.amountListPattern" t:model="amountPatterns" t:validate="required"></select>
+									</td>
+								</tr>								
+								<tr>
+									<th><t:label for="amountViewPattern"/></th>
+									<td>
+										<select t:id="amountViewPattern" t:type="Select" t:value="user.amountViewPattern" t:model="amountPatterns" t:validate="required"></select>
+									</td>
+								</tr>								
+							</table>
+						</div>
+						<div class="buttons">
+							<table style="width: 100%">
+								<tr>
+									<td><input t:type="submit" value="Сохранить"/></td>
+								</tr>
+							</table>
+						</div>
+						<div class="info">${message}</div>
+					</td>
+				</tr>
+			</table>
+		</form>
+</t:layout>    
+
+    
+    

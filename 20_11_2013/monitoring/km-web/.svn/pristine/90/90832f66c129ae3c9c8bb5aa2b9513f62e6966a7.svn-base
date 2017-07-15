@@ -1,0 +1,29 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список клиентов">
+	<h1 style="text-align: center;">Список клиентов</h1>
+	<fieldset>
+		<legend>Фильтр</legend>
+		<form t:type="form" t:id="searchEventsForm" t:clientValidation="none" t:autofocus="false">
+			<table style="width: 100%">
+				<tr>
+					<td style="vertical-align: top;">
+						<table>
+							<tr>
+								<td style="text-align: right;">Клиент&nbsp;</td>
+								<td colspan="2" style="white-space: nowrap;">
+                                    <span t:type="zone" t:id="contractorZone" id="contractorZone" t:update="show">
+                                        <input type="text" value="${filter.contractor?.name}" disabled="disabled" style="width: 88%;"/>
+                                    </span>
+                                </td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<div class="buttons">
+                <input t:type="submit" t:value="Искать" class="button"/> 
+                <input t:type="submit" t:value="Очистить" class="button" t:mode="cancel" t:id="clearFilterButtonForDeal"/>               
+            </div>
+		</form>
+	</fieldset>
+</t:layout>

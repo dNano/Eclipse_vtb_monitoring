@@ -1,0 +1,49 @@
+package ru.masterdm.km.web.model;
+
+import java.util.List;
+
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.ContractorDao;
+
+/**
+ * Мероприятия для клиента DataSource.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EventsForContractorDataSource implements GridDataSource {
+	private int startIndex;
+	private String contractorID;
+	private List<KmEventInstance> instances;
+	private ContractorDao contractorDao;
+
+	public EventsForContractorDataSource(ContractorDao contractorDao, String contractorID) {
+		this.contractorID = contractorID;
+		this.contractorDao = contractorDao;
+	}
+
+	@Override
+	public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+		this.startIndex = startIndex;
+		instances = contractorDao.getContractorCalendar(startIndex, endIndex - startIndex + 1, contractorID);
+	}
+
+	@Override
+	public Object getRowValue(int index) {
+		return instances.get(index - startIndex);
+	}
+
+	@Override
+	public Class<?> getRowType() {
+		return KmEventInstance.class;
+	}
+
+	@Override
+	public int getAvailableRows() {
+		return contractorDao.getContractorCalendarCount(contractorID);
+	}
+
+}

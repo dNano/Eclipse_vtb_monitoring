@@ -1,0 +1,32 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.dao.EventDaoSqlKey.EVENT_INSTANCES;
+import static ru.masterdm.km.dao.EventDaoSqlKey.EVENT_INSTANCE_COUNT;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+import ru.masterdm.km.util.BaseJdbcDao;
+
+/**
+ * Реализация DAO интерфейса для сущности "Сделка".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class DealDaoImpl extends BaseJdbcDao<EventDaoSqlKey> implements DealDao {
+
+    @Override
+    public int getInstanceCount(EventsByDealFilter filter) {
+        String query = sql.getValue(EVENT_INSTANCE_COUNT);
+        //return queryForInt(query, "Error selecting event instance count.");
+        return 0;
+    }
+
+    @Override
+    public List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter) {
+        String query = sql.getValue(EVENT_INSTANCES);
+        //return queryForList(query, new KmEventInstanceRm(), "Error selecting event instances.");
+        return null;
+    }
+}

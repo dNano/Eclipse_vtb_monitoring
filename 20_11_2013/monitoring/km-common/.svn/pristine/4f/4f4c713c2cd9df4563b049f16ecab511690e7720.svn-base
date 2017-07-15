@@ -1,0 +1,291 @@
+package ru.masterdm.km.common.entity;
+
+import static ru.masterdm.km.common.dictionary.EventSanctionDictionary.APPLY_SANCTION;
+import static ru.masterdm.km.common.dictionary.EventSanctionDictionary.REVOKE_SANCTION;
+
+import java.util.Date;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+@SuppressWarnings("serial")
+public class KmEventInstance extends BaseIndexedEntity<Long> {
+
+	private KmEventStatus status;
+	private EventResult result;
+	private KmConfirmationType confirmationType;
+	private DocumentGroup documentGroup;
+	private DocumentType documentType;
+	private Date planExecutionDate;
+	private Date executedDate;
+	private User executor;
+	private KmEvent event;
+	private Contractor contractor;
+	private ContractorType contractorType;
+	private String resultNote;
+	private AppFile confirmFile;
+	private KmSourceDoc sourceDoc;
+	private String sourceDocComment;
+	private String sourceDocNumber;
+	private Date sourceDocDate;
+	private PunitiveMeasure punitiveMeasure;
+	private String punitiveMeasureDescr;
+	private KmFkr fkr;
+	private Long isSanction;
+	private Date sanctionDate;
+	private Long sanctionValue;
+	private String sanctionCurrency;
+	private AppFile sanctionDoc;
+	private String sanctionRefusedBy;
+	private String sanctionRefusedDocNum;
+	private Date sanctionRefusedDate;
+
+	public KmEventStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(KmEventStatus status) {
+		this.status = status;
+	}
+
+	public Date getPlanExecutionDate() {
+		return planExecutionDate;
+	}
+
+	public Date getNotifyDate() {
+		Date notifyDate = null;
+		if (planExecutionDate != null) {
+			long day = 24 * 60 * 60 * 1000;
+			long time = planExecutionDate.getTime() - 2 * day;
+			notifyDate = new Date(time);
+		}
+		return notifyDate;
+	}
+
+	public void setPlanExecutionDate(Date planExecutionDate) {
+		this.planExecutionDate = planExecutionDate;
+	}
+
+	public User getExecutor() {
+		return executor;
+	}
+
+	public void setExecutor(User executor) {
+		this.executor = executor;
+	}
+
+	public KmEvent getEvent() {
+		return event;
+	}
+
+	public void setEvent(KmEvent event) {
+		this.event = event;
+	}
+
+	public Contractor getContractor() {
+		return contractor;
+	}
+
+	public void setContractor(Contractor contractor) {
+		this.contractor = contractor;
+	}
+
+	public ContractorType getContractorType() {
+		return contractorType;
+	}
+
+	public void setContractorType(ContractorType contractorType) {
+		this.contractorType = contractorType;
+	}
+
+	public String getResultNote() {
+		return resultNote;
+	}
+
+	public void setResultNote(String resultNote) {
+		this.resultNote = resultNote;
+	}
+
+	public EventResult getResult() {
+		return result;
+	}
+
+	public void setResult(EventResult result) {
+		this.result = result;
+	}
+
+	public KmConfirmationType getConfirmationType() {
+		return confirmationType;
+	}
+
+	public void setConfirmationType(KmConfirmationType confirmationType) {
+		this.confirmationType = confirmationType;
+	}
+
+	public DocumentGroup getDocumentGroup() {
+		return documentGroup;
+	}
+
+	public void setDocumentGroup(DocumentGroup documentGroup) {
+		this.documentGroup = documentGroup;
+	}
+
+	public DocumentType getDocumentType() {
+		return documentType;
+	}
+
+	public void setDocumentType(DocumentType documentType) {
+		this.documentType = documentType;
+	}
+
+	public AppFile getConfirmFile() {
+		return confirmFile;
+	}
+
+	public void setConfirmFile(AppFile confirmFile) {
+		this.confirmFile = confirmFile;
+	}
+
+	public boolean isExpared() {
+		// boolean isWaitProcessing = (status != null) && (status.getId().equals(KmEventStatusDictionary.WAIT_PROCESSING.getId()));
+		// return isWaitProcessing && (planExecutionDate != null) && (planExecutionDate.before(new Date()));
+		return (executedDate == null) && (planExecutionDate != null) && (planExecutionDate.before(new Date()));
+	}
+
+	public Date getExecutedDate() {
+		return executedDate;
+	}
+
+	public void setExecutedDate(Date executedDate) {
+		this.executedDate = executedDate;
+	}
+
+	public KmSourceDoc getSourceDoc() {
+		return sourceDoc;
+	}
+
+	public void setSourceDoc(KmSourceDoc sourceDoc) {
+		this.sourceDoc = sourceDoc;
+	}
+
+	public String getSourceDocComment() {
+		return sourceDocComment;
+	}
+
+	public void setSourceDocComment(String docComment) {
+		this.sourceDocComment = docComment;
+	}
+
+	public String getSourceDocNumber() {
+		return sourceDocNumber;
+	}
+
+	public void setSourceDocNumber(String sourceDocNumber) {
+		this.sourceDocNumber = sourceDocNumber;
+	}
+
+	public Date getSourceDocDate() {
+		return sourceDocDate;
+	}
+
+	public void setSourceDocDate(Date sourceDocDate) {
+		this.sourceDocDate = sourceDocDate;
+	}
+
+	public PunitiveMeasure getPunitiveMeasure() {
+		return punitiveMeasure;
+	}
+
+	public void setPunitiveMeasure(PunitiveMeasure punitiveMeasure) {
+		this.punitiveMeasure = punitiveMeasure;
+	}
+
+	public String getPunitiveMeasureDescr() {
+		return punitiveMeasureDescr;
+	}
+
+	public void setPunitiveMeasureDescr(String punitiveMeasureDescr) {
+		this.punitiveMeasureDescr = punitiveMeasureDescr;
+	}
+
+	public KmFkr getFkr() {
+		return fkr;
+	}
+
+	public void setFkr(KmFkr fkr) {
+		this.fkr = fkr;
+	}
+
+	public Long getIsSanction() {
+		return isSanction;
+	}
+
+	public void setIsSanction(Long isSanction) {
+		this.isSanction = isSanction;
+	}
+
+	public Date getSanctionDate() {
+		return sanctionDate;
+	}
+
+	public void setSanctionDate(Date sanctionDate) {
+		this.sanctionDate = sanctionDate;
+	}
+
+	public Long getSanctionValue() {
+		return sanctionValue;
+	}
+
+	public void setSanctionValue(Long sanctionValue) {
+		this.sanctionValue = sanctionValue;
+	}
+
+	public String getSanctionCurrency() {
+		return sanctionCurrency;
+	}
+
+	public void setSanctionCurrency(String sanctionCurrency) {
+		this.sanctionCurrency = sanctionCurrency;
+	}
+
+	public AppFile getSanctionDoc() {
+		return sanctionDoc;
+	}
+
+	public void setSanctionDoc(AppFile sanctionDoc) {
+		this.sanctionDoc = sanctionDoc;
+	}
+
+	public boolean isApplySanction() {
+		return isSanction != null && isSanction.intValue() == APPLY_SANCTION.getId();
+	}
+
+	public boolean isRevokeSanction() {
+		return isSanction != null && isSanction.intValue() == REVOKE_SANCTION.getId();
+	}
+
+	public String getSanctionRefusedBy() {
+		return sanctionRefusedBy;
+	}
+
+	public void setSanctionRefusedBy(String sanctionRefusedBy) {
+		this.sanctionRefusedBy = sanctionRefusedBy;
+	}
+
+	public String getSanctionRefusedDocNum() {
+		return sanctionRefusedDocNum;
+	}
+
+	public void setSanctionRefusedDocNum(String sanctionRefusedDocNum) {
+		this.sanctionRefusedDocNum = sanctionRefusedDocNum;
+	}
+
+	public Date getSanctionRefusedDate() {
+		return sanctionRefusedDate;
+	}
+
+	public void setSanctionRefusedDate(Date sanctionRefusedDate) {
+		this.sanctionRefusedDate = sanctionRefusedDate;
+	}
+}

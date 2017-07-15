@@ -1,0 +1,76 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import java.util.List;
+
+import org.apache.tapestry5.Link;
+import org.apache.tapestry5.SelectModel;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.PageRenderLinkSource;
+import org.apache.tapestry5.services.SelectModelFactory;
+
+import ru.masterdm.km.common.entity.Deal;
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.common.entity.KmFkrStatus;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.dao.FkrDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.util.BaseEntityValueEncoder;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * EditPage for ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrEdit extends SimpleBasePage {
+	@Persist
+	@Property
+	protected KmFkrInstance fkr;
+
+	@Persist
+	Link returnPage;
+
+	@Inject
+	private FkrDao fkrDao;
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private PageRenderLinkSource pageRenderLinkSource;
+	@Inject
+	private SelectModelFactory selectModelFactory;
+
+	void onActivate(long fkrID, String returnPageName) {
+		fkr = fkrDao.getFkrInstance(fkrID);
+		if ("fkr/fkrList".equalsIgnoreCase(returnPageName)) {
+			returnPage = pageRenderLinkSource.createPageRenderLinkWithContext(returnPageName);
+		}
+	}
+
+	private List<KmFkrStatus> getFkrStatuses() {
+		return dictionaryDao.getFkrStatuses();
+	}
+
+	public SelectModel getFkrStatusSelectModel() {
+		return selectModelFactory.create(getFkrStatuses(), "name");
+	}
+
+	public ValueEncoder<KmFkrStatus> getFkrStatusValueEncoder() {
+		return new BaseEntityValueEncoder<KmFkrStatus>(getFkrStatuses());
+	}
+
+	public String getFkrInfo() {
+		String fkrInfo = "";
+		Deal deal = fkr.getFkr().getDeal();
+		if (deal.getId() != null) {
+			fkrInfo = ExecuteEventUtil.getDealInfo(deal, getDateViewFormat(), getAmountViewFormat());
+			fkrInfo += ", " + ExecuteEventUtil.getClientInfo("", deal.getBorrower());
+		} else if (fkr.getClient().getId() != null) {
+			fkrInfo = ExecuteEventUtil.getClientInfo("Клиент: ", fkr.getClient());
+		}
+		return fkrInfo;
+	}
+}

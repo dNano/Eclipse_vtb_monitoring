@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.FkrDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.FkrDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+                <entry key="FKR_INSTANCE_COUNT">
+                    <value>
+                        <![CDATA[
+                              select count(id_fkr) from km_fkr kf
+                              				inner join km_fkr_status kfs on kf.id_fkr_status = kfs.id_fkr_status
+                              				inner join cd_fkr_type ft on kf.id_fkr_type = ft.id_fkr_type
+                              				inner join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group
+                              				left outer join v_cps_credit_deal m on m.id_mdtask = kf.id_mdtask
+                              				left outer join v_cps_credit_deal_number i on i.id_mdtask = kf.id_mdtask
+                              				left outer join v_organisation o on m.id_borrower = o.crmid
+                              				left outer join v_organisation org on kf.id_organization = org.crmid
+                              				where 1=1  
+                        ]]>
+                    </value>
+                </entry>
+                 <entry key="FKR_INSTANCES">
+                    <value>
+                        <![CDATA[
+	                        select kf.id_fkr kf_id, kf.notes kf_note, kf.is_significant is_significant, kf.created kf_created,
+                            	   	ft.id_fkr_type ft_id, ft.fkr_code || ' ' || ft.fkr_type ft_name, ft.fkr_kind ft_kind,
+                            	   	kf.finished kf_finished, fg.id_fkr_group fg_id, fg.fkr_group fg_name,
+                            	   	m.id_mdtask d_id, m.mdtask_number d_spkp_number, m.valid_to d_valid_to,
+                            	   	m.id_borrower co_id, o.organizationname co_name, o.inn co_inn,
+                            	   	kf.id_organization kf_co_id, org.organizationname kf_co_name, org.inn kf_co_inn,
+                            	   	kf.id_fkr_status kfs_id, kfs.status kfs_name,
+                            	   	i.official_number i_official_number, i.official_date i_official_date, i.doc_contractor_number i_doc_contractor_number
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="FKR_BY_ID">
+                    <value>
+                        <![CDATA[
+                            select kf.id_fkr kf_id, kf.notes kf_note, kf.is_significant is_significant, kf.created kf_created,
+                            	   ft.id_fkr_type ft_id, ft.fkr_code || ' ' || ft.fkr_type ft_name, kf.finished kf_finished,
+                            	   fg.id_fkr_group fg_id, fg.fkr_group fg_name,
+                            	   kf.id_fkr_status kfs_id, kfs.status kfs_name,
+                            	   m.id_mdtask d_id, m.mdtask_number d_spkp_number, m.valid_to d_valid_to,
+                            	   m.mdtask_sum d_amount, m.mdtask_sum_currency c_code,
+                            	   m.id_borrower co_id, o.organizationname co_name, o.inn co_inn,
+                            	   kf.id_organization kf_co_id, org.organizationname kf_co_name, org.inn kf_co_inn,
+                            	   kf.id_event ei_id, e.id_event_calendar e_id, e.event_name e_name,
+                            	   e.id_mdtask kf_ei_d_id, me.mdtask_number kf_ei_d_spkp_number 
+                              from km_fkr kf
+                             		inner join cd_fkr_type ft on kf.id_fkr_type = ft.id_fkr_type
+                              		inner join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group
+                              	   	inner join km_fkr_status kfs on kf.id_fkr_status = kfs.id_fkr_status
+                              	   	left outer join v_cps_credit_deal m on m.id_mdtask = kf.id_mdtask
+								   	left outer join v_organisation o on m.id_borrower = o.crmid
+								    left outer join v_organisation org on kf.id_organization = org.crmid                              	   
+								    left outer join km_event ei on kf.id_event = ei.id_event
+								    left outer join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+								    left outer join mdtask me on me.id_mdtask = e.id_mdtask                             	   
+                              where kf.id_fkr = ? 
+                        ]]>
+                    </value>
+                </entry>
+				<entry key="FKR_SAVE">
+					<value>
+						<![CDATA[
+							update km_fkr set id_fkr_status = ?, is_significant = ?, reg_reason = ?, finished = ?
+								where id_fkr = ?
+						]]>
+					</value>							
+				</entry>                
+				<entry key="FKR_SAVE_CHANGE">
+					<value>
+						<![CDATA[
+							insert into km_fkr_status_change(id, id_fkr, notes, who, accepted, id_fkr_status, id_doc)
+								 values(km_fkr_sc_seq.nextval, ?, ?, ?, ?, ?, ?)
+						]]>
+					</value>							
+				</entry>                
+				<entry key="FKR_CHANGE">
+					<value>
+						<![CDATA[
+							select kfsc.id kfsc_id, kfsc.notes kfsc_notes, kfsc.who kfsc_who,
+								 kfsc.accepted kfsc_accepted, kfsc.id_doc kfsc_id_doc,
+								 kfsc.id_fkr_status kfs_id, kfs.status kfs_name
+									from km_fkr_status_change kfsc
+									inner join km_fkr_status kfs on kfs.id_fkr_status = kfsc.id_fkr_status
+									where kfsc.id_fkr = ?
+									order by kfsc.accepted desc
+						]]>
+					</value>							
+				</entry>                
+				<entry key="FKR_CHANGE_COUNT">
+					<value>
+						<![CDATA[
+							select count(id) from km_fkr_status_change where id_fkr = ? 
+						]]>
+					</value>							
+				</entry>
+				<entry key="FKR_ADD">
+					<value>
+                        <![CDATA[
+                            insert into KM_FKR (id_fkr, id_fkr_type, id_mdtask, id_organization, id_event, is_significant, notes, created, who, reg_reason, id_doc)
+                            	 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ]]>
+					</value>
+				</entry>
+				<entry key="FKR_ADD_SEQ">
+					<value>
+						<![CDATA[
+							select km_fkr_seq.nextval from dual
+						]]>
+					</value>
+				</entry> 
+				<entry key="ADD_APP_FILE">
+					<value>
+						<![CDATA[
+							insert into APPFILES(UNID, FILENAME, FILEDATA, FILETYPE, ID_OWNER, OWNER_TYPE, WHO_ADD, DATE_OF_ADDITION, ID_GROUP, ID_DOCUMENT_TYPE)
+												values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+						]]>
+					</value>
+				</entry> 
+				<entry key="FKR_GROUPS_FOR_EVENT">
+                    <value>
+                        <![CDATA[
+							select id_fkr_group fg_id, fkr_group fg_name from cd_fkr_group
+							  	where id_fkr_group in
+							  	(
+								  	select id_fkr_group from cd_fkr_type ft
+								  	inner join r_eventtype_fkr etf on ft.id_fkr_type = etf.id_fkr_type
+									inner join cd_event_type et on et.id_event_type = etf.id_event_type
+									where et.id_event_type = ?
+								)
+							 	order by fkr_group
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="FKR_TYPES_FOR_EVENT">
+                    <value>
+                        <![CDATA[
+                            select ft.id_fkr_type ft_id, ft.fkr_code || ' ' || ft.fkr_type ft_name,
+                            		ft.fkr_kind ft_kind, ft.is_significant ft_is_significant,
+                            		fg.id_fkr_group fg_id, fg.fkr_group fg_name
+                              from cd_fkr_type ft
+                              		inner join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group
+                              		inner join r_eventtype_fkr etf on ft.id_fkr_type = etf.id_fkr_type
+									inner join cd_event_type et on et.id_event_type = etf.id_event_type
+                              where ft.id_fkr_group = ? and et.id_event_type = ?
+                             	order by ft_name
+                        ]]>
+                    </value>
+                </entry>              
+            </util:map>
+        </property>
+    </bean>
+</beans>

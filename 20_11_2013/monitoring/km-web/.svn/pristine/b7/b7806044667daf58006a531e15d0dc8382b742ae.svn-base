@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd" xmlns:p="tapestry:parameter">
+    <t:content>
+		<table t:type="grid" t:source="eventsForDeal" t:row="eventForDeal" t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom"
+			t:inPlace="true" t:include="planExecutionDate" t:model="eventsForDealModel" t:rowClass="prop:eventForDealRowClass"
+			t:add="result, eventName, statusName, executor" style="width: 100%; text-align: left;">
+			<p:planExecutionDateCell>
+				<span t:type="output" t:format="dateListPattern" t:value="eventForDeal.planExecutionDate"></span>
+			</p:planExecutionDateCell>
+			<p:resultCell>
+	     		<t:if test="okResult">
+	     			<img src="${context:img/allowed.png}" title="${eventForDeal?.result?.name}"/>
+	     			<p:else>
+	     				<t:if test="sanctionOrRemarkResult">
+	     					<img src="${context:img/yes.gif}" title="${eventForDeal?.result?.name}"/>
+	    						<p:else>
+	    							<t:if test="fkrResult">
+	    								<img src="${context:img/arrow.gif}" title="${eventForDeal?.result?.name}"/>
+	    							</t:if>
+	    						</p:else>
+	     				</t:if>
+	     			</p:else>
+	     		</t:if>
+	     		<t:if test="sanctionResult">
+	     			<img src="${context:img/ihigh_obj.gif}" title="${eventForDeal?.result?.name}"/>
+	     		</t:if>
+	        </p:resultCell>				
+			<p:statusNameCell>
+	     		${eventForDeal?.status?.name}
+	        </p:statusNameCell>
+			<p:eventNameCell>
+	            ${eventForDeal?.event?.name}
+	        </p:eventNameCell>
+			<p:executorCell>
+	            ${eventForDeal?.executor?.shortFullName}
+	        </p:executorCell>
+			<p:empty>
+				<h4>Мероприятия не найдены</h4>
+			</p:empty>
+		</table>
+	</t:content>
+</html>      

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+	<bean id="dealInstance1" class="ru.masterdm.km.common.entity.DealInstance">
+		<property name="status" ref="status9"/>
+		<property name="deal">
+			<bean class="ru.masterdm.km.common.entity.Deal">
+				<property name="id" value="1234" />
+				<property name="contractNumber" value="00112" />
+				<property name="type">
+					<bean class="ru.masterdm.km.common.entity.DealType">
+						<property name="name" value="Кредит" />
+					</bean>
+				</property>
+				<property name="amount" value="1000000" />
+				<property name="currency" ref="USD" />
+			</bean>
+		</property>
+		<property name="contractor">
+			<bean class="ru.masterdm.km.common.entity.Contractor">
+				<property name="id" value="1" />
+				<property name="name" value="Контрагент 1" />
+			</bean>
+		</property>
+		<property name="executor" ref="user1" />
+		<property name="contractorGroup">
+			<bean class="ru.masterdm.km.common.entity.ContractorGroup">
+				<property name="id" value="1" />
+				<property name="name" value="Группа контрагентов 1" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="dealInstance2" class="ru.masterdm.km.common.entity.DealInstance">
+		<property name="status" ref="status10"/>
+		<property name="deal">
+			<bean class="ru.masterdm.km.common.entity.Deal">
+				<property name="id" value="2" />
+				<property name="contractNumber" value="00205" />
+				<property name="type">
+					<bean class="ru.masterdm.km.common.entity.DealType">
+						<property name="name" value="Кредит" />
+					</bean>
+				</property>
+				<property name="amount" value="1000" />
+				<property name="currency" ref="RUR" />
+			</bean>
+		</property>
+		<property name="contractor">
+			<bean class="ru.masterdm.km.common.entity.Contractor">
+				<property name="id" value="2" />
+				<property name="name" value="Контрагент 2" />
+			</bean>
+		</property>
+		<property name="executor" ref="user5" />
+		<property name="contractorGroup">
+			<bean class="ru.masterdm.km.common.entity.ContractorGroup">
+				<property name="id" value="2" />
+				<property name="name" value="Группа контрагентов 2" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="dealInstance3" class="ru.masterdm.km.common.entity.DealInstance">
+		<property name="status" ref="status8"/>
+		<property name="deal">
+			<bean class="ru.masterdm.km.common.entity.Deal">
+				<property name="id" value="3" />
+				<property name="contractNumber" value="002053" />
+				<property name="type">
+					<bean class="ru.masterdm.km.common.entity.DealType">
+						<property name="name" value="Кредит" />
+					</bean>
+				</property>
+				<property name="amount" value="561000" />
+				<property name="currency" ref="EUR" />
+			</bean>
+		</property>
+		<property name="contractor">
+			<bean class="ru.masterdm.km.common.entity.Contractor">
+				<property name="id" value="3" />
+				<property name="name" value="Контрагент 3" />
+			</bean>
+		</property>
+		<property name="executor" ref="user5" />
+		<property name="contractorGroup">
+			<bean class="ru.masterdm.km.common.entity.ContractorGroup">
+				<property name="id" value="3" />
+				<property name="name" value="Группа контрагентов 3" />
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="dealInstance4" class="ru.masterdm.km.common.entity.DealInstance">
+		<property name="status" ref="status11"/>
+		<property name="deal">
+			<bean class="ru.masterdm.km.common.entity.Deal">
+				<property name="id" value="4567" />
+				<property name="contractNumber" value="00405" />
+				<property name="type">
+					<bean class="ru.masterdm.km.common.entity.DealType">
+						<property name="name" value="Кредит" />
+					</bean>
+				</property>
+				<property name="amount" value="9000000" />
+				<property name="currency" ref="RUR" />
+			</bean>
+		</property>
+		<property name="contractor">
+			<bean class="ru.masterdm.km.common.entity.Contractor">
+				<property name="id" value="4" />
+				<property name="name" value="Контрагент 4" />
+			</bean>
+		</property>
+		<property name="executor" ref="user2" />
+		<property name="contractorGroup">
+			<bean class="ru.masterdm.km.common.entity.ContractorGroup">
+				<property name="id" value="4" />
+				<property name="name" value="Группа контрагентов 4" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean class="ru.masterdm.km.dao.DealDaoMockImpl">
+		<property name="dealInstances">
+			<util:list>
+				<ref bean="dealInstance1" />
+				<ref bean="dealInstance2" />
+				<ref bean="dealInstance3" />
+				<ref bean="dealInstance4" />
+			</util:list>
+		</property>
+	</bean>
+</beans>

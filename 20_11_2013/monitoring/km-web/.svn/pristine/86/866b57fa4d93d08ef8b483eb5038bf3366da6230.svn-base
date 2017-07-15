@@ -1,0 +1,194 @@
+package ru.masterdm.km.web.pages.executionEvent;
+
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.Link;
+import org.apache.tapestry5.annotations.Import;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+import org.apache.tapestry5.services.PageRenderLinkSource;
+import org.got5.tapestry5.jquery.ImportJQueryUI;
+
+import ru.masterdm.km.common.entity.ConditionTypeInstance;
+import ru.masterdm.km.common.entity.Deal;
+import ru.masterdm.km.common.entity.DealCondition;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.dao.DealDao;
+import ru.masterdm.km.web.base.event.ClassifierBasePage;
+import ru.masterdm.km.web.base.event.ExecuteEventBasePage;
+import ru.masterdm.km.web.pages.fkr.FkrAdd;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+import ru.masterdm.km.web.util.ReportUtil;
+
+/**
+ * Карточка контрольного мероприятий для сделки.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+
+@ImportJQueryUI(theme = "context:css/jquery/themes/smoothness/jquery-ui-1.8.23.custom.css")
+@Import(stylesheet = { "context:css/jquerydatatables.css" })
+public class ExecuteDealEvent extends ExecuteEventBasePage {
+	@Inject
+	private BeanModelSource beanModelSource;
+
+	@Persist
+	@Property
+	protected int curTab;
+	@Persist
+	Link returnPage;
+	@Property
+	private KmFkr fkr;
+	@Property
+	protected ConditionTypeInstance typeCondition;
+	@Property
+	protected DealCondition eventCondition;
+
+	@Inject
+	private DealDao dealDao;
+	@Inject
+	private PageRenderLinkSource pageRenderLinkSource;
+
+	@Persist
+	private List<ConditionTypeInstance> conditionList;
+
+	void onActivate(long eventID, String returnPageName) {
+		// System.out.println("onActivate =" + eventID + "; returnPageName=" + returnPageName);
+		init(eventID);
+		if (returnPageName.equals("eventInstances/dealClassifier")) {
+			returnPage = pageRenderLinkSource.createPageRenderLinkWithContext(returnPageName, event.getEvent().getDeal().getId(),
+					ClassifierBasePage.CALENDAR_TAB);
+		} else {
+			returnPage = pageRenderLinkSource.createPageRenderLink(returnPageName);
+		}
+	}
+
+	protected void init(long eventID) {
+		super.init(eventID);
+		initConditionList();
+	}
+
+	private void initConditionList() {
+		Long idEventType = event.getEvent().getEventType().getId();
+		conditionList = eventDao.getEventConditions(event.getEvent().getDeal().getId(), idEventType);
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "executeEventButton")
+	void executeRequested() {
+		action = Action.EXECUTE_EVENT;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "saveEventButton")
+	void saveRequested() {
+		action = Action.SAVE_EVENT;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "cancelButton")
+	Object cancelRequested() {
+		action = Action.CANCEL;
+		// componentResources.discardPersistentFieldChanges();
+		return returnPage;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "addFkrButton")
+	void addFkrRequested() {
+		action = Action.ADD_FKR;
+	}
+
+	void onValidateFromExecuteDealEventForm() {
+		System.out.println("onValidateFromExecuteDealEventForm ACTION = " + action);// TODO
+		switch (action) {
+		case EXECUTE_EVENT:
+			validateOnExecuteEvent();
+			break;
+		case SAVE_EVENT:
+			validateOnSaveEvent();
+			break;
+		case ADD_FKR:
+			validateOnSaveEvent();
+			break;
+		default:
+			break;
+		}
+	}
+
+	Object onSuccessFromExecuteDealEventForm() {
+		System.out.println("onSuccessFromExecuteDealEventForm ACTION = " + action);// TODO
+		switch (action) {
+		case EXECUTE_EVENT:
+			executeEvent();
+			if (event.getResult() != null) {
+				createNextEventForDeal(event);
+			}
+			return returnPage;
+		case SAVE_EVENT:
+			saveEvent();
+			return null;
+		case ADD_FKR:
+			saveEvent();
+			Link linkToFkrPage = pageRenderLinkSource.createPageRenderLinkWithContext(FkrAdd.class, event.getId(), getPageName());
+			return linkToFkrPage;
+		default:
+			return null;
+		}
+	}
+
+	private void createNextEventForDeal(KmEventInstance event) {
+		long dealID = event.getEvent().getDeal().getId();
+		long eventCalendarID = event.getEvent().getId();
+		dealDao.acceptNextEventType(dealID, eventCalendarID, event.getPlanExecutionDate());
+	}
+
+	public String getDealInfo() {
+		return ExecuteEventUtil.getDealInfo(event, getDateViewFormat(), getAmountViewFormat());
+	}
+
+	public String getDocInfo() {
+		return ExecuteEventUtil.getOfficialInfo(event, getDateListFormat(), getAmountViewFormat());
+	}
+
+	public String getCombNumber() {
+		Deal deal = event.getEvent().getDeal();
+		return ReportUtil.generateCombinedNumber(deal.getCrmCode(), deal.getContractNumber());
+	}
+
+	public String getPageName() {
+		return "executionEvent/ExecuteDealEvent";
+	}
+
+	public String getApplySanctionClass() {
+		if (event != null && event.isApplySanction()) {
+			return "visible";
+		}
+		return "collapse";
+	}
+
+	public String getRevokeSanctionClass() {
+		if (event != null && event.isRevokeSanction()) {
+			return "visible";
+		}
+		return "collapse";
+	}
+
+	public BeanModel<KmFkr> getFkrModel() {
+		BeanModel<KmFkr> fkrModel = beanModelSource.createDisplayModel(KmFkr.class, getMessages());
+		fkrModel.include("created", "notes", "finished");
+		fkrModel.addEmpty("edit").sortable(false);
+		fkrModel.addEmpty("fkrType").sortable(false);
+		fkrModel.addEmpty("sign").sortable(false);
+		fkrModel.addEmpty("status").sortable(false);
+		fkrModel.reorder("edit", "created", "fkrType", "sign", "status");
+		return fkrModel;
+	}
+
+	public java.util.List<ConditionTypeInstance> getEventConditions() {
+		return conditionList;
+	}
+}

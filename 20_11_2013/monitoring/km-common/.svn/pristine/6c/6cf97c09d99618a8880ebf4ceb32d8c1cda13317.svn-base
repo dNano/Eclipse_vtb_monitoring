@@ -1,0 +1,27 @@
+package ru.masterdm.km.common.dictionary;
+
+/**
+ * Статус мероприятия(KM)
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public enum KmEventStatus {
+	WAIT_PROCESSING(1, "Ожидает обработки"), IN_JOB(2, "В работе"), EXECUTED(3, "Исполнено"), REVOKED(4, "Отменено"), SUSPEND(5,
+			"Приостановлено");
+	private final long id;
+	private final String name;
+
+	private KmEventStatus(long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+}

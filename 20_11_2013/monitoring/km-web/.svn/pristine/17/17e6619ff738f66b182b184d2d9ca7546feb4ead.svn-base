@@ -1,0 +1,16 @@
+package ru.masterdm.km.web.pages;
+
+import org.apache.tapestry5.Link;
+
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.commons.IIntermediatePage;
+
+public class Login extends SimpleBasePage implements IIntermediatePage {
+
+	@Override
+	public void setNextPageLink(Link nextPageLink) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd" xmlns:p="tapestry:parameter">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>${title} | Мониторинг</title>
+        <link rel="stylesheet" type="text/css" href="${context:/style.css}"/>
+        <link rel="stylesheet" type="text/css" href="${context:/t5-override.css}"/>
+    </head>
+    <body>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+                <td>
+                    <table class="HeaderTable" cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                            <td>
+                                <a t:type="pageLink" t:page="index">
+                                    <img src="${context:img/logo-vtb.gif}" style="margin:8px;"/>
+                                </a>
+                            </td>
+                            <td class="Gradient"><img src="${context:img/gradient.jpg}"/></td>
+                            <td class="TitleCaption">Мониторинг</td>
+                        </tr>
+                    </table>
+
+                    <table class="MainMenuTable" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td class="MainMenu">
+                                <div id="MainMenu">
+                                    <ul>
+                                        <li><a href="#">Кредитная система</a></li>
+                                        <li><a href="#">Справочная система</a></li>
+                                        <li><a t:type="pagelink" t:page="MyPreferencesEdit" href="#">
+                                        	Настройки пользователя</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td class="ReverseGradient"><img src="${context:img/gradient2.jpg}"/></td>
+                            <td class="LoggedUser">
+                                <a t:type="jquery/dialogLink" t:dialog="userInfoDialog">
+                                	${user?.lastName} ${user?.firstName} ${user?.patronymic}</a>
+                                <div t:type="jquery/dialog" t:clientId="userInfoDialog" t:params="literal:{title:'Информация о пользователе', modal:'true', height:140, width:400}">
+                                    <p style="text-align: center;">
+                                        <table style="width: 100%">
+                                            <tr>
+                                                <td>ФИО</td>
+                                                <td>${user?.lastName} ${user?.firstName} ${user?.patronymic}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Роль</td>
+                                                <td>${user?.userRoles}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Департамент</td>
+                                                <td></td>
+                                            </tr>
+                                        </table>
+                                    </p>
+                                </div>
+                                &nbsp;|&nbsp;
+								<a t:type="eventlink" t:event="Logout" href="#">Выход</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td id="LeftSideBar">
+                                <div class="LeftMenu">
+                                    <div class="t"></div>
+                                    <div class="m">
+                                        <h4>Объекты<br/>мониторинга</h4>
+                                        <ul>
+                                            <li>
+                                                <a t:type="pageLink" t:page="buildingEvent/byDeal"><span class="underline">Сделки</span></a>
+                                            </li>
+                                            <li>
+                                                <a t:type="pageLink" t:page="buildingEvent/byContractor"><span class="underline">Клиенты</span></a>
+                                            </li>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Обеспечение</span></a>
+                                            </li>
+                                           	<li>
+                                                <a t:type="pageLink" t:page="fkr/fkrList"><span class="underline">Выявленные ФКР</span></a>
+                                            </li>                                            
+                                        </ul>
+                                    </div>
+                                    <div class="b"></div>
+                                </div>
+                                <div class="LeftMenu">
+                                    <div class="t"></div>
+                                    <div class="m">
+                                        <h4>Формирование<br/>мероприятий</h4>
+                                        <ul>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Ожидающие обработки</span></a>
+                                            </li>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">В работе</span></a>
+                                            </li> 
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Переназначение</span></a>
+                                            </li> 
+                                        </ul>
+                                    </div>
+                                    <div class="b"></div>
+                                </div>
+                                <div class="LeftMenu">
+                                    <div class="t"></div>
+                                    <div class="m">
+                                        <h4>Исполнение<br/>мероприятий</h4>
+                                        <ul>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Ожидающие обработки</span></a>
+                                            </li>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">В работе</span></a>
+                                            </li> 
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Переназначение</span></a>
+                                            </li>                                        
+                                            <li>
+                                                <a t:type="pageLink" t:page="executionEvent/byDate"><span class="underline">По дате</span></a>
+                                            </li> 
+                                        </ul>
+                                    </div>
+                                    <div class="b"></div>
+                                </div>
+                                <div class="LeftMenu">
+                                    <div class="t"></div>
+                                    <div class="m">
+                                        <h4>ФКР</h4>
+                                        <ul>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Ожидающие обработки</span></a>
+                                            </li>
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">В работе</span></a>
+                                            </li> 
+                                            <li>
+                                                <a t:type="pageLink" t:page="index"><span class="underline">Переназначение</span></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="b"></div>
+                                </div>
+                            </td>
+                            <td id="MainContent">
+                                <table class="MainContent">
+                                    <tr>
+                                        <td class="lt"><img src="${context:img/1x1.gif}"/></td>
+                                        <td class="t"></td>
+                                        <td class="rt"><img src="${context:img/1x1.gif}"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="l"></td>
+                                        <td class="c">
+                                            <t:body/>
+                                        </td>
+                                        <td class="r"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="lb"></td>
+                                        <td class="b"></td>
+                                        <td class="rb"></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table id="FooterBand">
+                        <tr>
+                            <td>ВТБ</td>
+                            <td class="ReverseGradient">
+                                <img src="${context:img/gradient2.jpg}"/>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div id="Copyright">
+                        Разработка ООО «Мастер Домино», 2013. Версия ${symbol:tapestry.application-version}. Задействованы профили: ${symbol:spring.profiles.active}.
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

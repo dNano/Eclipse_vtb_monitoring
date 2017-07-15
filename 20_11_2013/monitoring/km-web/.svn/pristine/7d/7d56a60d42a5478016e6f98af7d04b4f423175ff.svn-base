@@ -1,0 +1,15 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * EditPage for ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrEdit extends SimpleBasePage {
+	void onActivate(long fkrID, String returnPageName) {
+		
+	}
+}

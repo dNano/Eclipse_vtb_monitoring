@@ -1,0 +1,62 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter"
+	t:title="Список плановых мероприятий сделки № ${dealID}">
+	
+	<h1 style="text-align: left;">
+		План контрольных мероприятий сделки № ${dealID} | 
+	<t:pagelink t:page="eventInstances/DealCalendar" t:context="dealID" style="text-decoration: none">
+ 		Календарь контрольных мероприятий сделки № ${dealID}
+	</t:pagelink>
+	</h1>
+<fieldset>
+    <table width="100%">
+        <tr valign="top">
+            <td width="50%">
+		        <fieldset style="border:0;">
+	                <legend><h2>Выбор из Классификатора контрольных мероприятий</h2></legend>
+			        <t:tree class="test-hook" t:id="tree" model="valueWrapperModel" value="valueWrapper" label="block:renderTreeNodeLabel" />
+			        <t:block id="renderTreeNodeLabel">
+			            <t:if test="valueWrapper.leaf">
+			                <!-- a href="#" t:type="PageLink" t:page="${valueWrapper.pageName}"> ${valueWrapper.label}</a-->
+			                <a t:type="actionLink" t:id="addEventType" t:context="[valueWrapper.pageName, valueWrapper.label]" style="text-decoration: none">
+			                     ${valueWrapper.label}
+			                </a>
+			                <p:else>  
+			                      ${valueWrapper.label}   
+			                 </p:else>
+			            </t:if>
+			        </t:block>
+		        </fieldset>
+            </td>
+            <td width="50%">
+			    <fieldset style="border:0;">
+			       <legend><h2>План</h2></legend>
+			        <table t:type="grid" t:source="plan" t:row="calendar" t:rowsPerPage="25" t:lean="true" t:pagerPosition="bottom" 
+			            t:exclude="id, name, startDate, endDate, periodDate, periodDetails" t:add="edit, eventTypeName, remove">
+			            <p:acceptCell>
+			                <a t:type="actionLink" t:id="acceptEventType" t:context="calendar.id">
+			                    <img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/>
+			                </a>
+			            </p:acceptCell>
+			            <p:editCell>
+			                <t:pagelink t:page="eventInstances/EditPlanForDeal" t:context="[calendar.id, dealID]">
+			                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+			                </t:pagelink>           
+			            </p:editCell>
+			            <p:eventTypeNameCell>
+			                ${calendar?.classifier?.eventType?.name}
+			            </p:eventTypeNameCell>
+			            <p:removeCell>
+			                <a t:type="actionLink" t:id="removeEventType" t:context="calendar.classifier.eventType.id">
+			                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+			                </a>
+			            </p:removeCell>
+			        </table>
+			    </fieldset>
+            </td>
+        </tr>
+    </table>
+
+</fieldset>	
+</t:layout>

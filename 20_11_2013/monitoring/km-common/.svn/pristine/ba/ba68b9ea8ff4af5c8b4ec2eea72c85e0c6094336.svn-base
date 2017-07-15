@@ -1,0 +1,15 @@
+/**
+ * 
+ */
+package ru.masterdm.km.common.entity;
+
+/**
+ * Тип ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class FkrType extends BaseIndexedEntity<Long> {
+
+}

@@ -1,0 +1,54 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Плановое мероприятие">
+	<h1 style="text-align: center;">Плановое мероприятие "${event?.name}" для сделки</h1>
+	<fieldset>
+		<legend>Карточка мероприятия</legend>
+		<form t:type="form" t:id="createKmEventForm" t:clientValidation="none" t:autofocus="false">
+			<div t:type="errors" class="literal:km-error"/>
+			    <table style="width: 100%">
+                    <tr>
+                        <td colspan="2" style="white-space: nowrap;">
+                            Название
+                            <input t:type="textField" t:id="eventNameInput" value="event.name" style="width: 600px;"
+                                   t:mixins="textboxHint" t:hintText="${message:event-name-watermark}" t:hintColor="#808080" t:validate="required"/>
+                        </td>
+                    </tr>
+					<tr>
+						<td style="vertical-align: top;">
+							<table>
+								<tr>
+									<td>
+										<fieldset>
+											<legend>Плановая периодичность</legend>
+										</fieldset>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				<tr>
+					<td>
+						<fieldset>
+							<legend>Уведомление о наступлении мероприятия</legend>
+							Начать информировать за Х дней до наступления с периодичностью раз в У дней.
+							<table>
+								<tr>
+									<td><input t:type="checkbox" t:id="alarmOnEventStartDayCheckbox"
+										t:value="kmEventNotification.alarmOnEventStartDay" /></td>
+									<td><span t:type="label" t:for="alarmOnEventStartDayCheckbox"> Информировать в день мероприятия </span></td>
+								</tr>
+								<tr>
+									<td><input t:type="checkbox" t:id="continueToAlarmWhenUnfulfilledCheckbox"
+										t:value="kmEventNotification.continueToAlarmWhenUnfulfilled" /></td>
+									<td><span t:type="label" t:for="continueToAlarmWhenUnfulfilledCheckbox"> Продолжить информировать
+											после даты мероприятия, при неисполнении </span></td>
+								</tr>
+							</table>
+						</fieldset>
+					</td>
+				</tr>
+
+			</table>
+		</form>
+	</fieldset>
+</t:layout>

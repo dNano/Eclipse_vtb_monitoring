@@ -1,0 +1,19 @@
+package ru.masterdm.km.web.base;
+
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+/**
+ * Общая функциональность для страниц.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class SimpleBasePage {
+	@Inject
+	private Messages messages;
+
+	protected Messages getMessages() {
+		return messages;
+	}
+}

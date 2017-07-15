@@ -1,0 +1,23 @@
+package ru.masterdm.km.web.services.fkr;
+
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.dao.FkrDao;
+
+/**
+ * Механизм автоматической смены статуса контрольных мероприятий на "просрочено"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrServiceImpl implements FkrService {
+	@Inject
+	private FkrDao fkrDao;
+
+	@Override
+	public void doJob() {
+		// TODO Auto-generated method stub
+		System.out.println("--------FkrServiceImp--------" + fkrDao.getClass());
+	}
+
+}

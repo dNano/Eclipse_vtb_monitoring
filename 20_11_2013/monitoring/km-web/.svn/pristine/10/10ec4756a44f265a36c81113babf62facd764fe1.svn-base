@@ -1,0 +1,61 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Список ФКР">
+    <h3 style="text-align: center;">Редактирование ФКР</h3>
+ 	<fieldset><legend>Редактирование ФКР</legend>   
+	<form t:type="form" t:id="fkEditForm" t:clientValidation="none" t:autofocus="false">
+		<div t:type="errors" class="literal:km-error"></div>
+		<table>
+			<tr>
+				<td>Тип ФКР:</td>
+				<td>
+                    ${fkr.fkr.type.name}
+                </td>
+            </tr>
+            <tr>
+	            <td>Группа ФКР:</td>
+				<td>					
+	       			${fkr.fkr.type.group.name}
+				</td>
+            </tr>
+			<tr>
+				<td><span t:type="label" t:for="fkrNote">Описание ФКР:</span></td>
+				<td>
+					<t:textarea t:id="fkrNote" cols="110" rows="5"  value="fkr.fkr.notes"/>
+                </td>
+            </tr>
+			<tr>
+				<td><span t:type="label" t:for="fkrSign">Признак существенности:</span></td>
+				<td>
+                  	<input t:type="checkbox" t:id="fkrSign" t:value="fkr.fkr.significant"/>
+                </td>
+            </tr>
+			<tr>
+				<td><span t:type="label" t:for="fkrCreated">Дата возникновения:</span></td>
+				<td>
+			        <t:dynarchCalendar t:id="fkrCreated" t:value="fkr.fkr.created"/>
+			    </td>
+            </tr>
+			<tr>
+				<td><span t:type="label" t:for="fkrFinished">Дата урегулирования:</span></td>
+				<td>
+			        <t:dynarchCalendar t:id="fkrFinished" t:value="fkr.fkr.finished"/>
+			    </td>
+            </tr>
+            <tr>      
+                 <td><span t:type="label" t:for="fkrStatusSelect">Статус ФКР:</span></td>
+                 <td>
+                     <input t:type="select" t:id="fkrStatusSelect" t:model="fkrStatusSelectModel"
+                            t:value="fkr.fkr.status" t:encoder="fkrStatusValueEncoder"/>
+                 </td>
+            </tr>            
+            <tr><td>&nbsp;</td></tr>
+			<tr>
+				<td colspan="2">
+					<input t:type="submit" t:id="editFkrButton" t:value="Сохранить" class="button" style="font-size: 8pt"/>
+					<input t:type="submit" t:id="cancelEditFkrButton" t:value="Отмена" class="button" t:mode="cancel" style="font-size: 8pt"/>
+                </td>
+            </tr>
+       	</table>
+	</form>    
+	</fieldset>
+</t:layout>

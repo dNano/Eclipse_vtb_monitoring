@@ -1,0 +1,22 @@
+package ru.masterdm.km.dao;
+
+import ru.masterdm.km.util.Enumerable;
+
+/**
+ * Sql keys enumeration.
+ * @author Alexey Chalov
+ */
+public enum DictionaryDaoSqlKey implements Enumerable {
+
+    MONITORED_OBJECT_TYPES, EVENT_INSTANCE_STATUSES, EVENT_TYPE_GROUPS, EVENT_TYPES, CONTRACTOR_TYPES,
+    CONTRACTOR_BY_NAME, CONTRACTOR_BY_NAME_COUNT, CONTRACTOR_BY_ID,
+    CONTRACTOR_GROUPS_BY_NAME, CONTRACTOR_GROUPS_BY_NAME_COUNT, CONTRACTOR_GROUP_BY_ID,
+    CURRENCIES, USERS_BY_LAST_NAME_PATTERN_COUNT, USERS_BY_LAST_NAME, USER_BY_ID, 
+    DEAL_TYPES, KM_REPEAT_TYPES, DAY_OF_WEEKS, MONTHS, ALL_CLASSIFIERS, EVENT_CONFIRMATION_TYPES,
+    DOCUMENT_GROUPS, DOCUMENT_TYPES, FKR_GROUPS, FKR_TYPES, KM_SOURCE_DOC;
+
+    @Override
+    public int getElementCount() {
+        return DictionaryDaoSqlKey.values().length;
+    }
+}

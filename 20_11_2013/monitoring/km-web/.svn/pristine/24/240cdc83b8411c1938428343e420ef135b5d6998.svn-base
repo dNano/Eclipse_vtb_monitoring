@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd" xmlns:p="tapestry:parameter">
+	<t:content>
+        <form t:type="form" t:id="executorListForm" id="executorListForm" t:zone="executorGridZone" t:clientValidation="none" t:autofocus="false">
+            <div style="text-align: center;">
+                Фамилия:&nbsp;<input t:type="textField" t:value="executorLastNamePattern" class="input"/>
+                <input t:type="submit" t:id="executorSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+            </div>
+        </form>
+        <span t:type="zone" t:id="executorGridZone" id="executorGridZone" t:update="show">
+        	<t:if test="executorLastNamePattern">
+	            <table t:type="grid" t:source="executors" t:row="executor" t:rowsPerPage="10" t:inPlace="true"
+	                   t:include="fullName, email" t:model="executorModel" style="width: 100%" t:pagerPosition="bottom" t:lean="true">
+		                <p:fullNameCell>
+		                    <a t:type="eventLink" t:event="selected" t:context="[executor.id, executor.fullName]">${executor.fullName}</a>
+		                </p:fullNameCell>
+		                <p:empty>
+		                    <div style="text-align: center;">Исполнители не найдены</div>
+		                </p:empty>
+	            </table>
+	        </t:if>
+        </span>            
+	</t:content>
+</html>	

@@ -1,0 +1,6 @@
+delete from KM_EVENT_INSTANCE_STATUS;
+insert into KM_EVENT_INSTANCE_STATUS (id, name) values (1, 'Выявленные ФКР');
+insert into KM_EVENT_INSTANCE_STATUS (id, name) values (2, 'Просроченные');
+insert into KM_EVENT_INSTANCE_STATUS (id, name) values (3, 'Неисполненные');
+insert into KM_EVENT_INSTANCE_STATUS (id, name) values (4, 'Исполненные');
+commit;

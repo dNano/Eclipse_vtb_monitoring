@@ -1,0 +1,202 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.common.dictionary.KmFkrStatusDictionary.ADJUSTED;
+import static ru.masterdm.km.common.dictionary.KmFkrStatusDictionary.NOT_SIGNIFICANT;
+import static ru.masterdm.km.common.dictionary.KmFkrStatusDictionary.SIGNIFICANT;
+import static ru.masterdm.km.dao.FkrDaoSqlKey.FKR_INSTANCES;
+import static ru.masterdm.km.dao.FkrDaoSqlKey.FKR_INSTANCE_COUNT;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.common.entity.Deal;
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.common.entity.KmFkrStatusChange;
+import ru.masterdm.km.common.searchfilter.FkrFilter;
+import ru.masterdm.km.dao.mapper.KmFkrInstanceRm;
+import ru.masterdm.km.dao.mapper.KmFkrStatusChangeRm;
+import ru.masterdm.km.util.BaseJdbcDao;
+import ru.masterdm.km.util.query.SortCriterion;
+
+/**
+ * Реализация DAO интерфейса для сущности "ФКР".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class FkrDaoImpl extends BaseJdbcDao<FkrDaoSqlKey> implements FkrDao {
+
+	@Override
+	public List<KmFkrInstance> getInstances(int startIndex, int amount, FkrFilter filter, List<SortCriterion> sortCriteria) {
+		ArrayList<Object> params = new ArrayList<Object>();
+		String query = "select v.* from (";
+		query += sql.getValue(FKR_INSTANCES);
+		String orderBy = getOrderBy(sortCriteria);
+		query += ", row_number() over (order by " + orderBy + ") rn from km_fkr kf "
+				+ "inner join cd_fkr_type ft on kf.id_fkr_type = ft.id_fkr_type "
+				+ "inner join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group "
+				+ "left outer join v_cps_credit_deal m on m.id_mdtask = kf.id_mdtask "
+				+ "left outer join v_organisation o on m.id_borrower = o.crmid "
+				+ "left outer join v_organisation org on kf.id_organization = org.crmid "
+				+ "inner join km_fkr_status kfs on kf.id_fkr_status = kfs.id_fkr_status ";
+		query = filterQuery(filter, query, params);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		params.add(startIndex);
+		params.add(startIndex + amount);
+		return queryForList(query, new KmFkrInstanceRm(), "Error selecting fkr instances.", params.toArray());
+
+	}
+
+	private String getOrderBy(List<SortCriterion> sortCriteria) {
+		String orderBy = "o.organizationname, m.mdtask_number, ft.fkr_code desc";
+		if (!sortCriteria.isEmpty()) {
+			SortCriterion sortCriterion = sortCriteria.get(0);
+			String propertyName = sortCriterion.getPropertyName();
+			if ("fkrType".equalsIgnoreCase(propertyName)) {
+				orderBy = "ft.fkr_code";
+			} else if ("note".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.notes";
+			} else if ("sign".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.is_significant";
+			} else if ("created".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.created";
+			} else if ("finished".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.finished";
+			} else if ("deal".equalsIgnoreCase(propertyName)) {
+				orderBy = "m.mdtask_number";
+			} else if ("client".equalsIgnoreCase(propertyName)) {
+				orderBy = "o.organizationname";
+			} else if ("status".equalsIgnoreCase(propertyName)) {
+				orderBy = "kfs.status";
+			}
+			orderBy += sortCriterion.getSortDirection().toStringForJpql();
+		}
+		return orderBy;
+	}
+
+	@Override
+	public int getInstanceCount(FkrFilter filter) {
+		String query = sql.getValue(FKR_INSTANCE_COUNT);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		return queryForInt(query, "Error selecting fkr instance count.", params.toArray());
+	}
+
+	private String filterQuery(FkrFilter filter, String query, ArrayList<Object> params) {
+		if (filter.getContractorName() != null) {
+			if (filter.isShowClientForDeal()) {
+				query += " AND (lower(o.ORGANIZATIONNAME) like lower(?) OR lower(org.ORGANIZATIONNAME) like lower(?)) ";
+				params.add("%" + filter.getContractorName() + "%");
+				params.add("%" + filter.getContractorName() + "%");
+			} else {
+				query += " AND lower(org.ORGANIZATIONNAME) like lower(?) ";
+				params.add("%" + filter.getContractorName() + "%");
+			}
+		}
+		if (filter.getDealDate() != null) {
+			query += " AND m.VALID_TO = ? ";
+			params.add(new java.sql.Date(filter.getDealDate().getTime()));
+		}
+		if (filter.getSpkpNumber() != null) {
+			query += " AND lower(m.MDTASK_NUMBER) like lower(?) ";
+			params.add("%" + filter.getSpkpNumber() + "%");
+		}
+		if (filter.getDateCreatedFrom() != null) {
+			query += " AND kf.created >= ? ";
+			params.add(new java.sql.Date(filter.getDateCreatedFrom().getTime()));
+		}
+		if (filter.getDateCreatedTo() != null) {
+			query += " AND kf.created <= ? ";
+			params.add(new java.sql.Date(filter.getDateCreatedTo().getTime()));
+		}
+		if (filter.getDateFinishedFrom() != null) {
+			query += " AND kf.finished >= ? ";
+			params.add(new java.sql.Date(filter.getDateFinishedFrom().getTime()));
+		}
+		if (filter.getDateFinishedTo() != null) {
+			query += " AND kf.finished <= ? ";
+			params.add(new java.sql.Date(filter.getDateFinishedTo().getTime()));
+		}
+		if (filter.getFkrStatus() != null) {
+			query += " AND kfs.status = ? ";
+			params.add(filter.getFkrStatus().getName());
+		}
+		if (filter.getFkrGroup() != null) {
+			if (filter.getFkrType() != null) {
+				query += " AND ft.id_fkr_type = ? ";
+				params.add(filter.getFkrType().getId());
+			} else {
+				query += " AND fg.id_fkr_group = ? ";
+				params.add(filter.getFkrGroup().getId());
+			}
+		}
+		return query;
+	}
+
+	@Override
+	public KmFkrInstance getFkrInstance(long fkrID) {
+		String query = sql.getValue(FkrDaoSqlKey.FKR_BY_ID);
+		return queryForObject(query, new KmFkrInstanceRm(), "Error getFkrInstance", fkrID);
+	}
+
+	@Override
+	public void saveFkrInstance(KmFkrInstance fkrInstance) {
+		KmFkr fkr = fkrInstance.getFkr();
+		KmFkrStatusChange change = fkrInstance.getChange();
+		Long statusID = change.getStatus().getId();
+		if (statusID != null) {
+			saveChangeFkr(fkr, change);
+			saveFkr(fkr, change);
+		}
+	}
+
+	private void saveFkr(KmFkr fkr, KmFkrStatusChange change) {
+		Long statusID = change.getStatus().getId();
+		String query = sql.getValue(FkrDaoSqlKey.FKR_SAVE);
+		if (statusID.intValue() == SIGNIFICANT.getId()) {
+			fkr.setSignificant(true);
+		} else if (statusID.intValue() == NOT_SIGNIFICANT.getId()) {
+			fkr.setSignificant(false);
+		} else if (statusID.intValue() == ADJUSTED.getId()) {
+			Date finished = (change.getAccepted() != null) ? change.getAccepted() : new Date();
+			fkr.setFinished(finished);
+			fkr.setRegReason(change.getNotes());
+		}
+		long sign = fkr.isSignificant() ? 1 : 0;
+		update(query, "Error in saveFkr", statusID, sign, fkr.getRegReason(), fkr.getFinished(), fkr.getId());
+	}
+
+	private void saveChangeFkr(KmFkr fkr, KmFkrStatusChange change) {
+		Long statusID = change.getStatus().getId();
+		String query = sql.getValue(FkrDaoSqlKey.FKR_SAVE_CHANGE);
+		update(query, "Error in saveChangeFkr", fkr.getId(), change.getNotes(), change.getWho(), change.getAccepted(), statusID);
+	}
+
+	@Override
+	public List<KmFkrStatusChange> getFkrChange(int startIndex, int amount, long fkrID) {
+		String query = sql.getValue(FkrDaoSqlKey.FKR_CHANGE);
+		return queryForList(query, new KmFkrStatusChangeRm(), "Error get Fkr change.", fkrID);
+	}
+
+	@Override
+	public int getFkrChangeCount(long fkrID) {
+		String query = sql.getValue(FkrDaoSqlKey.FKR_CHANGE_COUNT);
+		return queryForInt(query, "Error selecting fkr change count.", fkrID);
+	}
+
+	@Override
+	public void addFkrInstance(KmFkrInstance fkrIns) {
+		String query = sql.getValue(FkrDaoSqlKey.FKR_ADD);
+		KmFkr fkr = fkrIns.getFkr();
+		Deal deal = fkr.getDeal();
+		Long dealID = (deal != null && deal.getId() != null) ? deal.getId() : null;
+		Contractor client = fkrIns.getClient();
+		String clientID = (client != null && client.getId() != null) ? client.getId() : null;
+		Long eventID = null; // TODO добавить после из fkrIns(or id or event object)
+		long sign = fkr.isSignificant() ? 1 : 0;
+		update(query, "Error in addFkrToDeal", fkr.getType().getId(), dealID, clientID, eventID, sign, fkr.getNotes(), fkr.getCreated(),
+				fkr.getWho(), fkr.getRegReason());
+	}
+}

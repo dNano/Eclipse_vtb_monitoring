@@ -1,0 +1,12 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * Исполнение контрольных мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class EventResult extends BaseNamedEntity<Long> {
+
+}

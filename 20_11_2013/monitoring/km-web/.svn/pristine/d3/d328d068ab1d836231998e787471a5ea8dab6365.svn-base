@@ -1,0 +1,39 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Список ФКР">
+    <h1 style="text-align: center;">Список ФКР</h1>
+	<fieldset>
+	<legend>Фильтр</legend>
+	<form t:type="form" t:id="searchFkrForm" t:clientValidation="none" t:autofocus="false">
+		<table style="width: 50%">
+			<tr>
+				<td style="vertical-align: top;">
+					<table>
+						<tr>
+							<td style="text-align: right;">Клиент&nbsp;</td>
+							<td colspan="3">
+                                <input t:type="textField" t:id="contractorNameInput" t:value="filter.contractorName" style="width: 300px;"/>
+                            </td>
+						</tr>
+						<tr>
+                        	<td style="text-align: right;">
+                        		<span t:type="label" t:for="spkpNumberInput">№ СПКП</span>&nbsp;
+                            </td>
+                            <td>
+                            	<input t:type="textField" t:id="spkpNumberInput" t:value="filter.spkpNumber"/>
+                        	</td>
+                            <td style="text-align: right;">Дата&nbsp;</td>
+                            <td>
+                                <t:dynarchCalendar t:value="filter.dealDate"/>
+                            </td>
+                        </tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<div class="buttons">
+             <input t:type="submit" t:value="Искать" class="button"/> 
+             <input t:type="submit" t:value="Очистить" class="button" t:mode="cancel" t:id="clearFilterButton"/>               
+         </div>
+	</form>
+	</fieldset>	
+</t:layout>    

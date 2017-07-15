@@ -1,0 +1,403 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+			xmlns:p="tapestry:parameter" t:title="Карточка контрольного мероприятия сделки">
+	<h2 style="text-align: center;">Карточка контрольного мероприятия сделки №&nbsp;
+		<a href="${message:serverRoot}/ProdflexWorkflow/form.jsp?mdtaskid=${event?.event?.deal?.id}" title="Информация о сделке" target="_blank">${event?.event?.deal?.spkpNumber}</a>&nbsp;
+		<t:pagelink t:page="eventInstances/DealClassifier" t:context="[event.event?.deal?.id, 0]" title="Сделка: план мероприятий, календарь, ФКР">
+            <img src="${context:/img/viewInfo.gif}" style="margin-bottom: 6px;"/>
+        </t:pagelink>
+	</h2>
+	<t:jquery.tabs  t:tabs="TabsExecute, TabsInfo" t:activePanelId="curTab">
+		<p:TabsExecute>
+		<form t:type="form" t:id="viewDealEventForm" t:clientValidation="none" t:autofocus="false">
+		<table style="width: 100%">
+		    <tr valign="bottom">
+		    	<td>
+					<table style="width: 100%">
+						<tr>
+						    <th>Тип&nbsp;объекта&nbsp;мониторинга</th>
+						    <th>Договор/соглашение</th>
+						    <th style="width:160px">Информация&nbsp;по&nbsp;сделке</th>
+			                <th style="width:800px">Тип&nbsp;мероприятия</th>
+		    			</tr>
+                        <tr>
+                            <td>Сделка</td>
+                            <td>${docInfo}</td>
+                            <td style="width:160px">${dealInfo}</td>
+                            <td style="width:800px">${event?.event?.name}</td>
+                        </tr>
+			            <tr>
+			                <th colspan="3">Текстовое&nbsp;описание&nbsp;мероприятия/события</th>
+			                <th colspan="1">Текущий&nbsp;статус&nbsp;мероприятия</th>
+			            </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td colspan="1">${event?.status?.name}</td>
+                        </tr>
+					    <tr t:type="if" t:test="event?.contractor?.id">
+			                <th>Тип&nbsp;контрагента</th>
+			                <th colspan="1">Наименование&nbsp;контрагента</th>
+			                <th colspan="2">Рейтинг</th>
+			           	</tr>
+			           	<tr t:type="if" t:test="event?.contractor?.id">
+                            <td>${event?.contractorType?.name}</td>
+                            <td colspan="1">${event?.contractor?.name}</td>
+                            <td colspan="2">C1</td>
+                        </tr>
+                    </table>
+				</td>
+			</tr>
+		    <tr valign="bottom">
+		    	<td>
+					<fieldset>
+						<legend>Периодичность</legend>
+						<table style="width: 50%">
+							<tr>
+								<th>Тип&nbsp;периодичности</th><th>Начиная&nbsp;с</th><th>по&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th>
+							</tr>
+							<tr>
+				                <td valign="bottom">
+				                    <t:if test="event?.event?.repeatType?.id">
+				                        ${event?.event?.repeatType?.name}
+				                    	<p:else>не определен</p:else>
+				                    </t:if>
+				                </td>
+	                            <td>
+	                                <t:output size="15" t:id="event_startDate" format="prop:dateInputPattern" value="event?.event?.startDate" disabled="true"/>&nbsp;
+	                            </td>
+	                            <td>
+	                                <t:output size="15" t:id="end_startDate" format="prop:dateInputPattern" value="event?.event?.endDate" disabled="true"/>&nbsp;
+	                            </td>
+				                <td>
+				                    ${repeatTypeInfo}
+				                </td>
+							</tr>
+						</table>
+					</fieldset>
+				</td>
+            </tr>			
+			<tr valign="bottom">
+                <td>
+					<fieldset>
+						<legend>Создание мероприятия и планируемое выполнение</legend>
+						<table style="width: 100%">
+				            <tr valign="bottom">
+				                <td>
+				                   <table style="width: 50%">
+					                   <tr valign="bottom">
+						                    <td>
+							                     <p style="margin-bottom:1px;margin-top:8px;"><B>Создано</B></p>
+							                     <p style="margin-bottom:1px;margin-top:1px;">Подразделение:</p>
+							                        КБ-КД1-УРКК1
+						                    </td>
+						                    <td>
+						                        <p style="margin-bottom:1px;margin-top:1px;">Сотрудник:</p>
+						                        	Бабичев С.А.
+						                    </td>
+						                    <td>
+						                       <p style="margin-bottom:1px;margin-top:1px;">Дата:</p>
+						                       		01.04.2013
+						                    </td>
+					                   </tr>
+				                  </table>
+				                </td>
+				                <td colspan="2">
+				                   <table style="width: 80%">
+				                       <tr valign="bottom">
+				                          <td>
+							                 <p style="margin-bottom:1px;margin-top:8px;"><B>Исполнение</B></p>
+							                 <p style="margin-bottom:1px;margin-top:1px;">Подразделение:</p>
+							                 	КБ-КД1-УРКК1
+				                          </td>
+				                          <td>
+							                 <p style="margin-bottom:1px;margin-top:1px;">Контрольная дата:</p>
+							                 <t:output size="15" t:id="event_exec_control_date" format="prop:dateInputPattern"
+							                 	 value="event?.planExecutionDate" disabled="true"/>
+				                          </td>
+				                          <td>
+							                 <p style="margin-bottom:1px;margin-top:1px;">Дата уведомления:</p>
+							             	 	<t:output size="15" t:id="event_notify_date" format="prop:dateInputPattern"
+							                 		value="event?.notifyDate" disabled="true"/>							                 
+							               </td>
+							               <td>
+							                 <p style="margin-bottom:1px;">Вид подтверждения:</p>
+							                 	${event.confirmationType?.name}
+							               </td>
+				                       </tr>
+				                   </table>
+				                </td>
+				            </tr>
+				            <tr valign="bottom">
+				            	<td colspan="3">
+			          				<p style="margin-bottom:1px;">Группа требуемого документа:</p>
+			          					${event.documentGroup?.name}
+				                </td>       
+				            </tr>
+                            <tr valign="bottom">
+                            	<td colspan="3" t:type="zone" t:id="documentZone" t:update="show" id="documentZone">
+                                  	<p style="margin-bottom:1px;">Требуемый документ:</p>
+                                      	${event.documentType?.name}
+                                </td> 
+                            </tr>
+				            <tr valign="top">
+				                <td>
+				                   <p style="margin-bottom:1px;">Основание для создания мероприятия:</p>
+				                   		${event.sourceDoc?.name}
+				                </td>
+				                <td colspan="2">
+				                	<table style="width: 100%">
+				                    	<tr>
+				                        	<td>
+							                    <p style="margin-bottom:1px;margin-top:1px;">Уточнение:</p>
+							                    	${event.sourceDocComment}
+							               	</td>
+							               	<td>
+							                    <p style="margin-bottom:1px;margin-top:1px;">№ документа:</p>
+							                    	${event.sourceDocNumber}
+							               	</td>
+							               	<td>
+							                    <p style="margin-bottom:1px;margin-top:1px;">Дата документа:</p>
+								           		<t:output size="15" t:id="eventSourceDocDate" format="prop:dateInputPattern"
+							                 		value="event?.sourceDocDate" disabled="true"/>							                 
+					                		</td>
+					              		</tr>
+					            	</table> 
+				                </td>
+				            </tr>
+						    <tr valign="bottom" t:type="if" t:test="event.event.punitiveMeasure?.id">
+				                <td>
+				                	<p style="margin-bottom:1px;margin-top:1px;">Санкции за невыполнение:</p>
+				                   		${event.event.punitiveMeasure?.name}
+				                </td>
+				                <td colspan="2">
+				                	<p style="margin-bottom:1px;margin-top:1px;">Описание санкции:</p>
+				                   		${event.event.punitiveMeasure?.sumDesc}
+				                </td>
+				            </tr>
+						</table>						
+					</fieldset>
+				</td>
+            </tr>
+ 	        <tr valign="bottom">
+                <td>
+					<fieldset>
+						<legend>Результат исполнения мероприятия</legend>
+						<table style="width: 100%">            
+				            <tr valign="bottom">
+				                <td colspan="5">
+				                   <table style="width: 100%">
+					                   <tr valign="bottom">
+						                    <td>
+						                        <p style="margin-bottom:1px;margin-top:1px;">Результат:</p>
+						                        	${event.result?.name}
+						                    </td>
+						                    <td t:type="if" t:test="event.result?.commentMandatory">
+						                        <p style="margin-bottom:1px;margin-top:1px;">Комментарий по исполнению/отмене:</p>
+						                        	${event.resultNote}
+						                    </td>
+					                   </tr>
+				                  </table>
+				                </td>
+					        </tr>
+					        <tr valign="bottom">
+                                <td>
+                                   <p style="margin-bottom:1px;margin-top:1px;">Связанные мероприятия/процесс:</p>
+                                </td>
+					        </tr>
+					        <tr t:type="if" t:test="event.result?.processCRF" valign="bottom">
+					        	<td align="left" colspan="5">
+		                            <fieldset><legend>Определены ФКР</legend>
+										<table t:type="grid" t:source="event.fkrList" t:row="fkr" t:rowsPerPage="5" t:pagerPosition="bottom"
+											t:model="fkrModel" t:inPlace="true" t:lean="true" style="width: 100%; text-align: left;">
+                                            <p:viewCell>
+                                                <t:pagelink t:page="fkr/FkrEdit" t:context="[fkr.id, pageName]">
+                                                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+                                                </t:pagelink>           
+                                            </p:viewCell>
+									  		<p:createdCell>
+                                                <t:output format="dateListPattern" value="fkr.created"/>
+									  		</p:createdCell>
+									  		<p:fkrTypeCell>
+									            ${fkr.type.name}
+									        </p:fkrTypeCell>
+                                            <p:signCell>
+                                                <t:if test="fkr.significant">
+                                                    <img src="${context:img/ihigh_obj.gif}" title="существенный ФКР"/>
+                                                </t:if>
+                                            </p:signCell>
+									      	<p:statusCell>
+									            ${fkr.status.name}
+									        </p:statusCell>
+									        <p:finishedCell>
+                                                <t:output format="dateListPattern" value="fkr.finished"/> 
+                                            </p:finishedCell>
+									        <p:empty><h4>ФКР не найдены</h4></p:empty>									        	                                	
+	                                	</table>
+		                            </fieldset>
+                               	</td>
+					        </tr>
+					        <tr t:type="if" t:test="event.result?.sanction">
+						        <td align="left" colspan="5">
+                                   <fieldset>
+                                        <legend>Санкции за невыполнение</legend>
+                                        <table style="width: 100%">
+				                            <tr valign="top">
+				                                <td>
+				                                   <p style="margin-bottom:1px;margin-top:1px;">Санкции за невыполнение:</p>
+														${event.punitiveMeasure?.name}
+				                                </td>
+				                            </tr>   
+				                            <tr valign="top">
+                                                <td t:type="zone" t:id="punitiveMeasureZone" t:update="show" id="punitiveMeasureZone">
+                                                   <p style="margin-bottom:1px;margin-top:1px;">Описание санкции:</p>
+                                                        ${event.punitiveMeasureDescr}
+                                                </td>
+                                            </tr>   
+				                            <tr valign="bottom">
+				                                <td colspan="5">
+				                                	<t:if test="event.applySanction"><B>Санкции применяются</B></t:if>
+					                                <t:if test="event.revokeSanction"><B>Санкции отменены решением</B></t:if>
+				                                </td>
+				                            </tr>
+				                            <tr valign="bottom" t:type="if" t:test="event.applySanction">
+				                                <td colspan="5">
+				                                    <table style="width: 100%">
+				                                        <tr>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Дата:</p>
+				                                                <t:output t:id="eventSanctionDate" t:value="event.sanctionDate"
+				                                                	format="prop:dateInputPattern" disabled="true"/>
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">В размере:</p>
+				                                                	${event.sanctionValue}
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Валюта:</p>
+				                                              		${event.sanctionCurrency}
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Документ по санкции:</p>
+				                                                	Распоряжение о взимании неустойки
+				                                            </td>
+				                                            <td>
+				                                               <p style="margin-bottom:1px;margin-top:1px;">Связанные мероприятия/процесс:</p>
+				                                            </td>
+				                                        </tr>
+				                                    </table>
+				                                </td>
+				                            </tr>
+				                            <tr valign="bottom" t:type="if" t:test="event.revokeSanction">
+				                                <td colspan = "5">
+				                                    <table style="width: 60%">
+				                                        <tr>
+							                                <td>
+							                                    <p style="margin-bottom:1px;margin-top:1px;">Уполномоченный орган/лицо:</p>
+							                                    ${event.sanctionRefusedBy}
+				                                			</td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">№ документа:</p>
+				                                                ${event.sanctionRefusedDocNum}        
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Дата документа:</p>
+				                                                <t:output t:id="eventSanctionRefusedDate" t:value="event.sanctionRefusedDate"
+				                                                	format="prop:dateInputPattern" disabled="true"/>
+				                                            </td>
+				                                        </tr>
+				                                    </table>
+				                                </td>
+				                            </tr>
+                                        </table>
+                                    </fieldset>
+                               </td>
+                            </tr>
+						</table>						
+					</fieldset>
+				</td>
+            </tr>
+		</table>
+		<div class="buttons">
+			<input t:type="submit"  t:id="cancelButton" t:value="Вернуться" class="button" t:mode="cancel"/>
+		</div>		
+		</form>
+		</p:TabsExecute>
+		
+		<p:TabsInfo>
+	   	<table>
+           <tr>
+                <th align="right">Номер сделки в СПО</th>
+                <td><a href="${message:serverRoot}/ProdflexWorkflow/form.jsp?mdtaskid=${event.event.deal?.id}" title="Информация о сделке" target="_blank">
+                        ${event.event.deal?.spkpNumber}</a>
+                </td>                
+           </tr>
+           <tr>
+                <th align="right">Номер сделки в CRM</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Номер сделки в XBANK</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Номер кредитного соглашения</th>
+                <td>${event.event.deal?.spkpNumber}</td>                
+           </tr>
+           <tr>
+                <th align="right">Дата подписания</th>
+                <td><t:output value="event.event.deal?.validTo" format="dateListPattern"/></td>                
+           </tr>
+           <tr>
+                <th align="right">Номер сублимита</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Основной заемщик</th>
+                <td>
+                    <a href="${message:serverRoot}/ProdflexWorkflow/ContractorInfo.jsp?crmid=${event.contractor?.id}" title="Информация о клиенте" target="_blank">
+                        ${event.contractor?.name}
+                    </a>
+                </td>                
+           </tr>
+           <tr>
+                <th align="right">Контрагенты</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Вид продукта (сделки)</th>
+                <td>${event.event.deal?.type?.name}</td>                
+           </tr>
+           <tr>
+                <th align="right">Сумма сделки</th>
+                <td><t:output value="event.event.deal?.amount" format="amountListFormat"/>&nbsp;${event.event .deal?.currency?.id}</td>                
+           </tr>
+           <tr>
+                <th align="right">Срок сделки в днях</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Статус</th>
+                <td></td>                
+           </tr>
+           <tr>
+           		<td colspan="2">
+           			<fieldset>
+                   	<legend>Условия</legend>
+	                   	<UL>
+		                <t:Loop source="eventConditions" value="typeCondition" formState="none">
+		                    <LI> ${typeCondition.type.name}
+		                    	<ul>
+			                   		<t:Loop t:source="typeCondition.conditions" t:value="eventCondition" formState="none">
+			                   			<LI>${eventCondition.name}</LI>
+			                   		</t:Loop>
+		                   		</ul>
+	                   		</LI>
+		                </t:Loop>
+		               	</UL>
+                   	</fieldset>
+           		</td>
+           </tr>
+       </table>
+		</p:TabsInfo>
+		
+	</t:jquery.tabs>
+</t:layout>		

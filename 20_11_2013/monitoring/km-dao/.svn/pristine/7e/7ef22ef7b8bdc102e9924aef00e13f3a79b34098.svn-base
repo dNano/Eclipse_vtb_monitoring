@@ -1,0 +1,36 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+public class KmEventInstanceRm extends BaseRm<KmEventInstance> {
+
+	public KmEventInstanceRm() {
+		super("EI_");
+	}
+
+	@Override
+	protected KmEventInstance map(ResultSetWrapper rsw) throws SQLException {
+		KmEventInstance instance = new KmEventInstance();
+
+		instance.setId(rsw.getLong(getAliasPrefix() + "ID"));
+		instance.setPlanExecutionDate(rsw.getDate(getAliasPrefix() + "PLAN_DATE"));
+		instance.setExecutor(new UserRm().map(rsw));
+		instance.setEvent(new KmEventRm().map(rsw));
+		instance.setContractor(new ContractorRm().map(rsw));
+		instance.setContractorType(new ContractorTypeRm().map(rsw));
+		instance.setStatus(new KmEventStatusRm().map(rsw));
+		instance.setResult(new KmEventResultRm().map(rsw));
+		instance.setConfirmationType(new KmConfirmationTypeRm().map(rsw));
+		instance.setResultNote(rsw.getString(getAliasPrefix() + "RESULT_NOTE"));
+		
+		return instance;
+	}
+
+}

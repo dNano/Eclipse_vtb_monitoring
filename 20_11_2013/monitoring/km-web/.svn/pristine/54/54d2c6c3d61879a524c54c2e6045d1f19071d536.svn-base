@@ -1,0 +1,38 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Карточка контрольного мероприятия клиента">
+
+	<h1 style="text-align: center;">Карточка контрольного мероприятия клиента "${clientID}"</h1>
+	<form t:type="form" t:id="executeContractorEventForm" t:clientValidation="none" t:autofocus="false">
+		<div t:type="errors" class="literal:km-error"></div>
+		<table style="width: 100%">
+			<tr>
+				<td>
+					<table style="width: 60%">
+						<tr valign="top">
+							<td>
+								<p style="margin-bottom: 1px;">Тип объекта мониторинга</p>
+								<t:textfield t:id="monitored_object" size="10" value="literal:клиент" disabled="true" />
+							</td>
+							<td>
+								<p style="margin-bottom: 1px;">Текущий статус мероприятия</p>
+								<b>${event?.status?.name}</b>
+							</td>
+						</tr>
+						<tr valign="bottom">
+							<td colspan="3">
+								<p style="margin-bottom: 1px;">Текстовое описание мероприятия/события</p>
+								<t:textarea t:id="km_event_descr" cols="100" rows="3" disabled="true" 
+									value="${event?.event?.eventTypeGroup?.name}"/>
+							</td>
+							<td>
+								<p style="margin-bottom: 1px;">Тип мероприятия</p>
+								<t:textArea cols="50" rows="3" t:id="km_event_type" disabled="true" 
+									value="${event?.event?.name}" />
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</form>
+</t:layout>

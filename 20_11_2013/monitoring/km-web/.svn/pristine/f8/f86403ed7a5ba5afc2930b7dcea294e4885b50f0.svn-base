@@ -1,0 +1,11 @@
+package ru.masterdm.km.web.components.event;
+
+/**
+ * Хронологии исполнения мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EventChronology {
+
+}

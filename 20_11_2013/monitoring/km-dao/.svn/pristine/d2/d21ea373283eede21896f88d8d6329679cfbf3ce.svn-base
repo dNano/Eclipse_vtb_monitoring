@@ -1,0 +1,70 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.Deal;
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.entity.KmClassifier;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.common.searchfilter.CalendarFilter;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+import ru.masterdm.km.util.query.SortCriterion;
+
+/**
+ * DAO интерфейс для сущности "Сделка"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public interface DealDao {
+	int getInstanceCount(EventsByDealFilter filter);
+
+	List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter, List<SortCriterion> sortCriteria);
+
+	List<KmEventInstance> getDealCalendar(int startIndex, int amount, long dealID);
+
+	int getDealCalendarCount(long dealID);
+
+	List<KmClassifier> getClassifiers(int startIndex, int amount);
+
+	int getClassifiersCount();
+
+	List<KmEventCalendar> getDealPlan(int startIndex, int amount, long dealID);
+
+	int getDealPlanCount(long dealID);
+
+	void addEventType(long dealID, long eventTypeID, String eventName);
+
+	void removeEventType(long dealID, long eventTypeID);
+
+	void acceptEventType(long dealID, long eventCalendarID);
+
+	KmEventCalendar getPlanEventForDeal(long eventPlanID);
+
+	void savePlanEventForDeal(KmEventCalendar event);
+
+	boolean isExistEventType(long dealID, long eventTypeID);
+
+	List<KmEventCalendar> getDealPlan(int startIndex, int amount, long dealID, KmEvent filter);
+
+	int getDealPlanCount(long dealID, KmEvent filter);
+
+	List<KmEventInstance> getDealCalendar(int startIndex, int amount, long dealID, KmEvent filter);
+
+	int getDealCalendarCount(long dealID, KmEvent filter);
+
+	void acceptPlan(long dealID, KmEvent filter);
+
+	List<KmFkr> getDealFkr(int startIndex, int amount, long dealID);
+
+	int getDealFkrCount(long dealID);
+
+	void addFkrToDeal(KmFkr fkr, long dealID);
+
+	List<KmEventInstance> getDealCalendar(long dealID, CalendarFilter calendarFilter);
+
+	Deal getDeal(long dealID);
+}

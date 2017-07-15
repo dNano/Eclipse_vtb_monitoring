@@ -1,0 +1,20 @@
+drop sequence tmp_km_event_instance_seq
+/
+drop table tmp_km_event_instance
+/
+drop sequence tmp_km_event_seq
+/
+drop table tmp_km_event
+/
+drop table tmp_km_event_instance_status
+/
+drop sequence tmp_km_event_type_seq
+/
+drop table tmp_km_event_type
+/
+drop sequence tmp_km_event_type_group_seq
+/
+drop table tmp_km_event_type_group
+/
+drop table tmp_km_monitored_object_type
+/

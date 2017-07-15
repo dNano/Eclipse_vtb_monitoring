@@ -1,0 +1,85 @@
+package ru.masterdm.km.web.base;
+
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+
+import org.apache.tapestry5.annotations.SessionState;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.common.entity.User;
+import ru.masterdm.km.web.state.Visit;
+
+/**
+ * Общая функциональность для страниц.
+ * 
+ */
+public class SimpleBasePage {
+	@SessionState
+	private Visit visit;
+	private boolean visitExists;
+
+	@Inject
+	private Messages messages;
+
+	protected Messages getMessages() {
+		return messages;
+	}
+
+	public Visit getVisit() {
+		return visit;
+	}
+
+	protected void setVisit(Visit visit) {
+		this.visit = visit;
+	}
+
+	public boolean isVisitExists() {
+		return visitExists;
+	}
+
+	public String getDateInputPattern() {
+		return visitExists ? visit.getDateInputPattern() : User.defaultDateInputPattern;
+	}
+
+	public String getDateViewPattern() {
+		return visitExists ? visit.getDateViewPattern() : User.defaultDateViewPattern;
+	}
+
+	public String getDateListPattern() {
+		return visitExists ? visit.getDateListPattern() : User.defaultDateListPattern;
+	}
+
+	public String getAmountListPattern() {
+		return visitExists ? visit.getAmountListPattern() : User.defaultAmountListPattern;
+	}
+
+	public String getAmountViewPattern() {
+		return visitExists ? visit.getAmountViewPattern() : User.defaultAmountViewPattern;
+	}
+
+	public DateFormat getDateInputFormat() {
+		return new SimpleDateFormat(visit.getDateInputPattern());
+	}
+
+	public DateFormat getDateViewFormat() {
+		// return new SimpleDateFormat(visit.getDateViewPattern());
+		return new SimpleDateFormat(getDateViewPattern());
+	}
+
+	public DateFormat getDateListFormat() {
+		// return new SimpleDateFormat(visit.getDateListPattern());
+		return new SimpleDateFormat(getDateListPattern());
+	}
+
+	public DecimalFormat getAmountListFormat() {
+		DecimalFormat numberFormatter = new DecimalFormat(getAmountListPattern());
+		return numberFormatter;
+	}
+
+	public DecimalFormat getAmountViewFormat() {
+		DecimalFormat numberFormatter = new DecimalFormat(getAmountViewPattern());
+		return numberFormatter;
+	}
+}

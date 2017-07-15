@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+                           
+	<bean class="ru.masterdm.km.dao.SecurityDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<util:map key-type="ru.masterdm.km.dao.SecurityDaoSqlKey"
+				value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+				<entry key="USER_BY_LOGIN">
+					<value>
+                        <![CDATA[
+						    select u.id_user u_id, u.mail_user u_email, u.login u_login, u.surname u_last_name,
+						    	u.name u_first_name, patronymic u_patronymic,
+						    	dep.id_department dep_id, dep.fullname dep_name 
+						    	from users u
+						    	inner join DEPARTMENTS dep on u.id_department=dep.id_department
+                            		where login = ?
+                        ]]>
+					</value>
+				</entry>
+				<entry key="ROLES_FOR_USER">
+					<value>
+                        <![CDATA[
+							 select cps_m.GROUP_ID_ cps_r_id, cps_r.NAME_ cps_r_name 
+								from CPS_MEMBERSHIP cps_m
+								left outer join CPS_ROLE cps_r on cps_m.GROUP_ID_ = cps_r.ID_
+									where USER_ID_ = ?
+                        ]]>
+					</value>
+				</entry>
+			</util:map>
+		</property>
+	</bean>
+</beans>                                  

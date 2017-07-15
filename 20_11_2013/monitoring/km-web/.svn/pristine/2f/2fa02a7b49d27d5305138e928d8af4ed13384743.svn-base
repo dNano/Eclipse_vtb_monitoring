@@ -1,0 +1,299 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Сделка №${deal.deal.spkpNumber}: план мероприятий, календарь, ФКР">
+<h5>${dealInfo}</h5><br/>
+<t:jquery.tabs  t:tabs="TabsInfo,TabsPlan,TabsCalendar,TabsFkr" t:activePanelId="curTab">
+	<p:TabsInfo>
+	   <table>
+           <tr>
+                <th align="right">Номер сделки в СПО</th>
+                <td><a href="${message:serverRoot}/ProdflexWorkflow/form.jsp?mdtaskid=${deal?.deal?.id}" title="Информация о сделке" target="_blank">
+                        ${deal?.deal?.spkpNumber}</a>
+                </td>                
+           </tr>
+           <tr>
+                <th align="right">Номер сделки в CRM</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Номер сделки в XBANK</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Номер кредитного соглашения</th>
+                <td>${deal?.deal?.spkpNumber}</td>                
+           </tr>
+           <tr>
+                <th align="right">Дата подписания</th>
+                <td><t:output value="deal?.deal?.validTo" format="dateListPattern"/></td>                
+           </tr>
+           <tr>
+                <th align="right">Номер сублимита</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Основной заемщик</th>
+                <td>
+                    <a href="${message:serverRoot}/ProdflexWorkflow/ContractorInfo.jsp?crmid=${deal?.contractor?.id}" title="Информация о клиенте" target="_blank">
+                        ${deal?.contractor?.name}
+                    </a>
+                </td>                
+           </tr>
+           <tr>
+                <th align="right">Контрагенты</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Вид продукта (сделки)</th>
+                <td>${deal?.deal?.type?.name}</td>                
+           </tr>
+           <tr>
+                <th align="right">Сумма сделки</th>
+                <td><t:output value="deal?.deal?.amount" format="amountListFormat"/>&nbsp;${deal?.deal?.currency?.id}</td>                
+           </tr>
+           <tr>
+                <th align="right">Срок сделки в днях</th>
+                <td></td>                
+           </tr>
+           <tr>
+                <th align="right">Статус</th>
+                <td></td>                
+           </tr>
+           <tr>
+           		<td colspan="2">
+           			<fieldset>
+                   	<legend>Условия</legend>
+                   		<UL>
+		                <t:Loop source="dealConditions" value="typeCondition">
+		                    <LI> ${typeCondition.type.name}
+		                    	<ul>
+			                   		<t:Loop t:source="typeCondition.conditions" t:value="dealCondition">
+			                   			<LI>${dealCondition.name}</LI>
+			                   		</t:Loop>
+		                   		</ul>
+	                   		</LI>
+		                </t:Loop>
+		               	</UL>
+                   	</fieldset>
+           		</td>
+           </tr>
+       </table>
+	</p:TabsInfo>
+	
+	<p:TabsPlan>
+		<form t:type="form" t:id="dealPlanForm">
+			<table>
+		       <tr valign="top">
+		            <td>
+				        <table t:type="jquery/datatable" t:source="planList" t:row="calendar" t:rowsPerPage="15"
+				        	 t:model="planModel"  t:options="options" t:lean="true" t:pagerPosition="bottom">
+				            <p:editCell>
+				                <t:pagelink t:page="eventInstances/EditPlanForDeal" t:context="[calendar.id, pageName, dealID, deal.deal.spkpNumber]">
+				                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+				                </t:pagelink>           
+				            </p:editCell>
+				            <p:eventTypeNameCell>
+				                <t:if test="selectedRow">
+						        	<B style="color: orange;">${calendar?.classifier?.eventType?.name}</B>
+						        	<p:else>
+					                	${calendar?.classifier?.eventType?.name}
+					                </p:else>
+					            </t:if>
+				            </p:eventTypeNameCell>
+				            <p:removeCell>
+				            	<t:if test="!rowInCalendar">
+					                <a t:type="actionLink" t:id="removeEventType" t:context="calendar.classifier.eventType.id" t:mixins="Confirm"
+					                	t:message="Удалить мероприятие '${calendar?.classifier?.eventType?.name}' из плана?">
+					                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+					                </a>
+					            </t:if>
+				            </p:removeCell>
+				            <p:acceptCell>
+				            	<t:if test="!rowInCalendar">
+					                <a t:type="actionLink" t:id="acceptEventType" t:context="[calendar.id, calendar?.classifier?.eventType?.id]" t:mixins="clickOnce">
+					                	<B style="color: blue;">Акцептовать</B></a>
+					            	<p:else><img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/></p:else>
+					            </t:if>
+				            </p:acceptCell>					            
+				        </table><br/>
+						<div style="text-align: center;" t:type="if" t:test="renderAcceptAllButton">
+			                 <a t:type="actionLink" t:id="acceptAll" t:mixins="clickOnce"><B style="color: blue;">Акцептовать ВСЕ</B></a>
+			            </div>	
+		            </td>		            	            
+				</tr>
+				<tr valign="top">
+                    <td>
+                        <fieldset>
+                            <legend>Добавление мероприятий в План</legend>
+                            <t:tree class="test-hook" t:id="tree" model="treeModel" value="valueWrapper" label="block:renderTreeNodeLabel" />
+                            <t:block id="renderTreeNodeLabel">
+                                <t:if test="selectedLeaf">
+                                    <B style="color: orange;"> ${valueWrapper.label}</B>
+                                    <p:else>
+                                        <t:if test="disabledLeaf">
+                                        <B style="color: gray;"> ${valueWrapper.label}</B>                                  
+                                            <p:else>
+                                                <t:if test="valueWrapper.type">
+                                                    <a t:type="actionLink" t:id="addEventType" t:context="[valueWrapper.pageName, valueWrapper.label]"
+                                                         onmouseover="setStyle('text-decoration: underline');" onmouseout="setStyle('text-decoration: none');"
+                                                          t:mixins="clickOnce" style="text-decoration: none" title="Добавить в план">
+                                                         <img src="${context:/img/right.gif}"/>${valueWrapper.label}</a>
+                                                    <p:else>${valueWrapper.label}</p:else>
+                                                </t:if>
+                                            </p:else>
+                                        </t:if>
+                                    </p:else>
+                                </t:if>
+                            </t:block>
+                        </fieldset>
+                    </td>   
+                  </tr>
+			</table>
+		</form>			
+	</p:TabsPlan>
+	
+	<p:TabsCalendar>
+		<span t:type="zone" t:id="dealCalendarZone" id="dealCalendarZone">
+		<form t:type="form" t:id="dealCalendarForm" t:clientValidation="none" t:autofocus="false" t:zone="^">
+			<table>
+				<tr>
+					<td>
+						<fieldset style="border:0;">
+							<legend>Фильтр</legend>
+							<table>
+	                           <tr>
+	                                <td>Плановая дата с&nbsp;</td>
+	                                <td>
+	                                    <t:dynarchCalendar t:value="calendarFilter.dateFrom"/>
+	                                </td>
+	                               	<td>&nbsp;по&nbsp;</td>
+	                                <td>
+	                                    <t:dynarchCalendar t:value="calendarFilter.dateTo"/>
+	                                </td>
+	                            </tr>
+	                            <tr>
+	                            	<td>Дата исполнения с&nbsp;</td>
+	                                <td>
+	                                    <t:dynarchCalendar t:value="calendarFilter.execDateFrom"/>
+	                                </td>
+	                                <td>&nbsp;по&nbsp;</td>
+	                                <td>
+	                                    <t:dynarchCalendar t:value="calendarFilter.execDateTo"/>
+	                                </td>
+	                            </tr>
+							</table>
+							<div class="buttons">
+				                <input t:type="submit" t:value="Искать" class="button" t:id="getCalendarButton" />
+				                <input t:type="submit" t:value="Очистить" class="button" t:mode="cancel" t:id="cleanCalendarFilterButton"/>
+				            </div>
+						</fieldset>
+					</td>
+				</tr>							
+				<tr valign="top">
+		            <td width="50%">
+						<table t:type="jquery/datatable" t:source="calendarList" t:row="eventInstance" t:rowsPerPage="5"
+							t:model="eventInstanceModel" t:options="options" t:inPlace="true" t:rowClass="prop:eventForDealRowClass"
+							style="width: 100%; text-align: left;">
+							<p:planExecutionDateCell>
+								<t:output format="dateListPattern" value="eventInstance.planExecutionDate"/>
+							</p:planExecutionDateCell>
+							<p:executedDateCell>
+								<t:output format="dateListPattern" value="eventInstance.executedDate"/>
+							</p:executedDateCell>
+							<p:resultCell>
+					     		<t:if test="okResult">
+					     			<img src="${context:img/allowed.png}" title="${eventInstance?.result?.name}"/>
+					     			<p:else>
+					     				<t:if test="sanctionOrRemarkResult">
+					     					<img src="${context:img/yes.gif}" title="${eventInstance?.result?.name}"/>
+					    						<p:else>
+					    							<t:if test="fkrResult">
+					    								<img src="${context:img/arrow.gif}" title="${eventInstance?.result?.name}"/>
+					    							</t:if>
+					    						</p:else>
+					     				</t:if>
+					     			</p:else>
+					     		</t:if>
+					     		<t:if test="sanctionResult">
+					     			<img src="${context:img/ihigh_obj.gif}" title="${eventInstance?.result?.name}"/>
+					     		</t:if>
+					        </p:resultCell>							
+							<p:statusNameCell>
+					     		${eventInstance?.status?.name}
+					        </p:statusNameCell>														
+							<p:eventNameCell>
+								<t:if test="selectedRowCalendar">
+					            	<B style="color: orange;">${eventInstance?.event?.name}</B>
+					            	<p:else>
+					            		<t:if test="canExecuted">
+								            <t:pagelink t:page="executionEvent/executeDealEvent" t:context="[eventInstance?.id, pageName]"
+								            	 title="Исполнить контрольное мероприятие сделки" style="text-decoration: none;">
+								 				 ${eventInstance?.event?.name}
+								 			</t:pagelink>
+						            		<p:else>
+								            	<t:pagelink t:page="executionEvent/viewDealEvent" t:context="[eventInstance?.id, pageName]"
+								 					title="Просмотр мероприятия сделки" style="text-decoration: none;">
+							            			${eventInstance?.event?.name}
+							            		</t:pagelink>
+							            	</p:else>
+							            </t:if>
+					            	</p:else>
+					            </t:if>
+					        </p:eventNameCell>
+							<p:contractNumberCell>
+					            ${eventInstance?.event?.contractNumber}
+					        </p:contractNumberCell>
+							<p:executorCell>
+					            ${eventInstance?.executor?.shortFullName}
+					        </p:executorCell>
+							<p:mailToCell>
+								<a href="mailto:${eventInstance?.executor?.email}" t:type="if"
+									t:test="eventInstance?.executor?.email"> <img src="${context:/img/mailto.png}" /></a>
+							</p:mailToCell>
+							<p:removeCell>
+				                <a t:type="actionLink" t:id="removeEventInstance" t:context="eventInstance?.id" t:mixins="Confirm"
+				                	t:message="Удалить календарное мероприятие '${eventInstance?.event?.name}?'">
+				                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+				                </a>
+				            </p:removeCell>
+						</table>
+	            	</td>
+	        	</tr>			
+			</table>	
+		</form>
+		</span>
+	</p:TabsCalendar>
+	
+	<p:TabsFkr>
+			<table t:type="jquery/datatable" t:source="fkrList" t:row="fkrInstance" t:rowsPerPage="5"
+				t:model="fkrInstanceModel" t:options="options" t:inPlace="true" style="width: 100%; text-align: left;">
+			   	<p:editCell>
+		            <t:pagelink t:page="fkr/FkrEdit" t:context="[fkrInstance.id, pageName]">
+		                <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+		            </t:pagelink>           
+		        </p:editCell>		
+			  	<p:fkrTypeCell>
+		            ${fkrInstance.type.name}
+		        </p:fkrTypeCell>
+		      	<p:noteCell>
+		            ${fkrInstance.notes}
+		        </p:noteCell>
+		      	<p:statusCell>
+		            ${fkrInstance.status.name}
+		        </p:statusCell>
+				<p:signCell>
+					<t:if test="fkrInstance.significant">
+						<img src="${context:img/ihigh_obj.gif}" title="существенный ФКР"/>
+					</t:if>
+		        </p:signCell>
+		        <p:createdCell>
+		            <span t:type="output" t:format="dateListPattern" t:value="fkrInstance.created"></span>
+		        </p:createdCell>
+		        <p:finishedCell>
+		            <span t:type="output" t:format="dateListPattern" t:value="fkrInstance.finished"></span>
+		        </p:finishedCell>
+			</table>
+	</p:TabsFkr>
+	
+</t:jquery.tabs>
+		
+</t:layout>

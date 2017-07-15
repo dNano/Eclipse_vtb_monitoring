@@ -1,0 +1,39 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.entity.KmClassifier;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+
+/**
+ * DAO интерфейс для сущности "Сделка"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public interface DealDao {
+	int getInstanceCount(EventsByDealFilter filter);
+
+	List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter);
+
+	List<KmEventInstance> getDealCalendar(int startIndex, int i, long dealID);
+
+	int getDealCalendarCount(long dealID);
+
+	List<KmClassifier> getClassifiers(int startIndex, int i);
+
+	int getClassifiersCount();
+
+	List<KmEventCalendar> getDealPlan(int startIndex, int i, long dealID);
+
+	int getDealPlanCount(long dealID);
+
+	void addEventType(long dealID, long eventTypeID);
+
+	void removeEventType(long dealID, long eventTypeID);
+
+	void acceptEventType(long dealID, long eventTypeID);
+}

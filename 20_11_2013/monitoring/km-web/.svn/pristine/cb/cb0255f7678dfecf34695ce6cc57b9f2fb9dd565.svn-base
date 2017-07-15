@@ -1,0 +1,38 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import org.apache.tapestry5.Link;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.PageRenderLinkSource;
+
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.dao.FkrDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * EditPage for ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrEdit extends SimpleBasePage {
+	@Persist
+	@Property
+	protected KmFkrInstance fkr;
+
+	@Persist
+	Link returnPage;
+
+	@Inject
+	private FkrDao fkrDao;
+	@Inject
+	private PageRenderLinkSource pageRenderLinkSource;
+
+	void onActivate(long fkrID, String returnPageName) {
+		fkr = fkrDao.getFkrInstance(fkrID);
+		if ("fkr/fkrList".equalsIgnoreCase(returnPageName)) {
+			returnPage = pageRenderLinkSource.createPageRenderLinkWithContext(returnPageName);
+		}
+	}
+}

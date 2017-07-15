@@ -1,0 +1,20 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * 
+ * Сущность Списка ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class KmFkrInstance {
+	private KmFkr fkr;
+
+	public KmFkr getFkr() {
+		return fkr;
+	}
+
+	public void setFkr(KmFkr fkr) {
+		this.fkr = fkr;
+	}
+}

@@ -1,0 +1,89 @@
+package ru.masterdm.km.web.components.event;
+
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.FKR;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.OK;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.REMARK;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.SANCTION;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.SANCTION_FKR;
+
+import org.apache.tapestry5.annotations.Parameter;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+
+import ru.masterdm.km.common.dictionary.EventResultDictionary;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.DealDao;
+import ru.masterdm.km.web.model.EventsForDealDataSource;
+
+/**
+ * Хронологии исполнения мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EventChronology {
+	@Parameter(required = true)
+	@Property
+	private long eventID;
+	@Parameter(required = true)
+	@Property
+	private String dateListPattern;
+	@Parameter(required = true)
+	@Property
+	private String returnPageName;
+
+	@Property
+	private KmEventInstance event;
+	@Property
+	private GridDataSource events;
+
+	@Inject
+	private DealDao dealDao;
+	@Inject
+	private Messages messages;
+	@Inject
+	private BeanModelSource beanModelSource;
+
+	// void onProgressiveDisplayFromShowChronology() {
+	void setupRender() {
+		events = new EventsForDealDataSource(dealDao, eventID);
+	}
+
+	public BeanModel<KmEventInstance> getEventsModel() {
+		BeanModel<KmEventInstance> eventsModel = beanModelSource.createDisplayModel(KmEventInstance.class, messages);
+		for (String prop : eventsModel.getPropertyNames()) {
+			eventsModel.get(prop).sortable(false);
+		}
+		return eventsModel;
+	}
+
+	public boolean isOkResult() {
+		return isEventResult(OK, event);
+	}
+
+	public boolean isSanctionOrRemarkResult() {
+		return isEventResult(SANCTION, event) || isEventResult(REMARK, event);
+	}
+
+	public boolean isFkrResult() {
+		return isEventResult(FKR, event) || isEventResult(SANCTION_FKR, event);
+	}
+
+	public boolean isSanctionResult() {
+		return isEventResult(SANCTION, event) || isEventResult(SANCTION_FKR, event);
+	}
+
+	private boolean isEventResult(EventResultDictionary dict, KmEventInstance kmEventInstance) {
+		Long result = kmEventInstance.getResult().getId();
+		return (result != null && result.intValue() == dict.getId()) ? true : false;
+	}
+
+	public String getEventRowClass() {
+		return isFkrResult() ? "FKR" : "";
+	}
+
+}

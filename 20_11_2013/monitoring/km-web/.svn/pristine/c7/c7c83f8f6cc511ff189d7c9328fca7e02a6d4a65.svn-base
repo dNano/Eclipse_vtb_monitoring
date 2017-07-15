@@ -1,0 +1,129 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter"
+	t:title="Список контрольных мероприятий сделки № ${dealID}">
+	<h1 style="text-align: left;">
+	<t:pagelink t:page="eventInstances/DealPlan" t:context="dealID" style="text-decoration: none">
+		План контрольных мероприятий сделки № ${dealID}
+	</t:pagelink>
+		 | Календарь контрольных мероприятий сделки № ${dealID}
+	</h1>
+<span t:type="zone" t:id="dealCalendarZone" id="dealCalendarZone">
+<fieldset>
+<form t:type="form" t:id="dealCalendarForm" t:clientValidation="none" t:autofocus="false" t:zone="^">
+    <table width="100%">
+			<tr>
+				<td>
+					<fieldset>
+						<legend>Фильтр</legend>
+						       	<table>
+                                    <tr>
+                                        <td>
+                                            <span t:type="label" t:for="monitoredObjectTypeSelect">Пo объекту:</span>
+                                        </td>
+                                        <td>
+                                            <input t:type="select" t:id="monitoredObjectTypeSelect" t:model="monitoredObjectTypeSelectModel"
+                                                   t:encoder="monitoredObjectTypeValueEncoder" t:blankOption="always" t:zone="^"
+                                                   t:blankLabel="------------------------" t:value="filter.monitoredObjectType"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t:type="label" t:for="eventTypeGroupSelect">Пo группе:</span>
+                                        </td>
+                                        <td>
+                                            <input t:type="select" t:id="eventTypeGroupSelect" t:model="eventTypeGroupSelectModel"
+                                                   t:encoder="eventTypeGroupValueEncoder" t:blankOption="always" t:zone="^"
+                                                   t:blankLabel="------------------------" t:value="filter.eventTypeGroup"/>
+                                        </td>
+                                    </tr>
+                                     <tr>
+                                        <td>
+                                            <span t:type="label" t:for="eventTypeSelect">По типу:</span>
+                                        </td>
+                                        <td>
+                                            <input t:type="select" t:id="eventTypeSelect" t:model="eventTypeSelectModel"
+                                                   t:encoder="eventTypeValueEncoder" t:blankOption="always" t:zone="^"
+                                                   t:blankLabel="------------------------" t:value="filter.eventType"/>
+                                        </td>
+                                    </tr>                                    
+                               	</table>
+					</fieldset>
+				</td>
+			</tr>
+			<tr valign="top">
+            <td width="50%">
+		        <fieldset style="border:0;">
+	                <legend><h2>Календарь</h2></legend>
+						<table t:type="grid" t:source="eventInstances" t:row="eventInstance"
+							t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom"
+							t:inPlace="true" t:include="planExecutionDate" t:model="eventInstanceModel"
+							t:add="eventName, contractNumber, dealId, amount, currency, mailTo, executor"
+							style="width: 100%; text-align: left;">
+							<p:planExecutionDate>
+								<span t:type="output" t:format="literal:dd.MM.yyyy"
+									t:value="eventInstance.planExecutionDate" />
+							</p:planExecutionDate>
+							<p:eventNameCell>
+					            ${eventInstance?.event?.name}
+					        </p:eventNameCell>
+							<p:contractNumberCell>
+					            ${eventInstance?.event?.contractNumber}
+					        </p:contractNumberCell>
+							<p:dealIdCell>
+					            ${eventInstance?.event?.deal?.id}
+					        </p:dealIdCell>
+							<p:amountCell>
+					            ${eventInstance?.event?.deal?.amount}
+					        </p:amountCell>
+							<p:currencyCell>
+					            ${eventInstance?.event?.deal?.currency?.id}
+					        </p:currencyCell>
+							<p:executorCell>
+					            ${eventInstance?.executor?.shortFullName}
+					        </p:executorCell>
+							<p:mailToCell>
+								<a href="mailto:${eventInstance?.executor?.email}" t:type="if"
+									t:test="eventInstance?.executor?.email"> <img
+									src="${context:/img/mailto.png}" />
+								</a>
+							</p:mailToCell>
+							<p:empty>
+								<h2>Мероприятия не найдены</h2>
+							</p:empty>
+						</table>
+				</fieldset>
+            </td>
+            <td width="50%">
+			    <fieldset style="border:0;">
+			       <legend><h2>План</h2></legend>
+			        <table t:type="grid" t:source="plan" t:row="calendar" t:rowsPerPage="25" t:lean="true" t:pagerPosition="bottom" 
+			            t:exclude="id, name, startDate, endDate, periodDate, periodDetails" t:add="accept, eventTypeName">
+			            <p:acceptCell>
+			                <a t:type="actionLink" t:id="acceptEventType" t:context="calendar.id">
+			                    <img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/>
+			                </a>
+			            </p:acceptCell>
+			            <p:editCell>
+			                <t:pagelink t:page="eventInstances/EditPlanForDeal" t:context="[calendar.id, dealID]">
+			                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+			                </t:pagelink>           
+			            </p:editCell>
+			            <p:eventTypeNameCell>
+			                ${calendar?.classifier?.eventType?.name}
+			            </p:eventTypeNameCell>
+			            <p:removeCell>
+			                <a t:type="actionLink" t:id="removeEventType" t:context="calendar.classifier.eventType.id">
+			                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+			                </a>
+			            </p:removeCell>
+			        </table>
+			       
+			    </fieldset>
+            </td>
+        </tr>
+    </table>
+</form>
+</fieldset>	
+</span>
+</t:layout>

@@ -1,0 +1,6 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+			xmlns:p="tapestry:parameter" t:title="Карточка контрольного мероприятия сделки">
+	<h1 style="text-align: center;">Карточка контрольного мероприятия сделки №&nbsp;
+		<a href="https://192.128.0.153:9443/ProdflexWorkflow/form.jsp?mdtaskid=${event?.event?.deal?.id}" title="Информация о сделке">${spkpNumber}</a></h1>
+		
+</t:layout>		

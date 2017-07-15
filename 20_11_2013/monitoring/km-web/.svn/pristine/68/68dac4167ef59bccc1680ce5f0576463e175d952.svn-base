@@ -1,0 +1,35 @@
+/**
+ * 
+ */
+package ru.masterdm.km.web.pages.eventInstances;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+
+import ru.masterdm.km.common.searchfilter.EventsByContractorFilter;
+
+/**
+ * Календарь мероприятий по клиентам.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ByContractor {
+	@Persist
+	@Property
+	private EventsByContractorFilter filter;
+
+	@OnEvent(value = EventConstants.ACTIVATE)
+	void prepare() {
+		System.out.println("activate");
+		if (filter == null) {
+			filter = emptyFilter();
+		}
+	}
+
+	private EventsByContractorFilter emptyFilter() {
+		return new EventsByContractorFilter();
+	}
+}

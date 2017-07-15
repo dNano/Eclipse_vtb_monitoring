@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+	<bean class="ru.masterdm.km.dao.DealDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<util:map key-type="ru.masterdm.km.dao.DealDaoSqlKey"
+				value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+				<entry key="DEAL_INSTANCE_COUNT">
+					<value>
+                        <![CDATA[
+                            select count(*) from MDTASK m where exists (select id_event_calendar from KM_EVENT_CALENDAR e where e.id_mdtask = m.id_mdtask)
+                        ]]>
+					</value>
+				</entry>
+				<entry key="DEAL_INSTANCES">
+					<value>
+                        <![CDATA[
+             				select m.ID_MDTASK d_id, m.MDTASK_NUMBER, m.MDTASK_SUM d_amount, m.CURRENCY C_CODE,
+             					   m.VALIDTO di_date 
+             					from MDTASK m 
+             					where exists (select id_event_calendar from KM_EVENT_CALENDAR e where e.id_mdtask = m.id_mdtask)
+             	           ]]>
+					</value>
+				</entry>
+			</util:map>
+		</property>
+	</bean>
+</beans>

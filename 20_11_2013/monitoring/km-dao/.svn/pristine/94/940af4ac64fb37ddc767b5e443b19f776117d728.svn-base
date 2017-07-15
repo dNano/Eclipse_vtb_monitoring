@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+    <bean id="contractorMoType" class="ru.masterdm.km.common.entity.MonitoredObjectType">
+        <property name="id" value="1"/>
+        <property name="name" value="Контрагент"/>
+    </bean>
+    <bean id="dealMoType" class="ru.masterdm.km.common.entity.MonitoredObjectType">
+        <property name="id" value="2"/>
+        <property name="name" value="Сделка"/>
+    </bean>
+    <bean id="supplyMoType" class="ru.masterdm.km.common.entity.MonitoredObjectType">
+        <property name="id" value="3"/>
+        <property name="name" value="Обеспечение"/>
+    </bean>
+
+    <bean id="properCreditUseContractorEtg" class="ru.masterdm.km.common.entity.KmEventTypeGroup">
+        <property name="id" value="1"/>
+        <property name="name" value="Мониторинг целевого использования кредита(контрагент)"/>
+        <property name="monitoredObjectType" ref="contractorMoType"/>
+    </bean>
+    <bean id="paymentObligationContractorEtg" class="ru.masterdm.km.common.entity.KmEventTypeGroup">
+        <property name="id" value="2"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(контрагент)"/>
+        <property name="monitoredObjectType" ref="contractorMoType"/>
+    </bean>
+
+    <bean id="properCreditUseDealEtg" class="ru.masterdm.km.common.entity.KmEventTypeGroup">
+        <property name="id" value="3"/>
+        <property name="name" value="Мониторинг целевого использования кредита(сделка)"/>
+        <property name="monitoredObjectType" ref="dealMoType"/>
+    </bean>
+    <bean id="paymentObligationDealEtg" class="ru.masterdm.km.common.entity.KmEventTypeGroup">
+        <property name="id" value="4"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(сделка)"/>
+        <property name="monitoredObjectType" ref="dealMoType"/>
+    </bean>
+
+    <bean id="properCreditUseSupplyEtg" class="ru.masterdm.km.common.entity.KmEventTypeGroup">
+        <property name="id" value="5"/>
+        <property name="name" value="Мониторинг целевого использования кредита(обеспечение)"/>
+        <property name="monitoredObjectType" ref="supplyMoType"/>
+    </bean>
+    <bean id="paymentObligationSupplyEtg" class="ru.masterdm.km.common.entity.KmEventTypeGroup">
+        <property name="id" value="6"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(обеспечение)"/>
+        <property name="monitoredObjectType" ref="supplyMoType"/>
+    </bean>
+
+    <bean id="properCreditUseContractorEventType1" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="1"/>
+        <property name="name" value="Мониторинг целевого использования кредита(контрагент) - событие1"/>
+        <property name="eventTypeGroup" ref="properCreditUseContractorEtg"/>
+    </bean>
+    <bean id="properCreditUseContractorEventType2" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="2"/>
+        <property name="name" value="Мониторинг целевого использования кредита(контрагент) - событие2"/>
+        <property name="eventTypeGroup" ref="properCreditUseContractorEtg"/>
+    </bean>
+    <bean id="paymentObligationContractorEventType1" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="3"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(контрагент) - событие1"/>
+        <property name="eventTypeGroup" ref="paymentObligationContractorEtg"/>
+    </bean>
+    <bean id="paymentObligationContractorEventType2" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="4"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(контрагент) - событие2"/>
+        <property name="eventTypeGroup" ref="paymentObligationContractorEtg"/>
+    </bean>
+
+    <bean id="properCreditUseDealEventType1" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="5"/>
+        <property name="name" value="Мониторинг целевого использования кредита(сделка) - событие1"/>
+        <property name="eventTypeGroup" ref="properCreditUseDealEtg"/>
+    </bean>
+    <bean id="properCreditUseDealEventType2" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="6"/>
+        <property name="name" value="Мониторинг целевого использования кредита(сделка) - событие2"/>
+        <property name="eventTypeGroup" ref="properCreditUseDealEtg"/>
+    </bean>
+    <bean id="paymentObligationDealEventType1" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="7"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(сделка) - событие1"/>
+        <property name="eventTypeGroup" ref="paymentObligationDealEtg"/>
+    </bean>
+    <bean id="paymentObligationDealEventType2" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="8"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(сделка) - событие2"/>
+        <property name="eventTypeGroup" ref="paymentObligationDealEtg"/>
+    </bean>
+
+    <bean id="properCreditUseSupplyEventType1" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="9"/>
+        <property name="name" value="Мониторинг целевого использования кредита(обеспечение) - событие1"/>
+        <property name="eventTypeGroup" ref="properCreditUseSupplyEtg"/>
+    </bean>
+    <bean id="properCreditUseSupplyEventType2" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="10"/>
+        <property name="name" value="Мониторинг целевого использования кредита(обеспечение) - событие2"/>
+        <property name="eventTypeGroup" ref="properCreditUseSupplyEtg"/>
+    </bean>
+    <bean id="paymentObligationSupplyEventType1" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="11"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(обеспечение) - событие1"/>
+        <property name="eventTypeGroup" ref="paymentObligationSupplyEtg"/>
+    </bean>
+    <bean id="paymentObligationSupplyEventType2" class="ru.masterdm.km.common.entity.KmEventType">
+        <property name="id" value="12"/>
+        <property name="name" value="Мониторинг платежных обязательств по сделке(обеспечение) - событие2"/>
+        <property name="eventTypeGroup" ref="paymentObligationSupplyEtg"/>
+    </bean>
+
+    <bean id="user1" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="1"/>
+        <property name="firstName" value="Кирилл"/>
+        <property name="lastName" value="Луговский"/>
+        <property name="patronymic" value="Святославович"/>
+        <property name="email" value="ksl@ontil.ihep.su"/>
+    </bean>
+    <bean id="user2" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="2"/>
+        <property name="firstName" value="Виталий"/>
+        <property name="lastName" value="Луговский"/>
+        <property name="patronymic" value="Святославович"/>
+        <property name="email" value="vsl@ontil.ihep.su"/>
+    </bean>
+    <bean id="user3" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="3"/>
+        <property name="firstName" value="Святослав"/>
+        <property name="lastName" value="Луговский"/>
+        <property name="patronymic" value="Борисович"/>
+        <property name="email" value="sbl@ontil.ihep.su"/>
+    </bean>
+    <bean id="user4" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="4"/>
+        <property name="firstName" value="Алексей"/>
+        <property name="lastName" value="Чалов"/>
+        <property name="patronymic" value="Евгеньевич"/>
+        <property name="email" value="alexey.chalov@gmail.com"/>
+    </bean>
+    <bean id="user5" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="5"/>
+        <property name="firstName" value="Андрей"/>
+        <property name="lastName" value="Епифаненков"/>
+        <property name="patronymic" value="Александрович"/>
+        <property name="email" value="pifa@au.ru"/>
+    </bean>
+    <bean id="user6" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="6"/>
+        <property name="firstName" value="Алексей"/>
+        <property name="lastName" value="Ковальский"/>
+        <property name="patronymic" value="Эдуардович"/>
+        <property name="email" value="koval@rdtex.ru"/>
+    </bean>
+    <bean id="user7" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="7"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев1"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev1@mail.ru"/>
+    </bean>
+    <bean id="user8" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="8"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев2"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev2@mail.ru"/>
+    </bean>
+    <bean id="user9" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="9"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев3"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev3@mail.ru"/>
+    </bean>
+    <bean id="user10" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="10"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев4"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev4@mail.ru"/>
+    </bean>
+    <bean id="user11" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="11"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев5"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev5@mail.ru"/>
+    </bean>
+    <bean id="user12" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="12"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев6"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev6@mail.ru"/>
+    </bean>
+    <bean id="user13" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="13"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев7"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev7@mail.ru"/>
+    </bean>
+    <bean id="user14" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="14"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев8"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev8@mail.ru"/>
+    </bean>
+    <bean id="user15" class="ru.masterdm.km.common.entity.User">
+        <property name="id" value="15"/>
+        <property name="firstName" value="Юрий"/>
+        <property name="lastName" value="Латышев9"/>
+        <property name="patronymic" value="Иванович"/>
+        <property name="email" value="latyshev9@mail.ru"/>
+    </bean>
+
+    <util:list id="users">
+        <ref bean="user1"/>
+        <ref bean="user2"/>
+        <ref bean="user3"/>
+        <ref bean="user4"/>
+        <ref bean="user5"/>
+        <ref bean="user6"/>
+        <ref bean="user7"/>
+        <ref bean="user8"/>
+        <ref bean="user9"/>
+        <ref bean="user10"/>
+        <ref bean="user11"/>
+        <ref bean="user12"/>
+        <ref bean="user13"/>
+        <ref bean="user14"/>
+        <ref bean="user15"/>
+    </util:list>
+
+    <bean id="status1" class="ru.masterdm.km.common.entity.KmEventInstanceStatus">
+        <property name="id" value="1"/>
+        <property name="name" value="Выявленные ФКР"/>
+    </bean>
+    <bean id="status2" class="ru.masterdm.km.common.entity.KmEventInstanceStatus">
+        <property name="id" value="2"/>
+        <property name="name" value="Просроченные"/>
+    </bean>
+    <bean id="status3" class="ru.masterdm.km.common.entity.KmEventInstanceStatus">
+        <property name="id" value="3"/>
+        <property name="name" value="Не исполненные"/>
+    </bean>
+    <bean id="status4" class="ru.masterdm.km.common.entity.KmEventInstanceStatus">
+        <property name="id" value="4"/>
+        <property name="name" value="Исполненные"/>
+    </bean>
+
+    <util:list id="instanceStatuses">
+        <ref bean="status1"/>
+        <ref bean="status2"/>
+        <ref bean="status3"/>
+        <ref bean="status4"/>
+    </util:list>
+
+    <bean id="RUR" class="ru.masterdm.km.common.entity.Currency">
+        <property name="id" value="RUR"/>
+    </bean>
+    <bean id="USD" class="ru.masterdm.km.common.entity.Currency">
+        <property name="id" value="USD"/>
+    </bean>
+    <bean id="EUR" class="ru.masterdm.km.common.entity.Currency">
+        <property name="id" value="EUR"/>
+    </bean>
+    <util:list id="currencies">
+        <ref bean="RUR"/>
+        <ref bean="USD"/>
+        <ref bean="EUR"/>
+    </util:list>
+
+    <util:list id="dealTypes">
+        <bean class="ru.masterdm.km.common.entity.DealType">
+            <property name="id" value="1"/>
+            <property name="name" value="Кредитная линия с лимитом выдачи и задолженности"/>
+        </bean>
+        <bean class="ru.masterdm.km.common.entity.DealType">
+            <property name="id" value="2"/>
+            <property name="name" value="Покрытые аккредитив (депонированные) в рублях"/>
+        </bean>
+    </util:list>
+
+    <util:list id="contractors">
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="1"/>
+            <property name="name" value="Контрагент 1"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="2"/>
+            <property name="name" value="Контрагент 2"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="3"/>
+            <property name="name" value="Контрагент 3"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="4"/>
+            <property name="name" value="Контрагент 4"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="5"/>
+            <property name="name" value="Контрагент 5"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="6"/>
+            <property name="name" value="Контрагент 6"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="7"/>
+            <property name="name" value="Контрагент 7"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="8"/>
+            <property name="name" value="Контрагент 8"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="9"/>
+            <property name="name" value="Контрагент 9"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="10"/>
+            <property name="name" value="Контрагент 10"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="11"/>
+            <property name="name" value="Контрагент 11"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.Contractor">
+            <property name="id" value="12"/>
+            <property name="name" value="ИП Имбицил и Компания"/>
+        </bean>        
+    </util:list>
+
+    <util:list id="contractorGroups">
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="1"/>
+            <property name="name" value="Группа контрагентов 1"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="2"/>
+            <property name="name" value="Группа контрагентов 2"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="3"/>
+            <property name="name" value="Группа контрагентов 3"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="4"/>
+            <property name="name" value="Группа контрагентов 4"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="5"/>
+            <property name="name" value="Группа контрагентов 5"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="6"/>
+            <property name="name" value="Группа контрагентов 6"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="7"/>
+            <property name="name" value="Группа контрагентов 7"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="8"/>
+            <property name="name" value="Группа контрагентов 8"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="9"/>
+            <property name="name" value="Группа контрагентов 9"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="10"/>
+            <property name="name" value="Группа контрагентов 10"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="11"/>
+            <property name="name" value="Группа контрагентов 11"/>
+        </bean>        
+        <bean class="ru.masterdm.km.common.entity.ContractorGroup">
+            <property name="id" value="12"/>
+            <property name="name" value="Группа компаний 'Вздрогнем!'"/>
+        </bean>        
+    </util:list>
+
+    <bean class="ru.masterdm.km.dao.DictionaryDaoMockImpl">
+        <property name="monitoredObjectTypes">
+            <util:list>
+                <ref bean="contractorMoType"/>
+                <ref bean="dealMoType"/>
+                <ref bean="supplyMoType"/>
+            </util:list>
+        </property>
+        <property name="eventTypeGroups">
+            <util:map>
+                <entry key="#{contractorMoType.id}">
+                    <list>
+                        <ref bean="properCreditUseContractorEtg"/>
+                        <ref bean="paymentObligationContractorEtg"/>
+                    </list>
+                </entry>
+                <entry key="#{dealMoType.id}">
+                    <list>
+                        <ref bean="properCreditUseDealEtg"/>
+                        <ref bean="paymentObligationDealEtg"/>
+                    </list>
+                </entry>
+                <entry key="#{supplyMoType.id}">
+                    <list>
+                        <ref bean="properCreditUseSupplyEtg"/>
+                        <ref bean="paymentObligationSupplyEtg"/>
+                    </list>
+                </entry>
+            </util:map>
+        </property>
+        <property name="eventTypes">
+            <util:map>
+                <entry key="#{properCreditUseContractorEtg.id}">
+                    <list>
+                        <ref bean="properCreditUseContractorEventType1"/>
+                        <ref bean="properCreditUseContractorEventType2"/>
+                    </list>
+                </entry>
+                <entry key="#{paymentObligationContractorEtg.id}">
+                    <list>
+                        <ref bean="paymentObligationContractorEventType1"/>
+                        <ref bean="paymentObligationContractorEventType2"/>
+                    </list>
+                </entry>
+                <entry key="#{properCreditUseDealEtg.id}">
+                    <list>
+                        <ref bean="properCreditUseDealEventType1"/>
+                        <ref bean="properCreditUseDealEventType2"/>
+                    </list>
+                </entry>
+                <entry key="#{paymentObligationDealEtg.id}">
+                    <list>
+                        <ref bean="paymentObligationDealEventType1"/>
+                        <ref bean="paymentObligationDealEventType2"/>
+                    </list>
+                </entry>
+                <entry key="#{properCreditUseSupplyEtg.id}">
+                    <list>
+                        <ref bean="properCreditUseSupplyEventType1"/>
+                        <ref bean="properCreditUseSupplyEventType2"/>
+                    </list>
+                </entry>
+                <entry key="#{paymentObligationSupplyEtg.id}">
+                    <list>
+                        <ref bean="paymentObligationSupplyEventType1"/>
+                        <ref bean="paymentObligationSupplyEventType2"/>
+                    </list>
+                </entry>
+            </util:map>
+        </property>
+        <property name="contractorTypes">
+            <util:list>
+                <bean class="ru.masterdm.km.common.entity.ContractorType">
+                    <property name="id" value="1"/>
+                    <property name="name" value="Гарант"/>
+                </bean>
+                <bean class="ru.masterdm.km.common.entity.ContractorType">
+                    <property name="id" value="2"/>
+                    <property name="name" value="Заемщик"/>
+                </bean>
+                <bean class="ru.masterdm.km.common.entity.ContractorType">
+                    <property name="id" value="3"/>
+                    <property name="name" value="Залогодатель"/>
+                </bean>
+                <bean class="ru.masterdm.km.common.entity.ContractorType">
+                    <property name="id" value="4"/>
+                    <property name="name" value="Принципал"/>
+                </bean>
+            </util:list>
+        </property>
+        <property name="users" ref="users"/>
+        <property name="instanceStatuses" ref="instanceStatuses"/>
+        <property name="currencies" ref="currencies"/>
+        <property name="dealTypes" ref="dealTypes"/>
+        <property name="contractors" ref="contractors"/>
+        <property name="contractorGroups" ref="contractorGroups"/>
+    </bean>
+</beans>

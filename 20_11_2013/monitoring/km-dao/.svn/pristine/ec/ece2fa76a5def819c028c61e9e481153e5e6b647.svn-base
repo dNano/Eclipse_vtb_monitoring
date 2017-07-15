@@ -1,0 +1,48 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * map for Календарь плановых мероприятий.
+ * 
+ * @author Shafgullin Ildar
+ * 
+ */
+public class KmEventCalendarRm extends BaseRm<KmEventCalendar> {
+
+	public KmEventCalendarRm() {
+		super("EC_");
+	}
+
+	@Override
+	protected KmEventCalendar map(ResultSetWrapper rsw) throws SQLException {
+		KmEventCalendar instance = new KmEventCalendar();
+		instance.setId(rsw.getLong(getAliasPrefix() + "ID"));
+		instance.setName(rsw.getString(getAliasPrefix() + "NAME"));
+		instance.setClassifier(new KmClassifiersRm().map(rsw));
+		instance.setRepeatType(new KmRepeatTypeRm().map(rsw));
+		instance.setConfirmationType(new KmConfirmationTypeRm().map(rsw));
+		instance.setDocumentType(new DocumentTypeRm().map(rsw));
+		instance.setDocumentGroup(new DocumentGroupRm().map(rsw));
+		instance.setNotification(new KmEventNotificationRm().map(rsw));
+		instance.setStartDate(rsw.getDate(getAliasPrefix() + "START_DATE"));
+		instance.setEndDate(rsw.getDate(getAliasPrefix() + "END_DATE"));
+		instance.setPeriodDate(rsw.getLong(getAliasPrefix() + "REPEAT_PERIOD"));
+		instance.setPeriodDetails(rsw.getLong(getAliasPrefix() + "REPEAT_PERIOD_KIND"));
+		instance.setPeriodWeekend(rsw.getLong(getAliasPrefix() + "REPEAT_PERIOD_WEEKEND"));
+		if (rsw.getLong(getAliasPrefix() + "WEEKEND_EXCLUDE") != null) {
+			instance.setExcludeHoliday(rsw.getLong(getAliasPrefix() + "WEEKEND_EXCLUDE") == 1);
+		}
+		instance.setDocTypeByHand(rsw.getString(getAliasPrefix() + "DOC_TYPE_BY_HAND"));
+		instance.setSourceDoc(new KmSourceDocRm().map(rsw));
+		instance.setSourceDocComment(rsw.getString(getAliasPrefix() + "SOURCE_DOC_COMMENT"));
+		instance.setSourceDocNumber(rsw.getString(getAliasPrefix() + "SOURCE_DOC_NUMBER"));
+		instance.setSourceDocDate(rsw.getDate(getAliasPrefix() + "SOURCE_DOC_DATE"));
+		instance.setPunitiveMeasure(new PunitiveMeasureRm().map(rsw));
+		
+		return instance;
+	}
+}

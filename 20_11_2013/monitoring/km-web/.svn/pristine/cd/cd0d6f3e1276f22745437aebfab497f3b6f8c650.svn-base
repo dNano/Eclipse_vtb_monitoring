@@ -1,0 +1,67 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.SelectModel;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.SelectModelFactory;
+
+import ru.masterdm.km.common.entity.EventResult;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.web.util.BaseEntityValueEncoder;
+
+/**
+ * Исполнить мероприятие.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEvent {
+	@Persist
+	@Property
+	private KmEventInstance event;
+
+	@Persist
+	@Property
+	private EventResult eventResult;
+
+	@Inject
+	private EventDao eventDao;
+
+	private List<EventResult> eventResults;
+
+	@Inject
+	private SelectModelFactory selectModelFactory;
+
+	void onActivate(long eventID) {
+		event = eventDao.getEventForExecute(eventID);
+		// System.out.println("onActivate=" + event);
+	}
+
+	@OnEvent(value = EventConstants.SUCCESS, component = "executeEventsForm")
+	String executeEvent() {
+		System.out.println("executeEvent"); // TODO
+		return "eventInstances/ByDate";
+	}
+
+	public List<EventResult> getEventResults() {
+		if (eventResults == null) {
+			eventResults = eventDao.getEventResults();
+		}
+		return eventResults;
+	}
+
+	public SelectModel getEventResultSelectModel() {
+		return selectModelFactory.create(getEventResults(), "name");
+	}
+
+	public ValueEncoder<EventResult> getEventResultValueEncoder() {
+		return new BaseEntityValueEncoder<EventResult>(getEventResults());
+	}
+}
