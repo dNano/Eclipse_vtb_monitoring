@@ -1,0 +1,29 @@
+package ru.masterdm.km.web.base.event;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * Общая функциональность для карточки контрольных мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEventBasePage extends SimpleBasePage {
+	@Persist
+	@Property
+	private KmEventInstance event;
+
+	@Inject
+	private EventDao eventDao;
+
+	protected void init(long eventID) {
+		event = eventDao.getEventForExecute(eventID);
+		// documentTypes = null;
+	}
+}

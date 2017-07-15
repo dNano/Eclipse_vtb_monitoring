@@ -1,0 +1,60 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.common.entity.KmFkrStatusChange;
+import ru.masterdm.km.common.searchfilter.FkrFilter;
+import ru.masterdm.km.util.query.SortCriterion;
+
+/**
+ * Mok-реализация DAO интерфейса для сущности "ФКР".
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrDaoMockImpl implements FkrDao {
+
+	@Override
+	public List<KmFkrInstance> getInstances(int startIndex, int i, FkrFilter filter, List<SortCriterion> sortCriteria) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getInstanceCount(FkrFilter filter) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public KmFkrInstance getFkrInstance(long fkrID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void saveFkrInstance(KmFkrInstance fkr) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<KmFkrStatusChange> getFkrChange(int startIndex, int i, long fkrID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getFkrChangeCount(long fkrID) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void addFkrInstance(KmFkrInstance fkr) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

@@ -1,0 +1,20 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * Периодичность(тип периодичности) мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class KmRepeatType extends BaseNamedEntity<Long> {
+	private boolean excludeHoliday;
+
+	public boolean isExcludeHoliday() {
+		return excludeHoliday;
+	}
+
+	public void setExcludeHoliday(boolean excludeHoliday) {
+		this.excludeHoliday = excludeHoliday;
+	}
+}

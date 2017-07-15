@@ -1,0 +1,29 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * Результаты исполнения контрольных мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class EventResult extends BaseNamedEntity<Long> {
+	private KmEventStatus eventStatus;
+	private boolean commentMandatory;
+
+	public KmEventStatus getEventStatus() {
+		return eventStatus;
+	}
+
+	public void setEventStatus(KmEventStatus eventStatus) {
+		this.eventStatus = eventStatus;
+	}
+
+	public boolean isCommentMandatory() {
+		return commentMandatory;
+	}
+
+	public void setCommentMandatory(boolean commentMandatory) {
+		this.commentMandatory = commentMandatory;
+	}
+}

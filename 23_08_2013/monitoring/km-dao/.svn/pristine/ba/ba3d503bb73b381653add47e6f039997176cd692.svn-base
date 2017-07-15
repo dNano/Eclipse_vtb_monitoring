@@ -1,0 +1,28 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * Map for День недели.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class DayOfWeekRm extends BaseRm<DayOfWeek> {
+
+	public DayOfWeekRm() {
+		super("DW_");
+	}
+
+	@Override
+	protected DayOfWeek map(ResultSetWrapper rsw) throws SQLException {
+		DayOfWeek dayOfWeek = new DayOfWeek();
+		dayOfWeek.setId(rsw.getLong(getAliasPrefix() + "ID"));
+		dayOfWeek.setName(rsw.getString(getAliasPrefix() + "NAME"));
+		return dayOfWeek;
+	}
+
+}

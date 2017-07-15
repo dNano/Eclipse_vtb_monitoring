@@ -1,0 +1,66 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter"
+	t:title="Список плановых мероприятий сделки № ${dealID}">
+	
+	<h1 style="text-align: center;">План контрольных мероприятий сделки № ${dealID}</h1>
+<fieldset>
+	<fieldset>
+	   <legend><h2>Выбор из Классификатора контрольных мероприятий</h2></legend>
+		<table t:type="grid" t:source="classifiers" t:row="classifier" t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom" 
+			t:add="monitoringName, eventGroupName, eventTypeName, periodicity, add">
+			<p:monitoringNameCell>
+				${classifier?.monitoredObjectType?.name}
+			</p:monitoringNameCell>
+			<p:eventGroupNameCell>
+				${classifier?.eventTypeGroup?.name}
+			</p:eventGroupNameCell>
+			<p:eventTypeNameCell>
+				${classifier?.eventType?.name}
+			</p:eventTypeNameCell>
+			<p:periodicityCell>
+				один раз в месяц 01 числа
+			</p:periodicityCell>		
+			<p:addCell>
+			    <a t:type="actionLink" t:id="addEventType" t:context="[classifier.eventType.id, classifier.eventType.name]">
+			         <img src="${context:/img/plus.png}" style="margin-bottom: -6px;"/>
+			    </a>
+            </p:addCell>
+		</table>
+	</fieldset>
+	<fieldset>
+	   <legend><h2>План контрольных мероприятий сделки № ${dealID}</h2></legend>
+
+		<table t:type="grid" t:source="plan" t:row="calendar" t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom" 
+			t:exclude="id, name" t:add="monitoringName, eventGroupName, accept, edit, eventTypeName, periodicity, remove">
+			<p:monitoringNameCell>
+				${calendar?.classifier?.monitoredObjectType?.name}
+			</p:monitoringNameCell>
+			<p:eventGroupNameCell>
+				${calendar?.classifier?.eventTypeGroup?.name}
+			</p:eventGroupNameCell>
+			<p:acceptCell>
+				<a t:type="actionLink" t:id="acceptEventType" t:context="calendar.id">
+				    <img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/>
+				</a>
+			</p:acceptCell>
+			<p:editCell>
+                <t:pagelink t:page="eventInstances/EditPlanForDeal" t:context="[calendar.id, dealID]">
+                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+                </t:pagelink>			
+			</p:editCell>
+			<p:eventTypeNameCell>
+				${calendar?.classifier?.eventType?.name}
+			</p:eventTypeNameCell>
+			<p:periodicityCell>
+				один раз в месяц 01 числа
+			</p:periodicityCell>		
+			<p:removeCell>
+                <a t:type="actionLink" t:id="removeEventType" t:context="calendar.classifier.eventType.id">
+                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+                </a>
+            </p:removeCell>
+		</table>
+	</fieldset>
+</fieldset>	
+</t:layout>

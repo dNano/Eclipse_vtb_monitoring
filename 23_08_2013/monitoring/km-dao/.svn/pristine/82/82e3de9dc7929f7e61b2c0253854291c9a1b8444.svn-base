@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.EventDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.EventDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+                <entry key="EVENT_INSTANCE_COUNT">
+                    <value>
+                        <![CDATA[
+                            select count(id)
+                              from tmp_km_event_instance
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_INSTANCES">
+                    <value>
+                        <![CDATA[
+                            select ei.id ei_id, ei.plan_date ei_plan_date,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_sum d_amount, m.currency c_code
+                              from tmp_km_event_instance ei left join users u on u.id_user = ei.executor_id
+                                                            left join km_event_calendar e on e.id_event_calendar = ei.event_id 
+                                                            left join mdtask m on m.id_mdtask = e.id_mdtask
+                             order by ei.plan_date desc
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_FOR_EXECUTE">
+                    <value>
+                        <![CDATA[
+                            select ei.id ei_id, ei.plan_date ei_plan_date,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_sum d_amount, m.currency c_code
+                              from tmp_km_event_instance ei left join users u on u.id_user = ei.executor_id
+                                                            left join km_event_calendar e on e.id_event_calendar = ei.event_id 
+                                                            left join mdtask m on m.id_mdtask = e.id_mdtask
+ 							  where ei.id = ?
+                        ]]>
+                    </value>
+                </entry>
+            </util:map>
+        </property>
+    </bean>
+</beans>

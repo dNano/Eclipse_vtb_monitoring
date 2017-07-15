@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+    <bean id="dateFormat" class="java.text.SimpleDateFormat">
+        <constructor-arg value="dd.MM.yyyy"/>
+    </bean>
+
+    <bean id="dateConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+      <property name="customEditors">
+          <util:map>
+              <entry key="java.util.Date">
+                  <bean class="org.springframework.beans.propertyeditors.CustomDateEditor">
+                      <constructor-arg index="0" ref="dateFormat"/>
+                      <constructor-arg index="1" value="false"/>
+                  </bean>
+              </entry>
+        </util:map>
+        </property>
+    </bean>
+
+    <bean id="eventInstance1" class="ru.masterdm.km.common.entity.KmEventInstance">
+        <property name="id" value="1"/>
+        <property name="status" ref="status1"/>
+        <property name="planExecutionDate" value="09.03.2013"/>
+        <property name="executor" ref="user1"/>
+        <property name="event">
+            <bean class="ru.masterdm.km.common.entity.KmEvent">
+                <property name="id" value="1"/>
+                <property name="name" value="Мероприятие №1"/>
+                <property name="contractNumber" value="1234"/>
+                <property name="deal">
+                    <bean class="ru.masterdm.km.common.entity.Deal">
+                        <property name="id" value="1"/>
+                        <property name="amount" value="1000000"/>
+                        <property name="currency" ref="USD"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="eventInstance2" class="ru.masterdm.km.common.entity.KmEventInstance">
+        <property name="id" value="2"/>
+        <property name="status" ref="status2"/>
+        <property name="planExecutionDate" value="10.03.2013"/>
+        <property name="executor" ref="user2"/>
+        <property name="event">
+            <bean class="ru.masterdm.km.common.entity.KmEvent">
+                <property name="id" value="2"/>
+                <property name="name" value="Мероприятие №2"/>
+                <property name="contractNumber" value="5678"/>
+                <property name="deal">
+                    <bean class="ru.masterdm.km.common.entity.Deal">
+                        <property name="id" value="2"/>
+                        <property name="amount" value="20000000"/>
+                        <property name="currency" ref="RUR"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="eventInstance3" class="ru.masterdm.km.common.entity.KmEventInstance">
+        <property name="id" value="3"/>
+        <property name="status" ref="status3"/>
+        <property name="planExecutionDate" value="11.03.2013"/>
+        <property name="executor" ref="user3"/>
+        <property name="event">
+            <bean class="ru.masterdm.km.common.entity.KmEvent">
+                <property name="id" value="3"/>
+                <property name="name" value="Мероприятие №3"/>
+                <property name="contractNumber" value="9012"/>
+                <property name="deal">
+                    <bean class="ru.masterdm.km.common.entity.Deal">
+                        <property name="id" value="3"/>
+                        <property name="amount" value="30000000"/>
+                        <property name="currency" ref="EUR"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean class="ru.masterdm.km.dao.EventDaoMockImpl">
+        <property name="eventInstances">
+            <util:list>
+                <ref bean="eventInstance1"/>
+                <ref bean="eventInstance2"/>
+                <ref bean="eventInstance3"/>
+            </util:list>
+        </property>
+    </bean>
+</beans>

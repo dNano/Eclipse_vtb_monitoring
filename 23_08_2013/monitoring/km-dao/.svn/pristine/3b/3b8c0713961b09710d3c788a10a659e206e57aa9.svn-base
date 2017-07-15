@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.EventDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.EventDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+                <entry key="EVENT_INSTANCE_COUNT">
+                    <value>
+                        <![CDATA[
+                              select count(id_event)
+                                        from km_event ei left join users u on u.id_user = ei.id_executor
+	                              			inner join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+	                              			left join mdtask m on m.id_mdtask = e.id_mdtask
+	                             			left join crm_organization o on o.id_org = e.id_organization
+	                              		where 1=1  
+                        ]]>
+                    </value>
+                </entry>
+                 <entry key="EVENT_INSTANCES">
+                    <value>
+                        <![CDATA[
+                            select ei.id_event ei_id, ei.plan_date ei_plan_date, ei.executed_date ei_executed_date,
+                            	   ei.id_event_status kes_id, kes.event_status kes_name,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_number d_spkp_number, m.mdtask_sum d_amount, m.currency c_code,
+                                   m.mdtask_number d_number, m.validTo d_valid_to,
+                                   o.id_org co_id, o.organization_name co_name
+                         ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_FOR_EXECUTE">
+                    <value>
+                        <![CDATA[
+						     select ei.id_event ei_id, ei.plan_date ei_plan_date, ei.result_notes ei_result_note, ei.source_doc_comment ei_source_doc_comment,
+						     		ei.source_doc_number ei_source_doc_number, ei.source_doc_date ei_source_doc_date,
+						     		ei.punitive_measure_descr ei_punitive_measure_descr, ei.is_sanction ei_is_sanction, ei.sanction_date ei_sanction_date,
+						     		ei.sanction_value ei_sanction_value, ei.sanction_currency ei_sanction_currency,
+						     		ei.sanction_refused_by ei_sanction_refused_by, ei.sanction_refused_docnum ei_sanction_refused_docnum,
+						     		ei.sanction_refused_date ei_sanction_refused_date, 
+						     		ei.id_event_status kes_id, kes.event_status kes_name,
+						     		ei.id_event_result er_id, cer.event_result er_name, cer.comment_mandatory er_comment_mandatory,
+						     		cer.sanction er_sanction, cer.process_crf er_process_crf,
+						     		ei.id_document_group dg_id, dg.name_document_group dg_name,
+						     		ei.id_document_type dot_id, dot.name_document_type dot_name,
+						     		ei.id_confirmation_type kct_id, kct.confirmation_type kct_name,
+						            u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+						            e.id_event_calendar e_id, e.event_name e_name, e.start_date E_START_DATE, e.end_date E_END_DATE,
+						            e.repeat_period E_REPEAT_PERIOD, e.repeat_period_kind E_REPEAT_PERIOD_KIND, e.repeat_period_weekend E_REPEAT_PERIOD_WEEKEND,
+						        	t.id_event_type as ET_ID, t.event_type_name ET_NAME, 
+									mo.id as MO_ID, mo.name as MO_NAME, 
+									g.id_event_group as ETG_ID, g.event_group_name as ETG_NAME,
+									rt.id_repeat_type as RT_ID, rt.repeat_type as RT_NAME,					            
+						            e.id_mdtask d_id, m.mdtask_number d_number, m.mdtask_sum d_amount, m.currency c_code, m.validto d_valid_to,
+						            m.id_pup_process d_pup_process_id, m.crmcode d_crmcode,
+						            v.crmid co_id, v.organizationname co_name, ct.id_contractor_type ct_id, ct.name_contractor_type ct_name,
+						            p.productId dt_id, p.name dt_name,
+						            ksd.id_source_doc sd_id, ksd.source_name sd_name,
+						            pm_ei.id_measure pm_id, pm_ei.name_measure pm_name, pm_ei.sumdesc pm_sum_desc, 
+						            pm_e.id_measure pm_e_id, pm_e.name_measure pm_e_name, pm_e.sumdesc pm_e_sum_desc,
+						            kf.id_fkr kf_id, kf.notes kf_note, kf.is_significant is_significant, kf.created kf_created,
+                            	   	ft.id_fkr_type ft_id, ft.fkr_code || ' ' || ft.fkr_type ft_name, ft.fkr_kind ft_kind,
+                            	   	fg.id_fkr_group fg_id, fg.fkr_group fg_name 
+						     from km_event ei 
+				    			  left join users u on u.id_user = ei.id_executor
+				    			  left join km_event_status kes on kes.id_event_status = ei.id_event_status
+				    			  left join cd_event_result cer on cer.id_event_result = ei.id_event_result
+				    			  left join cd_confirmation_type kct on kct.id_confirmation_type = ei.id_confirmation_type
+				    			  left join documents_type dot on dot.id_document_type = ei.id_document_type
+				    			  left join document_group dg on dg.id_group = ei.id_document_group
+				                  left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+				                  inner join cd_event_type t on e.id_event_type = t.id_event_type 
+								  inner join cd_event_group g on t.id_event_group = g.id_event_group
+								  inner join cd_monitored_object mo on mo.id = g.id_object_type
+								  left join cd_repeat_type rt on e.id_repeat_type = rt.id_repeat_type						                   
+				                  left join mdtask m on m.id_mdtask = e.id_mdtask
+				                  left join r_org_mdtask r on r.id_mdtask = m.id_mdtask
+				                  left join v_organisation v on v.crmid = r.id_crmorg
+				                  left join r_contractor_type_mdtask rct on rct.id_r = r.id_r
+				                  left join contractor_type ct on ct.id_contractor_type = rct.id_contractor_type
+				                  left join r_mdtask_opp_type rmot on m.id_mdtask = rmot.id_mdtask
+					       		  left outer join v_spo_product p on rmot.id_opp_type = p.productId
+					       		  left join cd_km_source_doc ksd on ksd.id_source_doc = ei.id_source_doc
+					       		  left join punitive_measure pm_ei on pm_ei.id_measure = ei.id_punitive_measure				                  
+					       		  left join punitive_measure pm_e on pm_e.id_measure = e.id_punitive_measure				                  
+					       		  left join km_fkr kf on kf.id_event = ei.id_event
+					       		  left outer join cd_fkr_type ft on kf.id_fkr_type = ft.id_fkr_type
+					       		  left outer join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group			                  
+						 	 where ei.id_event = ? and rownum < 2
+                        ]]>
+                    </value>
+                </entry>
+ 				<entry key="DAYS_OF_WEEK_FOR_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							select e.id_day_of_week DW_ID, d.day_of_week DW_NAME 
+								from KM_EVENT_DAY_OF_WEEK e	
+									inner join CD_DAY_OF_WEEK d on e.id_day_of_week = d.id_day_of_week 
+									where e.id_event_calendar = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="SCHEDULE_FOR_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							select plan_dt from KM_EVENT_CALENDAR_DATES	where id_event_calendar = ?
+								 										order by plan_dt
+						]]>
+					</value>
+				</entry>
+                <entry key="EVENT_RESULTS">
+                    <value>
+                        <![CDATA[
+                        	select id_event_result er_id, event_result er_name, id_event kes_id,
+                        			comment_mandatory er_comment_mandatory, sanction er_sanction, process_crf er_process_crf 
+                        			from cd_event_result
+                         ]]>
+                    </value>
+                </entry>
+				<entry key="REMOVE_EVENT_INSTANCE">
+					<value>
+						<![CDATA[
+							delete from km_event where id_event = ?
+						]]>
+					</value>
+				</entry>                
+				<entry key="SAVE_EVENT_INSTANCE">
+					<value>
+						<![CDATA[
+							update km_event set result_notes = ?, id_confirmation_type = ?, id_document_group = ?, id_document_type = ?,
+									id_source_doc = ?, source_doc_comment = ?, source_doc_number = ?, source_doc_date = ?, id_punitive_measure = ?,
+									punitive_measure_descr = ?, is_sanction = ?, sanction_date = ?, sanction_value = ?, sanction_currency = ?,
+									sanction_refused_by = ?, sanction_refused_docnum = ?, sanction_refused_date = ? 
+								where id_event = ?
+						]]>
+					</value>
+				</entry>                
+				<entry key="EXECUTE_EVENT_INSTANCE">
+					<value>
+						<![CDATA[
+							update km_event set result_notes = ?, id_event_status = ?, id_event_result = ?, id_confirmation_type = ?,
+							 		id_document_group = ?, id_document_type = ?, executed_date = ?, id_source_doc = ?, source_doc_comment = ?,
+							 		source_doc_number = ?, source_doc_date = ?, id_punitive_measure = ?, punitive_measure_descr = ?,
+							 		is_sanction = ?, sanction_date = ?, sanction_value = ?, sanction_currency = ?,
+							 		sanction_refused_by = ?, sanction_refused_docnum = ?, sanction_refused_date = ?
+								where id_event = ?
+						]]>
+					</value>
+				</entry>                
+				<entry key="ADD_APP_FILE">
+					<value>
+						<![CDATA[
+							insert into APPFILES(UNID, FILENAME, FILEDATA, FILETYPE, ID_OWNER, OWNER_TYPE, WHO_ADD, DATE_OF_ADDITION, ID_GROUP, ID_DOCUMENT_TYPE)
+												values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+						]]>
+					</value>
+				</entry>
+				<entry key="ADD_FKR">
+					<value>
+                        <![CDATA[
+                            insert into KM_FKR (id_fkr, id_fkr_type, id_event, is_significant, notes, created)
+                            	 values (km_fkr_seq.nextval, ?, ?, ?, ?, ?)
+                        ]]>
+					</value>
+				</entry>               
+				<entry key="DELETE_FKR">
+					<value>
+                        <![CDATA[
+                            delete from KM_FKR  where id_event = ?
+                        ]]>
+					</value>
+				</entry>               
+            </util:map>
+        </property>
+    </bean>
+</beans>

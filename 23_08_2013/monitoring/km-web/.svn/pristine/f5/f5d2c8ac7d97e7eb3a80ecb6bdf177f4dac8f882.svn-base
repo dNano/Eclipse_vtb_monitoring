@@ -1,0 +1,354 @@
+package ru.masterdm.km.web.base.event;
+
+import static ru.masterdm.km.common.util.DataTypeUtil.isEmpty;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.SelectModel;
+import org.apache.tapestry5.ValidationTracker;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.Environmental;
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.SelectModelFactory;
+import org.apache.tapestry5.services.ajax.AjaxResponseRenderer;
+import org.apache.tapestry5.upload.services.UploadedFile;
+
+import ru.masterdm.km.common.dictionary.KmEventStatusDictionary;
+import ru.masterdm.km.common.entity.DocumentGroup;
+import ru.masterdm.km.common.entity.DocumentType;
+import ru.masterdm.km.common.entity.EventResult;
+import ru.masterdm.km.common.entity.FkrGroup;
+import ru.masterdm.km.common.entity.FkrType;
+import ru.masterdm.km.common.entity.KmConfirmationType;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.entity.KmSourceDoc;
+import ru.masterdm.km.common.entity.PunitiveMeasure;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.util.BaseEntityValueEncoder;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * Общая функциональность для карточки контрольных мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEventBasePage extends SimpleBasePage {
+	@Persist
+	@Property
+	protected KmEventInstance event;
+	@Persist
+	@Property
+	private boolean showRepeatType;
+	@Persist
+	@Property
+	private boolean showExecution;
+	@Persist
+	@Property
+	private boolean showResult;
+	@Persist
+	@Property
+	private boolean showChronology;
+
+	private List<KmConfirmationType> confirmationTypes;
+	private List<DocumentGroup> documentGroups;
+	private List<EventResult> eventResults;
+	private List<KmSourceDoc> sourceDocs;
+	private List<PunitiveMeasure> punitiveMeasures;
+	private List<FkrGroup> fkrGroups;
+	private List<FkrType> fkrTypes;
+
+	@Persist
+	private List<DocumentType> documentTypes;
+
+	@Inject
+	private EventDao eventDao;
+	@Inject
+	protected DictionaryDao dictionaryDao;
+	@Inject
+	private AjaxResponseRenderer ajaxResponseRenderer;
+	@Inject
+	private SelectModelFactory selectModelFactory;
+
+	@Environmental
+	private ValidationTracker validationTracker;
+
+	@InjectComponent
+	private Zone repeatTypeZone;
+	@InjectComponent
+	private Zone executionZone;
+	@InjectComponent
+	private Zone buttonZone;
+	@InjectComponent
+	private Zone documentZone;
+	@InjectComponent
+	private Zone resultZone;
+	@InjectComponent
+	private Zone chronologyZone;
+	@InjectComponent
+	private Zone punitiveMeasureZone;
+	@InjectComponent
+	private Zone fkrTypeZone;
+	@InjectComponent
+	private Zone eventFkrEditZone;
+
+	@Property
+	private UploadedFile confirmFile;
+	@Property
+	private String confirmFileId;
+	@Property
+	private FkrGroup fkrGroup;
+	@Property(write = false)
+	private boolean dealFkrEditDialogAppeared;
+
+	protected Action action;
+
+	protected enum Action {
+		EXECUTE_EVENT, CANCEL, SAVE_EVENT;
+	}
+
+	protected void init(long eventID) {
+		event = eventDao.getEventForExecute(eventID);
+		documentTypes = null;
+	}
+
+	protected void saveEvent() {
+		if (confirmFile != null) {
+			ExecuteEventUtil.initConfirmFile(event, confirmFile);
+		}
+		eventDao.saveEventInstance(event);
+	}
+
+	protected void validateOnExecuteEvent() {
+		if (showResult && event.getResult() != null) {
+			if (event.getResult().isCommentMandatory() && isEmpty(event.getResultNote())) {
+				validationTracker.recordError(getMessages().get("comment-required-message"));
+			}
+			if (event.getResult().isSanction()) {
+				if (event.getPunitiveMeasure() == null || event.getPunitiveMeasure().getId() == null) {
+					validationTracker.recordError(getMessages().get("punitiveMeasure-required-message"));
+				}
+				if (isEmpty(event.getPunitiveMeasureDescr())) {
+					validationTracker.recordError(getMessages().get("punitiveMeasureDescr-required-message"));
+				}
+			}
+		}
+	}
+
+	protected void validateOnSaveEvent() {
+		// TODO
+	}
+
+	protected void executeEvent() {
+		if (event.getResult() != null) {
+			event.setStatus(event.getResult().getEventStatus());
+		} else {
+			event.getStatus().setId(KmEventStatusDictionary.WAIT_PROCESSING.getId());
+		}
+		if (confirmFile != null) {
+			ExecuteEventUtil.initConfirmFile(event, confirmFile);
+		}
+		eventDao.executeEventInstance(event);
+	}
+
+	public String getRepeatTypeInfo() {
+		return ExecuteEventUtil.getRepeatTypeInfo(event.getEvent(), getDateViewFormat());
+	}
+
+	void onToggleRepeatType() {
+		showRepeatType = !showRepeatType;
+		ajaxResponseRenderer.addRender(repeatTypeZone);
+	}
+
+	void onToggleExecution() {
+		showExecution = !showExecution;
+		ajaxResponseRenderer.addRender(executionZone).addRender(buttonZone);
+	}
+
+	void onToggleResult() {
+		showResult = !showResult;
+		ajaxResponseRenderer.addRender(resultZone).addRender(buttonZone);
+	}
+
+	void onToggleChronology() {
+		showChronology = !showChronology;
+		ajaxResponseRenderer.addRender(chronologyZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "eventDocumentGroup")
+	void selectEventDocumentGroup(DocumentGroup docGroup) {
+		event.setDocumentGroup(docGroup);
+		selectEventDocumentType(null);
+		documentTypes = null;
+		ajaxResponseRenderer.addRender(documentZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "eventDocumentType")
+	void selectEventDocumentType(DocumentType docType) {
+		event.setDocumentType(docType);
+		ajaxResponseRenderer.addRender(resultZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "punitiveMeasureResult")
+	void selectPunitiveMeasure(PunitiveMeasure punitiveMeasure) {
+		// event.setPunitiveMeasure(punitiveMeasure);
+		String sumDesc = (punitiveMeasure != null) ? punitiveMeasure.getSumDesc() : "";
+		event.setPunitiveMeasureDescr(sumDesc);
+		ajaxResponseRenderer.addRender(punitiveMeasureZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "eventResult")
+	void selectEventResult(EventResult eventResult) {
+		event.setResult(eventResult);
+		ajaxResponseRenderer.addRender(resultZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "fkrGroup")
+	void selectFkrGroup(FkrGroup docGroup) {
+		ajaxResponseRenderer.addRender(fkrTypeZone);
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "showEventFkrEditDialogLink")
+	void prepareEventFkrEditDialog() {
+		dealFkrEditDialogAppeared = true;
+		ajaxResponseRenderer.addRender(eventFkrEditZone);
+	}
+
+	public boolean isShowExecuteButton() {
+		return showResult;
+	}
+
+	public boolean isShowSaveButton() {
+		return showResult || showExecution;
+	}
+
+	private List<KmConfirmationType> getConfirmationTypes() {
+		if (confirmationTypes == null) {
+			confirmationTypes = dictionaryDao.getKmConfirmationTypes();
+		}
+		return confirmationTypes;
+	}
+
+	public SelectModel getConfirmationTypeSelectModel() {
+		return selectModelFactory.create(getConfirmationTypes(), "name");
+	}
+
+	public ValueEncoder<KmConfirmationType> getConfirmationTypeValueEncoder() {
+		return new BaseEntityValueEncoder<KmConfirmationType>(getConfirmationTypes());
+	}
+
+	private List<DocumentGroup> getDocumentGroups() {
+		if (documentGroups == null) {
+			documentGroups = dictionaryDao.getDocumentGroups();
+		}
+		return documentGroups;
+	}
+
+	public SelectModel getDocumentGroupSelectModel() {
+		return selectModelFactory.create(getDocumentGroups(), "name");
+	}
+
+	public ValueEncoder<DocumentGroup> getDocumentGroupValueEncoder() {
+		return new BaseEntityValueEncoder<DocumentGroup>(getDocumentGroups());
+	}
+
+	private List<DocumentType> getDocumentTypes() {
+		if (documentTypes == null && event.getDocumentGroup() != null) {
+			documentTypes = dictionaryDao.getDocumentTypes(event.getDocumentGroup().getId());
+		}
+		return documentTypes;
+	}
+
+	public SelectModel getDocumentTypeSelectModel() {
+		return selectModelFactory.create(getDocumentTypes() != null ? getDocumentTypes() : Collections.emptyList(), "name");
+	}
+
+	public ValueEncoder<DocumentType> getDocumentTypeValueEncoder() {
+		return new BaseEntityValueEncoder<DocumentType>(getDocumentTypes());
+	}
+
+	private List<EventResult> getEventResults() {
+		if (eventResults == null) {
+			eventResults = eventDao.getEventResults();
+		}
+		return eventResults;
+	}
+
+	public SelectModel getEventResultSelectModel() {
+		return selectModelFactory.create(getEventResults(), "name");
+	}
+
+	public ValueEncoder<EventResult> getEventResultValueEncoder() {
+		return new BaseEntityValueEncoder<EventResult>(getEventResults());
+	}
+
+	private List<KmSourceDoc> getSourceDocs() {
+		if (sourceDocs == null) {
+			sourceDocs = dictionaryDao.getKmSourceDocs();
+		}
+		return sourceDocs;
+	}
+
+	public SelectModel getSourceDocSelectModel() {
+		return selectModelFactory.create(getSourceDocs(), "name");
+	}
+
+	public ValueEncoder<KmSourceDoc> getSourceDocValueEncoder() {
+		return new BaseEntityValueEncoder<KmSourceDoc>(getSourceDocs());
+	}
+
+	private List<PunitiveMeasure> getPunitiveMeasures() {
+		if (punitiveMeasures == null) {
+			punitiveMeasures = dictionaryDao.getPunitiveMeasures();
+		}
+		return punitiveMeasures;
+	}
+
+	public SelectModel getPunitiveMeasureSelectModel() {
+		return selectModelFactory.create(getPunitiveMeasures(), "name");
+	}
+
+	public ValueEncoder<PunitiveMeasure> getPunitiveMeasureValueEncoder() {
+		return new BaseEntityValueEncoder<PunitiveMeasure>(getPunitiveMeasures());
+	}
+
+	private List<FkrGroup> getFkrGroups() {
+		if (fkrGroups == null) {
+			fkrGroups = dictionaryDao.getFkrGroups();
+		}
+		return fkrGroups;
+	}
+
+	public SelectModel getFkrGroupSelectModel() {
+		return selectModelFactory.create(getFkrGroups(), "name");
+	}
+
+	public ValueEncoder<FkrGroup> getFkrGroupValueEncoder() {
+		return new BaseEntityValueEncoder<FkrGroup>(getFkrGroups());
+	}
+
+	private List<FkrType> getFkrTypes() {
+		if (fkrTypes == null && fkrGroup != null) {
+			return dictionaryDao.getFkrTypes(fkrGroup.getId());
+		}
+		return fkrTypes;
+	}
+
+	public SelectModel getFkrTypeSelectModel() {
+		return selectModelFactory.create(getFkrTypes() != null ? getFkrTypes() : Collections.emptyList(), "name");
+	}
+
+	public ValueEncoder<FkrType> getFkrTypeValueEncoder() {
+		return new BaseEntityValueEncoder<FkrType>(getFkrTypes());
+	}
+
+}

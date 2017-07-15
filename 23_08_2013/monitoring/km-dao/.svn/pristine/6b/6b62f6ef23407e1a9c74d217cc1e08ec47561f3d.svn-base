@@ -1,0 +1,278 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_CALENDAR;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_CALENDAR_COUNT;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_INSTANCES;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_INSTANCE_COUNT;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.entity.KmClassifier;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+import ru.masterdm.km.dao.mapper.DayOfWeekRm;
+import ru.masterdm.km.dao.mapper.DealInstanceRm;
+import ru.masterdm.km.dao.mapper.KmClassifiersRm;
+import ru.masterdm.km.dao.mapper.KmEventCalendarRm;
+import ru.masterdm.km.dao.mapper.KmEventInstanceRm;
+import ru.masterdm.km.util.AcceptKmEventProcessor;
+import ru.masterdm.km.util.BaseJdbcDao;
+
+/**
+ * Реализация DAO интерфейса для сущности "Сделка".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class DealDaoImpl extends BaseJdbcDao<DealDaoSqlKey> implements DealDao {
+	@Override
+	public int getInstanceCount(EventsByDealFilter filter) {
+		String query = sql.getValue(DEAL_INSTANCE_COUNT);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		return queryForInt(query, "Error selecting event instance count.", params.toArray());
+	}
+
+	private String filterQuery(EventsByDealFilter filter, String query, List<Object> params) {
+		if (filter.getCurrency() != null) {
+			query += " AND m.currency = '" + filter.getCurrency().getId() + "'";
+		}
+		if (filter.getAmountFrom() != null) {
+			query += " AND m.MDTASK_SUM >= " + filter.getAmountFrom();
+		}
+		if (filter.getAmountTo() != null) {
+			query += " AND m.MDTASK_SUM <= " + filter.getAmountTo();
+		}
+		if (filter.getDateFrom() != null) {
+			query += " AND m.VALIDTO >= ? ";
+			params.add(new java.sql.Date(filter.getDateFrom().getTime()));
+		}
+		if (filter.getDateTo() != null) {
+			query += " AND m.VALIDTO <= ? ";
+			params.add(new java.sql.Date(filter.getDateTo().getTime()));
+		}
+		// if (filter.getDealType() != null) {
+		// query += " AND r.id_opp_type = '" + filter.getDealType().getId() + "'";
+		// }
+
+		return query;
+	}
+
+	@Override
+	public List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter) {
+		String query = sql.getValue(DEAL_INSTANCES);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		return queryForList(query, new DealInstanceRm(), "Error selecting event instances.", params.toArray());
+	}
+
+	@Override
+	public List<KmEventInstance> getDealCalendar(int startIndex, int amount, long dealID) {
+		String query = sql.getValue(DEAL_CALENDAR);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventInstanceRm(), "Error selecting deal calendar.", dealID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getDealCalendarCount(long dealID) {
+		String query = sql.getValue(DEAL_CALENDAR_COUNT);
+		return queryForInt(query, "Error selecting Deal Calendar count.", dealID);
+	}
+
+	@Override
+	public List<KmClassifier> getClassifiers(int startIndex, int i) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_CLASSIFIERS);
+		return queryForList(query, new KmClassifiersRm(), "Error selecting classifiers.");
+	}
+
+	@Override
+	public int getClassifiersCount() {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_CLASSIFIERS_COUNT);
+		return queryForInt(query, "Error selecting Classifiers count.");
+	}
+
+	@Override
+	public List<KmEventCalendar> getDealPlan(int startIndex, int amount, long dealID) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_PLAN);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventCalendarRm(), "Error selecting deal plal.", dealID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getDealPlanCount(long dealID) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_PLAN_COUNT);
+		return queryForInt(query, "Error selecting Deal plan count.", dealID);
+	}
+
+	@Override
+	public void addEventType(long dealID, long eventTypeID, String eventName) {
+		// копируем параметры из классификатора для создания планового мероприятия для сделки:
+		String query = sql.getValue(DealDaoSqlKey.COPY_PLAN_EVENT_FOR_DEAL_FROM_TYPE);
+		KmEventCalendar event = queryForObject(query, new KmEventCalendarRm(), "Error in addEventType", eventTypeID);
+		// System.out.println(event);
+		// Создаем плановое мероприятие:
+		query = sql.getValue(DealDaoSqlKey.ADD_EVENT_TYPE);
+		// System.out.println(query);// TODO разобраться с ключами для таблиц.
+		long eventID = System.nanoTime();
+		Long repeatTypeID = (event.getRepeatType() != null) ? event.getRepeatType().getId() : null;
+		update(query, "Error add EventType to Deal", eventID, event.getName(), dealID, event.getId(), repeatTypeID, event.getPeriodDate(),
+				event.getPeriodDetails(), event.getNotification().getPeriod(), event.getNotification().getPeriodKind(),
+				event.getPeriodWeekend(), event.isExcludeHoliday() ? 1 : 0, event.getNotification().isAlarmOnEventStartDay() ? 1 : 0, event
+						.getNotification().isContinueToAlarmWhenUnfulfilled() ? 1 : 0,
+				event.getNotification().isIncludeLinkInTextMessage() ? 1 : 0);
+		// Копируем дни недели(пока для всех типов? TODO):
+		// if (event.getRepeatType() != null && EventRepeatTypeDictionary.EVERY_WEEK.getId().equals(event.getRepeatType().getId())) {
+		query = sql.getValue(DealDaoSqlKey.DAYS_OF_WEEK_FOR_EVENT_TYPE);
+		List<DayOfWeek> daysOfWeek = queryForList(query, new DayOfWeekRm(), "Error in addEventType.", eventTypeID);
+		// System.out.println(daysOfWeek);
+		if (daysOfWeek != null && !daysOfWeek.isEmpty()) {
+			query = sql.getValue(DealDaoSqlKey.ATTACH_DAYS_OF_WEEK_TO_PLAN_EVENT);
+			for (DayOfWeek dayOfWeek : daysOfWeek) {
+				update(query, "Error attach dayOfWeek in addEventType", eventID, dayOfWeek.getId());
+			}
+		}
+		// }
+	}
+
+	@Override
+	public void removeEventType(long dealID, long eventTypeID) {
+		String query = sql.getValue(DealDaoSqlKey.REMOVE_EVENT_TYPE);
+		update(query, "Error remove EventType from Deal", dealID, eventTypeID);
+	}
+
+	@Override
+	public void acceptEventType(long dealID, long eventTypeID) {
+		// получаем сущность планового мероприятия:
+		KmEventCalendar planEvent = getPlanEventForDeal(eventTypeID);
+		// формируем календарное мероприятие в зависимости от типа:
+		java.util.Calendar date = AcceptKmEventProcessor.createCalendarDateFromPlanEvent(planEvent);
+		// System.out.println(query);// TODO разобраться с ключами для таблиц.
+		String query = sql.getValue(DealDaoSqlKey.ACCEPT_EVENT_TYPE);
+		update(query, "Error accept EventType for Deal", System.nanoTime(), eventTypeID, new java.sql.Date(date.getTime().getTime()));
+	}
+
+	@Override
+	public KmEventCalendar getPlanEventForDeal(long eventPlanID) {
+		String query = sql.getValue(DealDaoSqlKey.PLAN_EVENT_FOR_DEAL);
+		KmEventCalendar event = queryForObject(query, new KmEventCalendarRm(), "Error in getPlanEventForDeal", eventPlanID);
+		query = sql.getValue(DealDaoSqlKey.DAYS_OF_WEEK_FOR_PLAN_EVENT);
+		List<DayOfWeek> daysOfWeek = queryForList(query, new DayOfWeekRm(), "Error in getPlanEventForDeal.", eventPlanID);
+		event.setDaysOfWeek(daysOfWeek);
+		query = sql.getValue(DealDaoSqlKey.SCHEDULE_FOR_PLAN_EVENT);
+		List<Date> schedule = queryForList(query, Date.class, "Error in getPlanEventForDeal.", eventPlanID);
+		event.setSchedule(schedule);
+		return event;
+	}
+
+	@Override
+	public void savePlanEventForDeal(KmEventCalendar event) {
+		String query = sql.getValue(DealDaoSqlKey.SAVE_PLAN_EVENT_FOR_DEAL);
+		Long repeatTypeId = (event.getRepeatType() != null) ? event.getRepeatType().getId() : null;
+		update(query, "Error savePlanEventForDeal", repeatTypeId, event.getNotification().getPeriodKind(), event.getNotification()
+				.getPeriod(), event.getStartDate(), event.getEndDate(), event.getPeriodDate(), event.getPeriodDetails(),
+				event.getPeriodWeekend(), (event.isExcludeHoliday() ? 1 : 0), (event.getNotification().isAlarmOnEventStartDay() ? 1 : 0),
+				(event.getNotification().isContinueToAlarmWhenUnfulfilled() ? 1 : 0),
+				(event.getNotification().isIncludeLinkInTextMessage() ? 1 : 0), event.getId());
+		query = sql.getValue(DealDaoSqlKey.DETACH_DAYS_OF_WEEK_FROM_PLAN_EVENT);
+		update(query, "Error deattach dayOfWeek in savePlanEventForDeal", event.getId());
+		if (event.getDaysOfWeek() != null && !event.getDaysOfWeek().isEmpty()) {
+			query = sql.getValue(DealDaoSqlKey.ATTACH_DAYS_OF_WEEK_TO_PLAN_EVENT);
+			for (DayOfWeek dayOfWeek : event.getDaysOfWeek()) {
+				update(query, "Error attach dayOfWeek in savePlanEventForDeal", event.getId(), dayOfWeek.getId());
+			}
+		}
+		query = sql.getValue(DealDaoSqlKey.DETACH_SCHEDULE_FROM_PLAN_EVENT);
+		update(query, "Error deattach schedule in savePlanEventForDeal", event.getId());
+		if (event.getSchedule() != null && !event.getSchedule().isEmpty()) {
+			query = sql.getValue(DealDaoSqlKey.ATTACH_SCHEDULE_TO_PLAN_EVENT);
+			for (Date date : event.getSchedule()) {
+				update(query, "Error attach schedule in savePlanEventForDeal", event.getId(), date);
+			}
+		}
+	}
+
+	@Override
+	public boolean isExistEventType(long dealID, long eventTypeID) {
+		String query = sql.getValue(DealDaoSqlKey.IS_EXIST_EVENT_TYPE);
+		if (queryForInt(query, "Error in isExistEventType for Deal.", dealID, eventTypeID) > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public List<KmEventCalendar> getDealPlan(int startIndex, int amount, long dealID, KmEvent filter) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_PLAN_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and m.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventCalendarRm(), "Error selecting deal plal.", dealID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getDealPlanCount(long dealID, KmEvent filter) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_PLAN_COUNT_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and m.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		return queryForInt(query, "Error selecting Deal plan count.", dealID);
+	}
+
+	@Override
+	public List<KmEventInstance> getDealCalendar(int startIndex, int amount, long dealID, KmEvent filter) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_CALENDAR_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and o.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventInstanceRm(), "Error selecting deal calendar.", dealID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getDealCalendarCount(long dealID, KmEvent filter) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_CALENDAR_COUNT_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and o.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		return queryForInt(query, "Error selecting Deal Calendar count.", dealID);
+	}
+
+	@Override
+	public void acceptPlan(long dealID, KmEvent filter) {
+		int amount = getDealPlanCount(dealID, filter);
+		List<KmEventCalendar> list = getDealPlan(0, amount, dealID, filter);
+		for (KmEventCalendar event : list) {
+			acceptEventType(dealID, event.getId());
+		}
+	}
+}

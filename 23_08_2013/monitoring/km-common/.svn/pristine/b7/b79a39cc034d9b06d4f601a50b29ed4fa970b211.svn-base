@@ -1,0 +1,48 @@
+package ru.masterdm.km.common.entity;
+
+import java.util.Date;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+@SuppressWarnings("serial")
+public class KmEventInstance extends BaseIndexedEntity<Long> {
+
+    private KmEventInstanceStatus status;
+    private Date planExecutionDate;
+    private User executor;
+    private KmEvent event;
+
+    public KmEventInstanceStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(KmEventInstanceStatus status) {
+        this.status = status;
+    }
+
+    public Date getPlanExecutionDate() {
+        return planExecutionDate;
+    }
+
+    public void setPlanExecutionDate(Date planExecutionDate) {
+        this.planExecutionDate = planExecutionDate;
+    }
+
+    public User getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(User executor) {
+        this.executor = executor;
+    }
+
+    public KmEvent getEvent() {
+        return event;
+    }
+
+    public void setEvent(KmEvent event) {
+        this.event = event;
+    }
+}

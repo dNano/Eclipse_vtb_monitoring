@@ -1,0 +1,15 @@
+.t-banner {
+    display: none;
+}
+
+.t-error {
+}
+
+.km-error{
+    color: #FF3322;
+    background-color: #E0E0FF;
+}
+
+.t-data-grid-pager {
+    text-align: center;
+}

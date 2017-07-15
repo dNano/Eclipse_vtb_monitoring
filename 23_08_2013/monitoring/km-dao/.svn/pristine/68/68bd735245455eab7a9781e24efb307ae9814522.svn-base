@@ -1,0 +1,27 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * map for списка ФКР.
+ * 
+ * @author Shafgullin Ildar
+ * 
+ */
+public class KmFkrInstanceRm extends BaseRm<KmFkrInstance> {
+	public KmFkrInstanceRm() {
+		super("KFI_");
+	}
+
+	@Override
+	protected KmFkrInstance map(ResultSetWrapper rsw) throws SQLException {
+		KmFkrInstance instance = new KmFkrInstance();
+		
+		instance.setFkr(new KmFkrRm().map(rsw));
+
+		return instance;
+	}
+}

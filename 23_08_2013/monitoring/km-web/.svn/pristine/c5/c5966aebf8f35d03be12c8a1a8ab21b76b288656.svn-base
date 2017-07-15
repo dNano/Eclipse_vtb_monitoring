@@ -1,0 +1,297 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Редактирование Планового мероприятия клиента '${contractor?.name}'">
+	<h1 style="text-align: center;">Редактирование Планового мероприятия клиента "${contractor?.name}"</h1>
+	<fieldset>
+		<legend>Карточка мероприятия</legend>
+		<form t:type="form" t:id="editPlanEventForm" t:clientValidation="none" t:autofocus="false">
+			<div t:type="errors" class="literal:km-error"></div>
+			    <table style="width: 100%">
+                     <tr>
+                        <td colspan="2" style="white-space: nowrap;">
+                            Объект: ${event.classifier.monitoredObjectType.name}
+                        </td>
+                    </tr>
+                     <tr>
+                        <td colspan="2" style="white-space: nowrap;">
+                            Группа: ${event.classifier.eventTypeGroup.name}
+                        </td>
+                    </tr>
+                     <tr>
+                        <td colspan="2" style="white-space: nowrap;">
+                            Название: ${event.classifier.eventType.name}
+                        </td>
+                    </tr>
+					<tr>
+						<td style="vertical-align: top;">
+							<table>
+								<tr>
+									<td t:type="zone" t:id="repeatTypeSelectZone" t:update="show" id="repeatTypeSelectZone" style="vertical-align: top;">
+										<fieldset>
+											<legend>Плановая периодичность</legend>
+											<table>
+											 <tr>
+												 <th align="left">Периодичность</th>
+												 
+												 <th align="left" t:type="if" t:test="renderEventTypeEveryWeek">Уточнения</th>
+												 <th align="left" t:type="if" t:test="renderEventTypeEveryMonth">Уточнения</th>
+												 
+	                                             <th align="left" t:type="if" t:test="renderEventTypeOnce">Дата исполнения</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeRandom">По графику</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeEveryDay">Дата исполнения</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeEveryWeek">День недели</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeEveryMonth">Дата исполнения</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeEveryQuarter">Дата исполнения</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeEveryHalfYear">Дата исполнения</th>
+	                                             <th align="left" t:type="if" t:test="renderEventTypeYear">Дата исполнения</th>
+	                                             
+	                                             <th align="center" t:type="if" t:test="renderEventTypeOnce">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeEveryDay">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeEveryWeek">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeEveryMonth">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeEveryQuarter">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeEveryHalfYear">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeYear">Учет выходных</th>
+	                                             <th align="center" t:type="if" t:test="renderEventTypeRandom">Учет выходных</th>
+											 </tr>
+											 <tr>
+											     <td align="left">
+											     	<input t:type="select" t:id="repeatTypeSelect" t:model="repeatTypeSelectModel" t:blankOption="always" t:validate="required"
+														t:blankLabel="----------------------" t:value="event.repeatType" t:encoder="repeatTypeValueEncoder" t:zone="^"/>&nbsp;
+												 </td>
+												 
+											     <td t:type="if" t:test="renderEventTypeEveryWeek" align="left">&nbsp;
+                                                    Один раз в <input t:type="textField" t:value="event.periodDetails" size="2" class="input"/> недель
+                                                 </td>
+											     <td t:type="if" t:test="renderEventTypeEveryMonth" align="left">&nbsp;
+                                                    Один раз в <input t:type="textField" t:value="event.periodDetails" size="2" class="input"/> месяца.
+                                                 </td>
+                                                 
+   										     	 <td t:type="if" t:test="renderEventTypeOnce" valign="top">&nbsp;
+                                                    <t:dynarchCalendar t:value="event.startDate" size="7"/>
+                                                 </td>
+   										     	 <td t:type="if" t:test="renderEventTypeRandom" valign="top">&nbsp;
+                                                    <span t:type="zone" t:id="scheduleZone" id="scheduleZone" t:update="show">
+														<table>
+															<tr>
+																<td><t:dynarchCalendar t:value="event.startDate" size="7"/></td>
+																<td><input t:type="submit" t:id="addDateToScheduleButton" t:value="Добавить" class="button"/></td>
+															</tr>
+														</table>
+														<span t:type="unless" t:test="event.schedule.empty" style="text-align: center;">
+															<fieldset>
+																<table>
+																	<thead><tr><th colspan="2">Текущее расписание</th></tr></thead>
+																	<tr t:type="loop" t:source="event.schedule" t:value="loopDate" t:formState="none">
+																		<td>
+																			<span t:type="output" t:format="dateListPattern" t:value="loopDate"></span>&nbsp;
+																		</td>
+																		<td>
+																			<a t:type="eventLink" t:event="deleteDateFromSchedule" t:context="loopDate.time" t:zone="^">удалить</a>
+																		</td>
+																	</tr>
+																</table>
+															</fieldset>
+														</span>
+													</span>
+                                                 </td>
+											     <td t:type="if" t:test="renderEventTypeEveryDay" align="left">
+											     		Один раз в <input t:type="textField" t:value="event.periodDetails" size="2" class="input"/> дней
+                                                 </td>                                                 
+											     <td t:type="if" t:test="renderEventTypeEveryWeek" align="left">
+			                                             <table t:type="loop" t:value="dayOfWeek" t:source="daysOfWeek" t:encoder="dayOfWeekValueEncoder">
+			                                                <tr>
+			                                                    <td>
+			                                                        <input t:type="checkbox" t:id="dayOfWeekCheckbox" t:value="dayOfWeekSelected"/>
+			                                                    </td>
+			                                                    <td>
+			                                                        <span t:type="label" t:for="dayOfWeekCheckbox">${dayOfWeek.name}</span>
+			                                                    </td>
+			                                                </tr>
+			                                            </table>
+                                                 </td>
+                                                 <td t:type="if" t:test="renderEventTypeEveryMonth" align="left">&nbsp;
+											     		Число месяца <input t:type="textField" t:value="event.periodDate" size="2" class="input"/>
+                                                 </td>                                                 
+                                                 <td t:type="if" t:test="renderEventTypeEveryQuarter" align="left">&nbsp;
+											     		Номер месяца в квартале <select t:type="select" t:value="event.periodDate" t:model="literal:1,2,3"></select> 
+											     		и число <input t:type="textField" t:value="event.periodDetails" size="2" class="input"/>
+                                                 </td>                                                 
+                                                 <td t:type="if" t:test="renderEventTypeEveryHalfYear" align="left">&nbsp;
+											     		Номер месяца в полугодии <select t:type="select" t:value="event.periodDate" t:model="literal:1,2,3,4,5,6"></select>
+											     		и число <input t:type="textField" t:value="event.periodDetails" size="2" class="input"/>
+                                                 </td>                                                 
+                                                 <td t:type="if" t:test="renderEventTypeYear" align="left">&nbsp;
+											     		Месяц в году
+											    		<input t:type="select" t:id="monthSelect" t:model="monthSelectModel" t:encoder="monthValueEncoder"
+														t:blankLabel="----------------------" t:value="month"/>											     		 
+											     		и число <input t:type="textField" t:value="event.periodDetails" size="2" class="input"/>
+                                                 </td>                                                 
+                                                                                                 
+                                                 
+                                                 <td align="left" t:type="unless" t:test="renderEventTypeEveryDay">
+                                                    <ul>
+													  <li  style="list-style:none;display:inline;">
+														  <t:radiogroup t:value="event.periodWeekend">
+														    <input type="radio" t:type="radio" value="0" /> После
+														    <input type="radio" t:type="radio" value="1" /> Перед
+														    <input type="radio" t:type="radio" value="2" /> Точно
+														  </t:radiogroup>
+													  </li>
+													</ul>
+                                                 </td>
+                                                 <td align="center" t:type="if" t:test="renderEventTypeEveryDay">&nbsp;
+                                                 	Исключать выходные <input type="checkbox" t:type="checkbox" t:value="event.excludeHoliday" />
+                                                    <ul>
+													  <li  style="list-style:none;display:inline;">
+														  <t:radiogroup t:value="event.periodWeekend">
+														    <input type="radio" t:type="radio" value="0" /> После
+														    <input type="radio" t:type="radio" value="1" /> Перед
+														    <input type="radio" t:type="radio" value="2" /> Точно
+														  </t:radiogroup>
+													  </li>
+													</ul>
+                                                 </td>
+											 </tr>
+											</table>
+										</fieldset>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<fieldset>
+								<legend>Планируемое выполнение мероприятия</legend>
+								<table>
+									<tr>
+										<td>
+											<p style="margin-bottom:1px;">Вид подтверждения</p>
+							              		<input t:type="select" t:id="eventConfirmationType" t:value="event.confirmationType" 
+						                            t:encoder="confirmationTypeValueEncoder" t:model="confirmationTypeSelectModel"/>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<p style="margin-bottom:1px;">Группа требуемого документа</p>
+							              		<input t:type="select" t:id="eventDocumentGroup" t:blankOption="always" t:zone="documentZone"
+							              			t:blankLabel="------- Введите требуемый документ ниже или Выберите из группы документов -------" 
+							              			t:value="event.documentGroup" t:encoder="documentGroupValueEncoder"
+							              			t:model="documentGroupSelectModel"/>
+										</td>
+									</tr>
+									<tr>
+										<td  t:type="zone" t:id="documentZone" t:update="show" id="documentZone">
+											<p style="margin-bottom:1px;">Требуемый документ</p>
+											<t:if test="event.documentGroup?.id">
+							              		<input t:type="select" t:id="eventDocumentType" t:blankLabel="------------------------"
+							              			t:value="event.documentType" t:encoder="documentTypeValueEncoder"
+							              			t:model="documentTypeSelectModel" t:blankOption="always" style="width: 100%;"/>
+							              			<p:else>
+							              				<t:textarea t:id="eventDocumentTypeByHand" cols="110" rows="3"  value="event.docTypeByHand" disabled="false"/>
+							              			</p:else>
+							              	</t:if>
+										</td>
+									</tr>
+								</table>
+							</fieldset>
+						</td>
+					</tr>						
+					<tr>
+						<td>
+							<fieldset>
+								<legend>Уведомление о наступлении мероприятия</legend>
+								Начать информировать за <input t:type="textField" t:value="event.notification?.periodKind" size="2" class="input"/> дней до наступления
+								 с периодичностью раз в <input t:type="textField" t:value="event.notification?.period" size="2" class="input"/>  дней.
+								<table>
+									<tr>
+										<td><input t:type="checkbox" t:id="alarmOnEventStartDayCheckbox"
+											t:value="event.notification.alarmOnEventStartDay" /></td>
+										<td><span t:type="label" t:for="alarmOnEventStartDayCheckbox"> Информировать в день мероприятия </span></td>
+									</tr>
+									<tr>
+										<td><input t:type="checkbox" t:id="continueToAlarmWhenUnfulfilledCheckbox"
+											t:value="event.notification.continueToAlarmWhenUnfulfilled" /></td>
+										<td><span t:type="label" t:for="continueToAlarmWhenUnfulfilledCheckbox"> Продолжить информировать
+												после даты мероприятия, при неисполнении </span></td>
+									</tr>
+									<tr>
+										<td><input t:type="checkbox" t:id="includeLinkInTextMessageCheckbox"
+											t:value="event.notification.includeLinkInTextMessage" /></td>
+										<td><span t:type="label" t:for="includeLinkInTextMessageCheckbox"> Включать ссылку на мероприятие
+												в текст сообщения </span></td>
+									</tr>									
+								</table>
+							</fieldset>
+						</td>
+					</tr>
+                   	<tr>
+                        <td colspan="2">
+                        	<span t:type="zone" t:id="recipientsZone" id="recipientsZone" t:update="show">
+                        	<fieldset>
+                                    <legend>Адреса рассылки</legend>
+                                    <span t:type="label" t:for="rcptFullNameTextField">ФИО:&nbsp;</span>
+                                    <input t:type="textField" t:id="rcptFullNameTextField" t:value="notificationRecipient.fullName"
+                                           style="width: 200px;" maxlength="${message:rcptFullNameTextField-maxLength}"/>
+                                    &nbsp;
+                                    <span t:type="label" t:for="rcptEmailTextField">E-mail:&nbsp;</span>
+                                    <input t:type="textField" t:id="rcptEmailTextField" t:value="notificationRecipient.email"
+                                           style="width: 150px;" maxlength="${message:rcptEmailTextField-maxLength}"/>
+                                    <input t:type="submit" t:id="addRecipientButton" t:value="Добавить" class="button"/>
+                                    
+                                    <a t:type="jquery/dialogAjaxLink" t:id="selectRecepientLink"
+                                       t:dialog="selectRecipientDialog" t:zone="userListZone" t:mixins="dialogAjaxLinkFix">Выбрать по ФИО</a>
+      
+                                    <span t:type="unless" t:test="event.notification.recipients.empty" style="text-align: center;">
+                                        <table style="width: 50%">
+                                            <thead>
+                                                <tr>
+                                                    <th>ФИО</th>
+                                                    <th>E-mail</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t:type="loop" t:source="event.notification.recipients" t:value="loopRcpt" t:formState="none">
+                                                    <td>${loopRcpt.fullName}</td>
+                                                    <td>${loopRcpt.email}</td>
+                                                    <td>
+                                                        <a t:type="eventLink" t:event="deleteRecipient" t:context="loopRcpt.email" t:zone="^">удалить</a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </span>                                                                        
+                            </fieldset>
+                            </span>
+                        </td>
+                    </tr>
+			</table>
+			<div style="text-align: center;">
+                 <input t:type="submit" t:id="saveEventButton" t:value="Сохранить" class="button"/>
+                 <input t:type="submit" t:id="cancelButton" t:mode="cancel" t:value="Отмена" class="button"/>
+            </div>
+		</form>
+	</fieldset>
+	<div t:type="jquery/dialog" t:clientId="selectRecipientDialog" t:params="literal:{title:'Выбор пользователя', modal:'true', height:350, width:500}">
+        <span t:type="zone" t:id="userListZone" id="userListZone" t:update="show">
+            <form t:type="form" t:id="userListForm" id="userListForm" t:zone="^" t:clientValidation="none" t:autofocus="false">
+                <p style="text-align: center;">
+                    Фамилия:&nbsp;<input t:type="textField" t:value="lastNamePattern" class="input"/>
+                    <input t:type="submit" t:id="userSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+                </p>
+            </form>
+            <span t:type="unless" t:test="dialogAppeared">
+                <table t:type="grid" t:source="users" t:row="user" t:rowsPerPage="10" t:inPlace="true"
+                       t:include="fullName, email" t:model="userModel" style="width: 100%" t:pagerPosition="bottom">
+                    <p:fullNameCell>
+                        <a t:type="actionLink" t:id="selectUserLink" t:context="user.id" t:zone="recipientsZone">${user.fullName}</a>
+                    </p:fullNameCell>
+                    <p:empty>
+                        <div style="text-align: center;">Пользователи не найдены</div>
+                    </p:empty>
+                </table>
+            </span>            
+        </span>
+    </div>
+</t:layout>

@@ -1,0 +1,61 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.common.entity.ContractorGroup;
+import ru.masterdm.km.common.entity.ContractorType;
+import ru.masterdm.km.common.entity.Currency;
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.DealType;
+import ru.masterdm.km.common.entity.KmEventInstanceStatus;
+import ru.masterdm.km.common.entity.KmEventType;
+import ru.masterdm.km.common.entity.KmEventTypeGroup;
+import ru.masterdm.km.common.entity.KmRepeatType;
+import ru.masterdm.km.common.entity.MonitoredObjectType;
+import ru.masterdm.km.common.entity.User;
+
+/**
+ *
+ * @author Alexey Chalov
+ */
+public interface DictionaryDao {
+
+    List<MonitoredObjectType> getMonitoredObjectTypes();
+
+    List<KmEventTypeGroup> getEventTypeGroups(Long monitoredObjectTypeId);
+
+    List<KmEventType> getKmEventTypes(Long kmEventTypeGroupId);
+
+    List<ContractorType> getContractorTypes();
+
+    int getUserCount(String lastNamePattern);
+
+    List<User> getUsers(int startIndex, int amount, String lastNamePattern);
+
+    User getUser(Long id);
+
+    List<KmEventInstanceStatus> getInstanceStatuses();
+    
+    List<KmEventInstanceStatus> getInstanceStatusesForDeal();
+
+    List<Currency> getCurrencies();
+
+    List<DealType> getDealTypes();
+
+    int getContractorCount(String namePattern);
+
+    List<Contractor> getContractors(int startIndex, int amount, String namePattern);
+
+    Contractor getContractor(String id);
+
+    int getContractorGroupCount(String namePattern);
+
+    List<ContractorGroup> getContractorGroups(int startIndex, int amount, String namePattern);
+
+    ContractorGroup getContractorGroup(String id);
+
+	List<KmRepeatType> getKmRepeatTypes();
+
+	List<DayOfWeek> getDaysOfWeek();
+}

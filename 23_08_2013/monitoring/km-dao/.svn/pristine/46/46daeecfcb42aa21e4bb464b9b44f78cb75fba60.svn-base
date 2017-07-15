@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+	<bean class="ru.masterdm.km.dao.DealDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sql">
+			<util:map key-type="ru.masterdm.km.dao.DealDaoSqlKey"
+				value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+				<entry key="DEAL_INSTANCE_COUNT">
+					<value>
+                        <![CDATA[
+                            select count(*) from MDTASK m where exists (select id_event_calendar from KM_EVENT_CALENDAR e where e.id_mdtask = m.id_mdtask)
+                        ]]>
+					</value>
+				</entry>
+				<entry key="DEAL_INSTANCES">
+					<value>
+                        <![CDATA[
+             				select m.ID_MDTASK d_id, m.MDTASK_NUMBER, m.MDTASK_SUM d_amount, m.CURRENCY C_CODE,
+             					   m.VALIDTO di_date 
+             					from MDTASK m 
+             					where exists (select id_event_calendar from KM_EVENT_CALENDAR e where e.id_mdtask = m.id_mdtask)
+             	           ]]>
+					</value>
+				</entry>
+				<entry key="DEAL_CALENDAR_COUNT">
+					<value>
+                        <![CDATA[
+                            select count(*) from tmp_km_event_instance ei 
+								inner join km_event_calendar e on e.id_event_calendar = ei.event_id
+								where e.id_mdtask = ?
+                        ]]>
+					</value>
+				</entry>
+				<entry key="DEAL_CALENDAR">
+					<value>
+                        <![CDATA[
+                            select ei.id ei_id, ei.plan_date ei_plan_date,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_sum d_amount, m.currency c_code
+                              from tmp_km_event_instance ei left join users u on u.id_user = ei.executor_id
+                                                            left join km_event_calendar e on e.id_event_calendar = ei.event_id 
+                                                            left join mdtask m on m.id_mdtask = e.id_mdtask                             
+                        ]]>
+					</value>
+				</entry>
+				<entry key="DEAL_CLASSIFIERS_COUNT">
+					<value>
+						<![CDATA[
+							select count(*) from Km_Event_Type	
+						]]>
+					</value>
+				</entry>
+				<entry key="DEAL_CLASSIFIERS">
+					<value>
+					<![CDATA[
+						   select t.id_event_type as ET_id, t.event_type_name ET_name, 
+									m.id as MO_id, m.name as MO_name, 
+									g.id_event_group as ETG_id, g.event_group_name as ETG_name 
+							from Km_Event_Type t 
+								inner join km_event_group g on t.id_event_group = g.id_event_group
+								inner join km_monitored_object m on m.id = g.id_object_type
+							order by MO_name desc, ETG_name, ET_name
+					 ]]>
+					</value>
+				</entry>
+				<entry key="DEAL_PLAN_COUNT">
+					<value>
+						<![CDATA[
+							select count(*) from Km_Event_Type t
+								where t.id_event_type in (select id_event_type from KM_EVENT_CALENDAR where id_mdtask = ?)	
+						]]>
+					</value>
+				</entry>
+				<entry key="DEAL_PLAN">
+					<value>
+					<![CDATA[
+						   select t.id_event_type as ET_id, t.event_type_name ET_name, 
+									m.id as MO_id, m.name as MO_name, 
+									g.id_event_group as ETG_id, g.event_group_name as ETG_name 
+							from Km_Event_Type t 
+								inner join km_event_group g on t.id_event_group = g.id_event_group
+								inner join km_monitored_object m on m.id = g.id_object_type
+							where t.id_event_type in (select id_event_type from KM_EVENT_CALENDAR where id_mdtask = ?)
+							order by MO_name desc, ETG_name, ET_name
+					 ]]>
+					</value>
+				</entry>
+				<entry key="ADD_EVENT_TYPE">
+					<value>
+						<![CDATA[
+							insert into KM_EVENT_CALENDAR(id_event_calendar, event_name, id_mdtask, id_event_type) values(?, 'temp', ?, ?)
+						]]>
+					</value>
+				</entry>
+			</util:map>
+		</property>
+	</bean>
+</beans>

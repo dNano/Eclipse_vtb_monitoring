@@ -1,0 +1,26 @@
+package ru.masterdm.km.web.util;
+
+/**
+ * Util для отчетов.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ReportUtil {
+	/**
+	 * Generates combined number to show in the reports (crmCode if present and mdTask number).
+	 * 
+	 * @param crmcode
+	 * 
+	 * @param number
+	 * 
+	 */
+	public static final String generateCombinedNumber(String crmCode, String number) {
+		if (number == null)
+			return null;
+		if ((crmCode != null) && (!crmCode.equals("")) && !(number.equals(crmCode)))
+			return crmCode + " (" + number + ")";
+		else
+			return number;
+	}
+}

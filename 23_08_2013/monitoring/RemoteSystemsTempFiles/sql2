@@ -1,0 +1,37 @@
+
+ select id_event_result, event_result from KM_EVENT_RESULT
+ 
+ select * from KM_EVENT_CALENDAR
+ 
+
+select v.crmid, v.ORGANIZATIONNAME, t.id_contractor_type, t.name_contractor_type
+from 
+(SELECT r.ID_R, r.ID_CRMORG 
+FROM R_ORG_MDTASK r where ID_MDTASK= 22848 and rownum < 2
+order by ID_R ) d
+left outer join v_organisation v on v.crmid = d.ID_CRMORG
+left outer join r_contractor_type_mdtask rt on rt.id_r = d.id_r
+left outer join contractor_type t on t.id_contractor_type = rt.id_contractor_type
+where rownum < 2
+order by t.id_contractor_type
+
+
+SELECT r.ID_R, r.ID_CRMORG 
+FROM R_ORG_MDTASK r where ID_MDTASK= 23035
+
+
+
+     select ei.id ei_id, ei.plan_date ei_plan_date,
+            u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+            e.id_event_calendar e_id, e.event_name e_name,
+            e.id_mdtask d_id, m.mdtask_sum d_amount, m.currency c_code,
+            v.crmid, v.ORGANIZATIONNAME, t.id_contractor_type, t.name_contractor_type
+    from tmp_km_event_instance ei 
+    			  left join users u on u.id_user = ei.executor_id
+                  left join km_event_calendar e on e.id_event_calendar = ei.event_id 
+                  left join mdtask m on m.id_mdtask = e.id_mdtask
+                  left join R_ORG_MDTASK r on r.ID_MDTASK = m.id_mdtask
+                  left join v_organisation v on v.crmid = r.ID_CRMORG
+                  left join r_contractor_type_mdtask rt on rt.id_r = r.id_r
+                  left join contractor_type t on t.id_contractor_type = rt.id_contractor_type
+ 	where ei.id = 6 and rownum < 2

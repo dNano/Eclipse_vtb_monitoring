@@ -1,0 +1,16 @@
+name-label=Наименование
+fullName-label=ФИО
+email-label=E-mail
+
+planExecutionDate-label=Дата
+eventName-label=Название мероприятия
+contractNumber-label=№Дог./Согл.
+spkpNumber-label=№ Сделки
+amount-label=Сумма
+currency-label=Валюта
+executor-label=Исполнитель
+mailTo-label=
+executeAction-label=
+historyDeal-label=\u0418\u0441\u0442.
+historyContractor-label=\u0418\u0441\u0442.
+contractorName-label=\u041A\u043B\u0438\u0435\u043D\u0442

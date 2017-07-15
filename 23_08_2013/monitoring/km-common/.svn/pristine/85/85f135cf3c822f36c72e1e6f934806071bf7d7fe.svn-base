@@ -1,0 +1,111 @@
+package ru.masterdm.km.common.entity;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Календарь instance
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class KmEventCalendar extends BaseNamedEntity<Long> {
+	private KmClassifier classifier;
+	private KmRepeatType repeatType;
+	private KmEventNotification notification;
+	private Date startDate;
+	private Date endDate;
+	private List<DayOfWeek> daysOfWeek;
+	private Long periodDate;
+	private Long periodDetails;
+	private Long periodWeekend;
+	private boolean excludeHoliday;
+
+	public Long getPeriodWeekend() {
+		return periodWeekend;
+	}
+
+	public void setPeriodWeekend(Long periodWeekend) {
+		this.periodWeekend = periodWeekend;
+	}
+
+	public boolean isExcludeHoliday() {
+		return excludeHoliday;
+	}
+
+	public void setExcludeHoliday(boolean excludeHoliday) {
+		this.excludeHoliday = excludeHoliday;
+	}
+
+	public KmClassifier getClassifier() {
+		return classifier;
+	}
+
+	public void setClassifier(KmClassifier classifier) {
+		this.classifier = classifier;
+	}
+
+	public KmRepeatType getRepeatType() {
+		return repeatType;
+	}
+
+	public void setRepeatType(KmRepeatType repeatType) {
+		this.repeatType = repeatType;
+	}
+
+	public KmEventNotification getNotification() {
+		return notification;
+	}
+
+	public void setNotification(KmEventNotification notification) {
+		this.notification = notification;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date entDate) {
+		this.endDate = entDate;
+	}
+
+	public List<DayOfWeek> getDaysOfWeek() {
+		if(daysOfWeek == null){
+			daysOfWeek = new ArrayList<DayOfWeek>();
+		}
+		return daysOfWeek;
+	}
+
+	public void setDaysOfWeek(List<DayOfWeek> daysOfWeek) {
+		this.daysOfWeek = daysOfWeek;
+	}
+
+
+	public Long getPeriodDetails() {
+		return periodDetails;
+	}
+
+	public void setPeriodDetails(Long periodDetails) {
+		this.periodDetails = periodDetails;
+	}
+
+	public Long getPeriodDate() {
+		return periodDate;
+	}
+
+	public void setPeriodDate(Long periodDate) {
+		this.periodDate = periodDate;
+	}
+
+
+}

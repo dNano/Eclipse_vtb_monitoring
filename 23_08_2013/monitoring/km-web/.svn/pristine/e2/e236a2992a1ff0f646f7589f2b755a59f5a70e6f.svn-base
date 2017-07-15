@@ -1,0 +1,44 @@
+package ru.masterdm.km.web.util;
+
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+
+import ru.masterdm.km.common.entity.Deal;
+
+/**
+ * Util Для режимов "Планирование контрольных мероприятий"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class BuildingEventUtil {
+	private static final int MSEC_IN_DAY = 24 * 60 * 60 * 1000;
+
+	/**
+	 * Инфо о сделке.
+	 * 
+	 * @param deal
+	 * @param decimalFormat
+	 * @param dateFormat
+	 * @return
+	 */
+	public final static String getDealInfo(Deal deal, DateFormat dateFormat, DecimalFormat decimalFormat) {
+		String info = "";
+		if (deal != null) {
+			if (deal.getValidTo() != null) {
+				info += "Сделка действует до " + dateFormat.format(deal.getValidTo());
+				long days = (deal.getValidTo().getTime() - System.currentTimeMillis()) / MSEC_IN_DAY;
+				if (days > 0) {
+					info += ", осталось " + days + " дней. ";
+				} else {
+					info += ", срок истек " + (-days) + " дней назад. ";
+				}
+			}
+			if (deal.getType() != null && deal.getType().getName() != null) {
+				info += deal.getType().getName() + " на сумму ";
+			}
+			info += decimalFormat.format(deal.getAmount()) + " " + deal.getCurrency().getId();
+		}
+		return info;
+	}
+}

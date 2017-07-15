@@ -1,0 +1,335 @@
+package ru.masterdm.km.dao;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import ru.masterdm.km.common.dictionary.KmEventStatusDictionary;
+import ru.masterdm.km.common.entity.ContractorInstance;
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.common.searchfilter.EventsByContractorFilter;
+import ru.masterdm.km.dao.mapper.ContractorInstanceRm;
+import ru.masterdm.km.dao.mapper.DayOfWeekRm;
+import ru.masterdm.km.dao.mapper.KmEventCalendarRm;
+import ru.masterdm.km.dao.mapper.KmEventInstanceRm;
+import ru.masterdm.km.dao.mapper.KmFkrRm;
+import ru.masterdm.km.util.AcceptKmEventProcessor;
+import ru.masterdm.km.util.BaseJdbcDao;
+import ru.masterdm.km.util.query.SortCriterion;
+
+/**
+ * Реализация DAO интерфейса для сущности "Контрагент".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class ContractorDaoImpl extends BaseJdbcDao<ContractorDaoSqlKey> implements ContractorDao {
+
+	@Override
+	public List<KmEventInstance> getContractorCalendar(int startIndex, int amount, String contractorID) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_CALENDAR);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventInstanceRm(), "Error getContractorCalendar.", contractorID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getContractorCalendarCount(String contractorID) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_CALENDAR_COUNT);
+		return queryForInt(query, "Error selecting Contractor Calendar count.", contractorID);
+	}
+
+	@Override
+	public int getInstanceCount(EventsByContractorFilter filter) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_INSTANCE_COUNT);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		return queryForInt(query, "Error selecting contractor instance count.", params.toArray());
+	}
+
+	@Override
+	public List<ContractorInstance> getInstances(int startIndex, int amount, EventsByContractorFilter filter, List<SortCriterion> sortCriteria) {
+		ArrayList<Object> params = new ArrayList<Object>();
+		String query = "select v.* from (";
+		query += sql.getValue(ContractorDaoSqlKey.CONTRACTOR_INSTANCES);
+		String orderBy = getOrderBy(sortCriteria);
+		query += ", row_number() over (order by " + orderBy + ") rn from V_ORGANISATION o where ";
+		query += "o.organizationname IN (select distinct name from V_CPS_DEAL_CONTRACTOR vc "
+				+ "inner join V_CPS_CREDIT_DEAL vd on vc.id_mdtask = vd.id_mdtask "
+				+ "and vd.IS_MDTASK_CONFIRMED = 1 and vd.MDTASK_TYPE_KEY = 'DEAL') ";
+		query = filterQuery(filter, query, params);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		params.add(startIndex);
+		params.add(startIndex + amount);
+		return queryForList(query, new ContractorInstanceRm(), "Error selecting contractor instances.", params.toArray());
+	}
+
+	private String getOrderBy(List<SortCriterion> sortCriteria) {
+		String orderBy = "o.ORGANIZATIONNAME";
+		if (!sortCriteria.isEmpty()) {
+			SortCriterion sortCriterion = sortCriteria.get(0);
+			String propertyName = sortCriterion.getPropertyName();
+			if ("contractorName".equalsIgnoreCase(propertyName)) {
+				orderBy = "o.ORGANIZATIONNAME";
+			} else if ("contractorNumber".equalsIgnoreCase(propertyName)) {
+				orderBy = "o.crmid";
+			} else if ("contractorINN".equalsIgnoreCase(propertyName)) {
+				orderBy = "o.inn";
+			}
+			orderBy += sortCriterion.getSortDirection().toStringForJpql();
+		}
+		return orderBy;
+	}
+
+	private String filterQuery(EventsByContractorFilter filter, String query, ArrayList<Object> params) {
+		if (filter.getContractorName() != null) {
+			query += " AND lower(o.ORGANIZATIONNAME) like lower(?) ";
+			params.add("%" + filter.getContractorName() + "%");
+		}
+		if (filter.getContractorINN() != null) {
+			query += " AND lower(o.inn) like lower(?) ";
+			params.add("%" + filter.getContractorINN() + "%");
+		}
+		if (filter.getContractorNumber() != null) {
+			query += " AND lower(o.CRMID) like lower(?) ";
+			params.add("%" + filter.getContractorNumber() + "%");
+		}
+		if (filter.getSelectedStatuses() != null && !filter.getSelectedStatuses().isEmpty()) {
+			query = filterStatuses(filter, query);
+		}
+		return query;
+	}
+
+	private String filterStatuses(EventsByContractorFilter filter, String query) {
+		String countFKR = "select count(id_fkr) from KM_FKR where id_organization = o.CRMID";
+		String countExpared = "select count(id_event) from km_event e "
+				+ "inner join km_event_calendar c on c.id_event_calendar = e.id_event_calendar "
+				+ "where c.id_organization = o.crmid and e.executed_date is null and e.plan_date < sysdate";
+		boolean isSignificantFKR = filter.getSelectedStatuses().contains(filter.STATUSES[1]);
+		boolean isNotSignificantFKR = filter.getSelectedStatuses().contains(filter.STATUSES[2]);
+		boolean isAll_FKR = filter.getSelectedStatuses().contains(filter.STATUSES[0]) || (isSignificantFKR && isNotSignificantFKR);
+		boolean isExpared = filter.getSelectedStatuses().contains(filter.STATUSES[3]);
+		if (isAll_FKR && isExpared) {
+			query += " AND ((" + countFKR + ") > 0 OR (" + countExpared + ") > 0) ";
+		} else if (isAll_FKR) {
+			query += " AND (" + countFKR + ") > 0 ";
+		} else if (isExpared) {
+			query += " AND (" + countExpared + ") > 0 ";
+		} else {
+			if (isSignificantFKR) {
+				query += " AND (" + countFKR + " and is_significant = 1) > 0 ";
+			} else if (isNotSignificantFKR) {
+				query += " AND (((" + countFKR + " and is_significant = 1) = 0) and ((" + countFKR + " and is_significant = 0) > 0)) ";
+			}
+		}
+		return query;
+	}
+
+	@Override
+	public List<KmEventCalendar> getContractorPlan(int startIndex, int amount, String contractorID, KmEvent filter) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_PLAN_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and m.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventCalendarRm(), "Error in getContractorPlan.", contractorID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getContractorPlanCount(String contractorID, KmEvent filter) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_PLAN_COUNT_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and m.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		return queryForInt(query, "Error in getContractorPlanCount.", contractorID);
+	}
+
+	@Override
+	public boolean isExistEventType(String contractorID, long eventTypeID) {
+		String query = sql.getValue(ContractorDaoSqlKey.IS_EXIST_EVENT_TYPE);
+		if (queryForInt(query, "Error in isExistEventType for Contractor.", contractorID, eventTypeID) > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void addEventType(String contractorID, long eventTypeID) {
+		// копируем параметры из классификатора для создания планового мероприятия для клиента:
+		String query = sql.getValue(ContractorDaoSqlKey.COPY_PLAN_EVENT_FOR_CONTRACTOR_FROM_TYPE);
+		KmEventCalendar event = queryForObject(query, new KmEventCalendarRm(), "Error in addEventType", eventTypeID);
+		// System.out.println(event);
+		// Создаем плановое мероприятие:
+		query = sql.getValue(ContractorDaoSqlKey.ADD_EVENT_TYPE_SEQ);
+		long eventID = queryForLong(query, "Error get sequences for km_event");
+		query = sql.getValue(ContractorDaoSqlKey.ADD_EVENT_TYPE);
+		Long repeatTypeID = (event.getRepeatType() != null) ? event.getRepeatType().getId() : null;
+		update(query, "Error add EventType to Contractor", eventID, event.getName(), contractorID, event.getId(), repeatTypeID,
+				event.getPeriodDate(), event.getPeriodDetails(), event.getNotification().getPeriod(), event.getNotification().getPeriodKind(),
+				event.getPeriodWeekend(), event.isExcludeHoliday() ? 1 : 0, event.getNotification().isAlarmOnEventStartDay() ? 1 : 0, event
+						.getNotification().isContinueToAlarmWhenUnfulfilled() ? 1 : 0, event.getNotification().isIncludeLinkInTextMessage() ? 1 : 0);
+		// Копируем дни недели(пока для всех типов? TODO):
+		// if (event.getRepeatType() != null && EventRepeatTypeDictionary.EVERY_WEEK.getId().equals(event.getRepeatType().getId())) {
+		query = sql.getValue(ContractorDaoSqlKey.DAYS_OF_WEEK_FOR_EVENT_TYPE);
+		List<DayOfWeek> daysOfWeek = queryForList(query, new DayOfWeekRm(), "Error in addEventType.", eventTypeID);
+		// System.out.println(daysOfWeek);
+		if (daysOfWeek != null && !daysOfWeek.isEmpty()) {
+			query = sql.getValue(ContractorDaoSqlKey.ATTACH_DAYS_OF_WEEK_TO_PLAN_EVENT);
+			for (DayOfWeek dayOfWeek : daysOfWeek) {
+				update(query, "Error attach dayOfWeek in addEventType", eventID, dayOfWeek.getId());
+			}
+		}
+		// }
+	}
+
+	@Override
+	public void removeEventType(String contractorID, long eventTypeID) {
+		String query = sql.getValue(ContractorDaoSqlKey.REMOVE_EVENT_TYPE);
+		update(query, "Error remove EventType from Contractor", contractorID, eventTypeID);
+	}
+
+	@Override
+	public KmEventCalendar getPlanEventForContractor(long eventPlanID) {
+		String query = sql.getValue(ContractorDaoSqlKey.PLAN_EVENT_FOR_CONTRACTOR);
+		KmEventCalendar event = queryForObject(query, new KmEventCalendarRm(), "Error in getPlanEventForContractor", eventPlanID);
+		query = sql.getValue(ContractorDaoSqlKey.DAYS_OF_WEEK_FOR_PLAN_EVENT);
+		List<DayOfWeek> daysOfWeek = queryForList(query, new DayOfWeekRm(), "Error in getPlanEventForContractor.", eventPlanID);
+		event.setDaysOfWeek(daysOfWeek);
+		query = sql.getValue(ContractorDaoSqlKey.SCHEDULE_FOR_PLAN_EVENT);
+		List<Date> schedule = queryForList(query, Date.class, "Error in getPlanEventForContractor.", eventPlanID);
+		event.setSchedule(schedule);
+		return event;
+
+	}
+
+	@Override
+	public void savePlanEventForContractor(KmEventCalendar event) {
+		String query = sql.getValue(ContractorDaoSqlKey.SAVE_PLAN_EVENT_FOR_CONTRACTOR);
+		Long repeatTypeId = (event.getRepeatType() != null) ? event.getRepeatType().getId() : null;
+		Long docGroupId = (event.getDocumentGroup() != null) ? event.getDocumentGroup().getId() : null;
+		Long docTypeId = (event.getDocumentType() != null) ? event.getDocumentType().getId() : null;
+		Long confTypeId = (event.getConfirmationType() != null) ? event.getConfirmationType().getId() : null;
+		update(query, "Error savePlanEventForContractor", repeatTypeId, event.getNotification().getPeriodKind(), event.getNotification().getPeriod(),
+				event.getStartDate(), event.getEndDate(), event.getPeriodDate(), event.getPeriodDetails(), event.getPeriodWeekend(),
+				(event.isExcludeHoliday() ? 1 : 0), (event.getNotification().isAlarmOnEventStartDay() ? 1 : 0), (event.getNotification()
+						.isContinueToAlarmWhenUnfulfilled() ? 1 : 0), (event.getNotification().isIncludeLinkInTextMessage() ? 1 : 0), confTypeId,
+				docGroupId, docTypeId, event.getDocTypeByHand(), event.getId());
+		query = sql.getValue(ContractorDaoSqlKey.DETACH_DAYS_OF_WEEK_FROM_PLAN_EVENT);
+		update(query, "Error deattach dayOfWeek in savePlanEventForContractor", event.getId());
+		if (event.getDaysOfWeek() != null && !event.getDaysOfWeek().isEmpty()) {
+			query = sql.getValue(ContractorDaoSqlKey.ATTACH_DAYS_OF_WEEK_TO_PLAN_EVENT);
+			for (DayOfWeek dayOfWeek : event.getDaysOfWeek()) {
+				update(query, "Error attach dayOfWeek in savePlanEventForContractor", event.getId(), dayOfWeek.getId());
+			}
+		}
+		query = sql.getValue(ContractorDaoSqlKey.DETACH_SCHEDULE_FROM_PLAN_EVENT);
+		update(query, "Error deattach schedule in savePlanEventForContractor", event.getId());
+		if (event.getSchedule() != null && !event.getSchedule().isEmpty()) {
+			query = sql.getValue(ContractorDaoSqlKey.ATTACH_SCHEDULE_TO_PLAN_EVENT);
+			for (Date date : event.getSchedule()) {
+				update(query, "Error attach schedule in savePlanEventForContractor", event.getId(), date);
+			}
+		}
+	}
+
+	@Override
+	public List<KmEventInstance> getContractorCalendar(int startIndex, int amount, String contractorID, KmEvent filter) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_CALENDAR_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and o.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmEventInstanceRm(), "Error selecting Contractor calendar.", contractorID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getContractorCalendarCount(String contractorID, KmEvent filter) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_CALENDAR_COUNT_BY_FILTER);
+		if (filter.getMonitoredObjectType() != null) {
+			query += " and o.id = " + filter.getMonitoredObjectType().getId();
+		}
+		if (filter.getEventTypeGroup() != null) {
+			query += " and g.id_event_group = " + filter.getEventTypeGroup().getId();
+		}
+		if (filter.getEventType() != null) {
+			query += " and t.id_event_type = " + filter.getEventType().getId();
+		}
+		return queryForInt(query, "Error selecting Contractor Calendar count.", contractorID);
+	}
+
+	@Override
+	public void acceptEventType(String contractorID, long eventCalendarID) {
+		// получаем сущность планового мероприятия:
+		KmEventCalendar planEvent = getPlanEventForContractor(eventCalendarID);
+		// формируем календарное мероприятие в зависимости от типа:
+		java.util.Calendar date = AcceptKmEventProcessor.createCalendarDateFromPlanEvent(planEvent);
+		// проверяем: есть ли такое КМ на эту дату:
+		if (!isExistEventInstance(eventCalendarID, date)) {
+			String query = sql.getValue(ContractorDaoSqlKey.ACCEPT_EVENT_TYPE);
+			Long docGroupId = (planEvent.getDocumentGroup() != null) ? planEvent.getDocumentGroup().getId() : null;
+			Long docTypeId = (planEvent.getDocumentType() != null) ? planEvent.getDocumentType().getId() : null;
+			Long confTypeId = (planEvent.getConfirmationType() != null) ? planEvent.getConfirmationType().getId() : null;
+			update(query, "Error accept EventType for Contractor", eventCalendarID, new java.sql.Date(date.getTime().getTime()),
+					KmEventStatusDictionary.WAIT_PROCESSING.getId(), confTypeId, docGroupId, docTypeId);
+		} else {
+			// TODO
+		}
+	}
+
+	private boolean isExistEventInstance(long eventCalendarID, java.util.Calendar date) {
+		String query = sql.getValue(ContractorDaoSqlKey.IS_EXIST_EVENT_INSTANCE);
+		if (queryForInt(query, "Error in isExistEventInstance.", eventCalendarID, new java.sql.Date(date.getTime().getTime())) > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void acceptPlan(String contractorID, KmEvent filter) {
+		int amount = getContractorPlanCount(contractorID, filter);
+		List<KmEventCalendar> list = getContractorPlan(0, amount, contractorID, filter);
+		for (KmEventCalendar event : list) {
+			acceptEventType(contractorID, event.getId());
+		}
+	}
+
+	@Override
+	public void addFkrToContractor(KmFkr fkr, String contractorID) {
+		String query = sql.getValue(ContractorDaoSqlKey.ADD_FKR);
+		long sign = fkr.isSignificant() ? 1 : 0;
+		update(query, "Error in addFkrToContractor", fkr.getType().getId(), contractorID, sign, fkr.getNotes());
+	}
+
+	@Override
+	public List<KmFkr> getContractorFkr(int startIndex, int amount, String contractorID) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_FKR);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		return queryForList(query, new KmFkrRm(), "Error getContractorFkr.", contractorID, startIndex, startIndex + amount);
+	}
+
+	@Override
+	public int getContractorFkrCount(String contractorID) {
+		String query = sql.getValue(ContractorDaoSqlKey.CONTRACTOR_FKR_COUNT);
+		return queryForInt(query, "Error selecting Contractor FKR count.", contractorID);
+	}
+}

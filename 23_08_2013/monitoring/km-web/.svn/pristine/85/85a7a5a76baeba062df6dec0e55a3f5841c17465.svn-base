@@ -1,0 +1,17 @@
+package ru.masterdm.km.web.pages.executionEvent;
+
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * Карточка контрольного мероприятий для клиента.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteContractorEvent extends SimpleBasePage {
+	void onActivate(long eventID, String contractorID) {
+		System.out.println("onActivate =" + eventID + "; contractorID=" + contractorID);
+		// event = eventDao.getEventForExecute(eventID);
+		// documentTypes = null;
+	}
+}

@@ -1,0 +1,5 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+          t:title="Главная страница">
+          <h1 style="text-align: center;">Календарь мероприятий</h1>
+</t:layout>

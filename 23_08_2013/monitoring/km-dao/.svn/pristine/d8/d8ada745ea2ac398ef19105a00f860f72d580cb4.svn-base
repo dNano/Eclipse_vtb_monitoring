@@ -1,0 +1,39 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.entity.KmEventInstanceStatus;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * Маппер для полей БД на сущность сделка
+ * 
+ * @author Shafigullin Ildar
+ */
+public class DealInstanceRm extends BaseRm<DealInstance> {
+
+	public DealInstanceRm() {
+		super("DI_");
+	}
+
+	@Override
+	protected DealInstance map(ResultSetWrapper rsw) throws SQLException {
+		DealInstance instance = new DealInstance();
+		instance.setId(rsw.getLong(getAliasPrefix() + "ID"));
+		instance.setDeal(new DealRm().map(rsw));
+		instance.setDate(rsw.getDate(getAliasPrefix() + "DATE"));
+		int countFkr = rsw.getInt("FKR_COUNT");
+		KmEventInstanceStatus status = new KmEventInstanceStatus();
+		if (countFkr > 0) {
+			status.setName("ФКР");
+		} else {
+			status.setName("Активно");
+		}
+		instance.setStatus(status);
+		// instance.setExecutor(new UserRm().map(rsw));
+		// TODO: complete
+		return instance;
+	}
+
+}

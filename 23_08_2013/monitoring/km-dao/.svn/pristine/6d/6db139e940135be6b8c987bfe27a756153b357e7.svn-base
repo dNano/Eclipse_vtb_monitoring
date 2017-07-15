@@ -1,0 +1,18 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+
+/**
+ * DAO интерфейс для сущности "Контрагент"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public interface ContractorDao {
+
+	List<KmEventInstance> getContractorCalendar(int startIndex, int amount, String contractorID);
+
+	int getContractorCalendarCount(String contractorID);
+}

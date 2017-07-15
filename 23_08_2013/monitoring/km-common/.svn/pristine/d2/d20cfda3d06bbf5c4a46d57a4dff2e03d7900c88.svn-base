@@ -1,0 +1,21 @@
+package ru.masterdm.km.common.searchfilter;
+
+import ru.masterdm.km.common.entity.Contractor;
+
+/**
+ * Фильтр-поиск списка клиентов.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EventsByContractorFilter {
+    private Contractor contractor;
+
+	public Contractor getContractor() {
+		return contractor;
+	}
+
+	public void setContractor(Contractor contractor) {
+		this.contractor = contractor;
+	}
+}

@@ -1,0 +1,18 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+/**
+ * Календарь мероприятий для сделки.
+ * 
+ * @author Shafigullin Ildar
+ *
+ */
+public class DealCalendar {
+	private long dealID;
+	void onActivate(long id) {
+	    System.out.println("Deal ID=" + id);
+	    dealID = id;
+	}
+	public long getDealID() {
+		return dealID;
+	}
+}

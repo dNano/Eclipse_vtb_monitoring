@@ -1,0 +1,308 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import static ru.masterdm.km.common.util.DataTypeUtil.isEmpty;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.SelectModel;
+import org.apache.tapestry5.ValidationTracker;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.Environmental;
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.SelectModelFactory;
+import org.apache.tapestry5.services.ajax.AjaxResponseRenderer;
+import org.apache.tapestry5.upload.services.UploadedFile;
+
+import ru.masterdm.km.common.dictionary.KmEventStatusDictionary;
+import ru.masterdm.km.common.entity.DocumentGroup;
+import ru.masterdm.km.common.entity.DocumentType;
+import ru.masterdm.km.common.entity.EventResult;
+import ru.masterdm.km.common.entity.KmConfirmationType;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.pages.executionEvent.ByDate;
+import ru.masterdm.km.web.util.BaseEntityValueEncoder;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * Исполнить мероприятие.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEvent extends SimpleBasePage {
+	@Persist
+	@Property
+	private KmEventInstance event;
+	@Persist
+	@Property
+	private boolean showChronology;
+	@Persist
+	@Property
+	private boolean showExecution;
+	@Persist
+	@Property
+	private boolean showResult;
+	@Persist
+	@Property
+	private boolean showRepeatType;
+
+	@Environmental
+	private ValidationTracker validationTracker;
+
+	@Persist
+	private List<EventResult> eventResults;
+	private List<KmConfirmationType> confirmationTypes;
+	private List<DocumentGroup> documentGroups;
+	@Persist
+	private List<DocumentType> documentTypes;
+
+	@Inject
+	private EventDao eventDao;
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private SelectModelFactory selectModelFactory;
+	@Inject
+	private AjaxResponseRenderer ajaxResponseRenderer;
+
+	@InjectComponent
+	private Zone chronologyZone;
+	@InjectComponent
+	private Zone executionZone;
+	@InjectComponent
+	private Zone resultZone;
+	@InjectComponent
+	private Zone repeatTypeZone;
+	@InjectComponent
+	private Zone buttonZone;
+	@InjectComponent
+	private Zone documentZone;
+
+	private Action action;
+
+	@Property
+	private UploadedFile confirmFile;
+	@Property
+	private String confirmFileId;
+
+	private enum Action {
+		EXECUTE_EVENT, CANCEL, SAVE_EVENT;
+	}
+
+	void onActivate(long eventID) {
+		event = eventDao.getEventForExecute(eventID);
+		documentTypes = null;
+	}
+
+	@OnEvent(value = EventConstants.SUBMIT, component = "executeEventsForm")
+	void refreshPage() {
+		System.out.println("EventConstants.SUBMIT");// TODO ?
+		// ajaxResponseRenderer.addRender(executeEventFormZone);
+	}
+
+	@OnEvent(value = EventConstants.SUCCESS, component = "executeEventsForm")
+	Object executeEvent() {
+		System.out.println("executeEvent ACTION = " + action);// TODO
+		switch (action) {
+		case EXECUTE_EVENT:
+			// componentResources.discardPersistentFieldChanges();
+			if (event.getResult() != null) {
+				event.setStatus(event.getResult().getEventStatus());
+			} else {
+				event.getStatus().setId(KmEventStatusDictionary.WAIT_PROCESSING.getId());
+			}
+			if (confirmFile != null) {
+				ExecuteEventUtil.initConfirmFile(event, confirmFile);
+			}
+			eventDao.executeEventInstance(event);
+			return ByDate.class;
+		case SAVE_EVENT:
+			if (confirmFile != null) {
+				ExecuteEventUtil.initConfirmFile(event, confirmFile);
+			}
+			eventDao.saveEventInstance(event);
+			return ByDate.class;
+		default:
+			return null;
+		}
+	}
+
+	@OnEvent(value = EventConstants.VALIDATE, component = "executeEventsForm")
+	void validateEvent() {
+		System.out.println("validateEvent ACTION = " + action);// TODO
+		switch (action) {
+		case EXECUTE_EVENT:
+			if (showResult && event.getResult() != null) {
+				if (event.getResult().isCommentMandatory() && isEmpty(event.getResultNote())) {
+					validationTracker.recordError(getMessages().get("comment-required-message"));
+				}
+			}
+			break;
+		case SAVE_EVENT:
+			break;
+		default:
+			break;
+		}
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "executeEventButton")
+	void executeRequested() {
+		action = Action.EXECUTE_EVENT;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "saveEventButton")
+	void saveRequested() {
+		action = Action.SAVE_EVENT;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "cancelButton")
+	Object cancelRequested() {
+		action = Action.CANCEL;
+		// componentResources.discardPersistentFieldChanges();
+		return ByDate.class;
+	}
+
+	void onShowChronology() {
+		showChronology = true;
+		ajaxResponseRenderer.addRender(chronologyZone);
+	}
+
+	void onHideChronology() {
+		showChronology = false;
+		ajaxResponseRenderer.addRender(chronologyZone);
+	}
+
+	void onShowExecution() {
+		showExecution = true;
+		ajaxResponseRenderer.addRender(executionZone).addRender(buttonZone);
+	}
+
+	void onHideExecution() {
+		showExecution = false;
+		ajaxResponseRenderer.addRender(executionZone).addRender(buttonZone);
+	}
+
+	void onShowResult() {
+		showResult = true;
+		ajaxResponseRenderer.addRender(resultZone).addRender(buttonZone);
+	}
+
+	void onHideResult() {
+		showResult = false;
+		ajaxResponseRenderer.addRender(resultZone).addRender(buttonZone);
+	}
+
+	void onShowRepeatType() {
+		showRepeatType = true;
+		ajaxResponseRenderer.addRender(repeatTypeZone);
+	}
+
+	void onHideRepeatType() {
+		showRepeatType = false;
+		ajaxResponseRenderer.addRender(repeatTypeZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "eventDocumentGroup")
+	void selectEventDocumentGroup(DocumentGroup docGroup) {
+		event.setDocumentGroup(docGroup);
+		selectEventDocumentType(null);
+		documentTypes = null;
+		ajaxResponseRenderer.addRender(documentZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "eventDocumentType")
+	void selectEventDocumentType(DocumentType docType) {
+		event.setDocumentType(docType);
+		ajaxResponseRenderer.addRender(resultZone);
+	}
+
+	public List<EventResult> getEventResults() {
+		if (eventResults == null) {
+			eventResults = eventDao.getEventResults();
+		}
+		return eventResults;
+	}
+
+	public SelectModel getEventResultSelectModel() {
+		return selectModelFactory.create(getEventResults(), "name");
+	}
+
+	public ValueEncoder<EventResult> getEventResultValueEncoder() {
+		return new BaseEntityValueEncoder<EventResult>(getEventResults());
+	}
+
+	public List<KmConfirmationType> getConfirmationTypes() {
+		if (confirmationTypes == null) {
+			confirmationTypes = dictionaryDao.getKmConfirmationTypes();
+		}
+		return confirmationTypes;
+	}
+
+	public SelectModel getConfirmationTypeSelectModel() {
+		return selectModelFactory.create(getConfirmationTypes(), "name");
+	}
+
+	public ValueEncoder<KmConfirmationType> getConfirmationTypeValueEncoder() {
+		return new BaseEntityValueEncoder<KmConfirmationType>(getConfirmationTypes());
+	}
+
+	public List<DocumentGroup> getDocumentGroups() {
+		if (documentGroups == null) {
+			documentGroups = dictionaryDao.getDocumentGroups();
+		}
+		return documentGroups;
+	}
+
+	public SelectModel getDocumentGroupSelectModel() {
+		return selectModelFactory.create(getDocumentGroups(), "name");
+	}
+
+	public ValueEncoder<DocumentGroup> getDocumentGroupValueEncoder() {
+		return new BaseEntityValueEncoder<DocumentGroup>(getDocumentGroups());
+	}
+
+	public List<DocumentType> getDocumentTypes() {
+		if (documentTypes == null && event.getDocumentGroup() != null) {
+			documentTypes = dictionaryDao.getDocumentTypes(event.getDocumentGroup().getId());
+		}
+		return documentTypes;
+	}
+
+	public SelectModel getDocumentTypeSelectModel() {
+		return selectModelFactory.create(getDocumentTypes() != null ? getDocumentTypes() : Collections.emptyList(), "name");
+	}
+
+	public ValueEncoder<DocumentType> getDocumentTypeValueEncoder() {
+		return new BaseEntityValueEncoder<DocumentType>(getDocumentTypes());
+	}
+
+	public String getDealInfo() {
+		return ExecuteEventUtil.getDealInfo(event.getEvent().getDeal(), getDateViewFormat(), getAmountViewFormat());
+	}
+
+	public String getRepeatTypeInfo() {
+		return ExecuteEventUtil.getRepeatTypeInfo(event.getEvent(), getDateViewFormat());
+	}
+
+	public String getPageName() {
+		return "eventInstances/executeEvent";
+	}
+
+	public boolean isShowExecuteButton() {
+		return showResult;
+	}
+
+	public boolean isShowSaveButton() {
+		return showResult || showExecution;
+	}
+}

@@ -1,0 +1,18 @@
+package ru.masterdm.km.dao;
+
+import ru.masterdm.km.util.Enumerable;
+
+/**
+ * Ключи для SQL по сделкам.
+ * 
+ * @author Shafigullin Ildar
+ */
+public enum DealDaoSqlKey implements Enumerable {
+
+	DEAL_INSTANCE_COUNT, DEAL_INSTANCES, DEAL_CALENDAR, DEAL_CALENDAR_COUNT, DEAL_CLASSIFIERS, DEAL_CLASSIFIERS_COUNT, DEAL_PLAN, DEAL_PLAN_COUNT, ADD_EVENT_TYPE, REMOVE_EVENT_TYPE, ACCEPT_EVENT_TYPE, PLAN_EVENT_FOR_DEAL, SAVE_PLAN_EVENT_FOR_DEAL, DAYS_OF_WEEK_FOR_PLAN_EVENT, DETACH_DAYS_OF_WEEK_FROM_PLAN_EVENT, ATTACH_DAYS_OF_WEEK_TO_PLAN_EVENT;
+
+	@Override
+	public int getElementCount() {
+		return DealDaoSqlKey.values().length;
+	}
+}

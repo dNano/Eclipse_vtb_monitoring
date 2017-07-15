@@ -1,0 +1,9 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+public class ByDeal {
+
+}

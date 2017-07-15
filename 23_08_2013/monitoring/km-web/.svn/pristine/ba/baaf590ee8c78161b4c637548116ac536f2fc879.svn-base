@@ -1,0 +1,28 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.EventDao;
+
+/**
+ * Исполнить мероприятие.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEvent {
+	@Persist
+	@Property	
+	private KmEventInstance event;
+	
+	@Inject
+	private EventDao eventDao;
+
+	void onActivate(long eventID) {
+		event = eventDao.getEventForExecute(eventID);
+		System.out.println("event=" + event);// TODO
+	}
+}

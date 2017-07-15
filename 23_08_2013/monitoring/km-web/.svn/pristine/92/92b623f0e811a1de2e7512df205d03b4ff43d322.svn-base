@@ -1,0 +1,11 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+/**
+ * Окно редактирования планового мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EditPlanForDeal {
+
+}

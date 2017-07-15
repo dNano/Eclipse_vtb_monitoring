@@ -1,0 +1,20 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * Календарь instance
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class KmCalendar extends BaseNamedEntity<Long> {
+	private KmClassifier classifier;
+
+	public KmClassifier getClassifier() {
+		return classifier;
+	}
+
+	public void setClassifier(KmClassifier classifier) {
+		this.classifier = classifier;
+	}
+}

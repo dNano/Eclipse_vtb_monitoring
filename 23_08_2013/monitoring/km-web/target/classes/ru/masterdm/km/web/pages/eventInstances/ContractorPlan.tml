@@ -1,0 +1,112 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список плановых мероприятий клиента ${contractor?.name}">
+	<h1 style="text-align: left;">
+		План контрольных мероприятий клиента "${contractor?.name}" | 
+		<t:pagelink t:page="eventInstances/ContractorCalendar" t:context="contractor?.id" style="text-decoration: none">
+	 		Календарь контрольных мероприятий клиента "${contractor?.name}"
+		</t:pagelink>
+	</h1>
+	<span t:type="zone" t:id="contractorPlanZone" id="ContractorPlanZone">
+	<fieldset>
+		<form t:type="form" t:id="contractorPlanForm">
+			<div t:type="errors" class="literal:km-error"></div>
+		    <table width="100%">
+				<tr>
+					<td colspan="2">
+						<fieldset>
+							<legend>Фильтр</legend>
+							       	<table>
+	                                    <tr>
+	                                        <td>
+	                                            <span t:type="label" t:for="monitoredObjectTypeSelect">Пo объекту:</span>
+	                                        </td>
+	                                        <td>
+	                                            <input t:type="select" t:id="monitoredObjectTypeSelect" t:model="monitoredObjectTypeSelectModel"
+	                                                   t:encoder="monitoredObjectTypeValueEncoder" t:blankOption="always" t:zone="^"
+	                                                   t:blankLabel="------------------------" t:value="filter.monitoredObjectType"/>
+	                                        </td>
+	                                    </tr>
+	                                    <tr t:type="if" t:test="renderEventTypeGroup">
+	                                        <td>
+	                                            <span t:type="label" t:for="eventTypeGroupSelect">Пo группе:</span>
+	                                        </td>
+	                                        <td>
+	                                            <input t:type="select" t:id="eventTypeGroupSelect" t:model="eventTypeGroupSelectModel"
+	                                                   t:encoder="eventTypeGroupValueEncoder" t:blankOption="always" t:zone="^"
+	                                                   t:blankLabel="------------------------" t:value="filter.eventTypeGroup"/>
+	                                        </td>
+	                                    </tr>
+	                                     <tr t:type="if" t:test="renderEventType">
+	                                        <td>
+	                                            <span t:type="label" t:for="eventTypeSelect">По типу:</span>
+	                                        </td>
+	                                        <td>
+	                                            <input t:type="select" t:id="eventTypeSelect" t:model="eventTypeSelectModel"
+	                                                   t:encoder="eventTypeValueEncoder" t:blankOption="always" t:zone="^"
+	                                                   t:blankLabel="------------------------" t:value="filter.eventType"/>
+	                                        </td>
+	                                    </tr>                                    
+	                               	</table>
+						</fieldset>
+					</td>
+				</tr>
+				<tr valign="top">
+		            <td width="50%">
+				        <fieldset style="border:0;">
+			                <legend><h2>Выбор из Классификатора контрольных мероприятий</h2></legend>
+					        <t:tree class="test-hook" t:id="tree" model="valueWrapperModel" value="valueWrapper" label="block:renderTreeNodeLabel" />
+					        <t:block id="renderTreeNodeLabel">
+					            <t:if test="valueWrapper.type">
+					                <a t:type="actionLink" t:id="addEventType" t:context="[valueWrapper.pageName, valueWrapper.label]" style="text-decoration: none" title="Добавить в план">
+					                     ${valueWrapper.label}<img src="${context:/img/right.gif}" style="margin-bottom: -6px;"/>
+					                </a>
+					                <p:else>
+					                	<t:if test="valueWrapper.group"> 
+					                      	${valueWrapper.label}
+					                      	<p:else>
+					                      		<t:if test="valueWrapper.monitorObject">
+					                      				${valueWrapper.label}
+					                      		</t:if>
+					                      	</p:else>
+					                    </t:if>
+					                </p:else>
+					            </t:if>
+					        </t:block>
+				        </fieldset>
+		            </td>
+		            <td width="50%">
+					    <fieldset style="border:0;">
+					       <legend><h2>План</h2></legend>
+					        <table t:type="grid" t:source="plan" t:row="calendar" t:rowsPerPage="15" t:lean="true" t:pagerPosition="bottom" 
+					            t:exclude="id, name, startDate, endDate, periodDate, periodDetails, excludeHoliday, periodWeekend" t:add="edit, eventTypeName, remove">
+					            <p:acceptCell>
+					                <a t:type="actionLink" t:id="acceptEventType" t:context="calendar.id">
+					                    <img src="${context:/img/allowed.png}" style="margin-bottom: -6px;"/>
+					                </a>
+					            </p:acceptCell>
+					            <p:editCell>
+					                <t:pagelink t:page="eventInstances/EditPlanForContractor" t:context="[calendar.id, contractor.id]">
+					                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+					                </t:pagelink>           
+					            </p:editCell>
+					            <p:eventTypeNameCell>
+					                ${calendar?.classifier?.eventType?.name}
+					            </p:eventTypeNameCell>
+					            <p:removeCell>
+					                <a t:type="actionLink" t:id="removeEventType" t:context="calendar.classifier.eventType.id">
+					                     <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/>
+					                </a>
+					            </p:removeCell>
+					            
+						        <p:empty>
+										<h2>Плановые мероприятия не найдены</h2>
+								</p:empty>
+					        </table>
+					    </fieldset>
+		            </td>		            
+				</tr>
+			</table>
+		</form>
+	</fieldset>
+	</span>
+</t:layout>

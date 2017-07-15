@@ -1,0 +1,154 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.Link;
+import org.apache.tapestry5.SelectModel;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.PageRenderLinkSource;
+import org.apache.tapestry5.services.SelectModelFactory;
+import org.apache.tapestry5.services.ajax.AjaxResponseRenderer;
+
+import ru.masterdm.km.common.entity.FkrGroup;
+import ru.masterdm.km.common.entity.FkrType;
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.util.BaseEntityValueEncoder;
+
+/**
+ * AddPage for ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrAdd extends SimpleBasePage {
+	@Persist
+	@Property
+	private KmFkrInstance fkr;
+
+	@Persist
+	Link returnPage;
+
+	@Persist
+	@Property
+	private FkrGroup fkrGroup;
+
+	@Inject
+	private PageRenderLinkSource pageRenderLinkSource;
+	@Inject
+	private AjaxResponseRenderer ajaxResponseRenderer;
+	@Inject
+	private SelectModelFactory selectModelFactory;
+
+	@Inject
+	private DictionaryDao dictionaryDao;
+
+	@InjectComponent
+	private Zone fkrTypeZone;
+
+	private List<FkrType> fkrTypes;
+	private List<FkrGroup> fkrGroups;
+
+	private Action action;
+
+	private enum Action {
+		ADD_FKR, CANCEL;
+	}
+
+	void onActivate(long id, String returnPageName) {
+		initFkr();
+		if ("buildingEvent/ByDeal".equalsIgnoreCase(returnPageName)) {
+			returnPage = pageRenderLinkSource.createPageRenderLinkWithContext(returnPageName);
+		}
+	}
+
+	private void initFkr() {
+		fkr = new KmFkrInstance();
+		fkr.setFkr(new KmFkr());
+		fkr.getFkr().setCreated(new java.util.Date());
+	}
+
+	Object onSuccessFromFkrAddForm() {
+		switch (action) {
+		case ADD_FKR:
+			addFkr();
+			break;
+		case CANCEL:
+			break;
+		default:
+			return null;
+		}
+		// переход к вызывающей странице:
+		return returnPage;
+	}
+
+	private void addFkr() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "fkrGroup")
+	void selectFkrGroup(FkrGroup docGroup) {
+		ajaxResponseRenderer.addRender(fkrTypeZone);
+	}
+
+	@OnEvent(value = EventConstants.VALUE_CHANGED, component = "fkrType")
+	void selectFkrType(FkrType fkrType) {
+		System.out.println(fkrType.isSignificant());// TODO
+		boolean significantFromType = fkrType.isSignificant();
+		fkr.getFkr().setSignificant(significantFromType);
+		ajaxResponseRenderer.addRender(fkrTypeZone);
+	}
+
+	private List<FkrType> getFkrTypes() {
+		if (fkrTypes == null && fkrGroup != null) {
+			return dictionaryDao.getFkrTypes(fkrGroup.getId());
+		}
+		return fkrTypes;
+	}
+
+	public SelectModel getFkrTypeSelectModel() {
+		return selectModelFactory.create(getFkrTypes(), "name");
+	}
+
+	public ValueEncoder<FkrType> getFkrTypeValueEncoder() {
+		return new BaseEntityValueEncoder<FkrType>(getFkrTypes());
+	}
+
+	private List<FkrGroup> getFkrGroups() {
+		if (fkrGroups == null) {
+			fkrGroups = dictionaryDao.getFkrGroups();
+		}
+		return fkrGroups;
+	}
+
+	public SelectModel getFkrGroupSelectModel() {
+		return selectModelFactory.create(getFkrGroups(), "name");
+	}
+
+	public ValueEncoder<FkrGroup> getFkrGroupValueEncoder() {
+		return new BaseEntityValueEncoder<FkrGroup>(getFkrGroups());
+	}
+
+	public String getFkrInfo() {
+		// TODO формирование инфо перенести в onActivate
+		String fkrInfo = "";
+		// Deal deal = fkr.getFkr().getDeal();
+		// if (deal.getId() != null) {
+		// fkrInfo = ExecuteEventUtil.getDealInfo(deal, getDateViewFormat(), getAmountViewFormat());
+		// fkrInfo += ", " + ExecuteEventUtil.getClientInfo("", deal.getBorrower());
+		// } else if (fkr.getClient().getId() != null) {
+		// fkrInfo = ExecuteEventUtil.getClientInfo("Клиент: ", fkr.getClient());
+		// }
+		return fkrInfo;
+	}
+}

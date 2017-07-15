@@ -1,0 +1,39 @@
+package ru.masterdm.km.common.searchfilter;
+
+import java.util.Date;
+
+/**
+ * Фильтр-поиск ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrFilter {
+	private String contractorName;
+	private String spkpNumber;
+	private Date dealDate;
+
+	public String getContractorName() {
+		return contractorName;
+	}
+
+	public void setContractorName(String contractorName) {
+		this.contractorName = contractorName;
+	}
+
+	public String getSpkpNumber() {
+		return spkpNumber;
+	}
+
+	public void setSpkpNumber(String spkpNumber) {
+		this.spkpNumber = spkpNumber;
+	}
+
+	public Date getDealDate() {
+		return dealDate;
+	}
+
+	public void setDealDate(Date dealDate) {
+		this.dealDate = dealDate;
+	}
+}

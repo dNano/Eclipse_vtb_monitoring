@@ -1,0 +1,84 @@
+package ru.masterdm.km.web.pages.executionEvent;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+
+import ru.masterdm.km.web.base.event.ExecuteEventBasePage;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * Карточка контрольного мероприятий для сделки.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteDealEvent extends ExecuteEventBasePage {
+	@Persist
+	@Property
+	private String spkpNumber;
+
+	void onActivate(long eventID, String spkpNumber) {
+		// System.out.println("onActivate =" + eventID + "; spkpNumber=" + spkpNumber);
+		init(eventID);
+		this.spkpNumber = spkpNumber;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "executeEventButton")
+	void executeRequested() {
+		action = Action.EXECUTE_EVENT;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "saveEventButton")
+	void saveRequested() {
+		action = Action.SAVE_EVENT;
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "cancelButton")
+	Object cancelRequested() {
+		action = Action.CANCEL;
+		// componentResources.discardPersistentFieldChanges();
+		return ByDate.class;
+	}
+
+	void onValidateFromExecuteDealEventForm() {
+		System.out.println("onValidate ACTION = " + action);// TODO
+		switch (action) {
+		case EXECUTE_EVENT:
+			validateOnExecuteEvent();
+			break;
+		case SAVE_EVENT:
+			validateOnSaveEvent();
+			break;
+		default:
+			break;
+		}
+	}
+
+	Object onSuccess() {
+		System.out.println("onSuccess ACTION = " + action);// TODO
+		switch (action) {
+		case EXECUTE_EVENT:
+			executeEvent();
+			return ByDate.class;
+		case SAVE_EVENT:
+			saveEvent();
+			return ByDate.class;
+		default:
+			return null;
+		}
+	}
+
+	public String getDealInfo() {
+		return ExecuteEventUtil.getDealInfo(event.getEvent().getDeal(), getDateViewFormat(), getAmountViewFormat());
+	}
+
+	public String getDocInfo() {
+		return ExecuteEventUtil.getDocumentInfo(event.getEvent().getDeal(), getDateListFormat(), getAmountViewFormat());
+	}
+
+	public String getPageName() {
+		return "executionEvent/ExecuteDealEvent";
+	}
+}

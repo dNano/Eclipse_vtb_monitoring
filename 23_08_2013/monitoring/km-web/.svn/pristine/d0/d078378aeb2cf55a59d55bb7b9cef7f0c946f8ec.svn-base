@@ -1,0 +1,11 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+/**
+ * Календарь мероприятий для клиента.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ContractorCalendar {
+
+}

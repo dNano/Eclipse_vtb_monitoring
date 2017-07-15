@@ -1,0 +1,18 @@
+package ru.masterdm.km.dao;
+
+import ru.masterdm.km.util.Enumerable;
+
+/**
+ * Ключи для SQL по ФКР.
+ * 
+ * @author Shafigullin Ildar
+ */
+public enum FkrDaoSqlKey implements Enumerable {
+	FKR_INSTANCE_COUNT, FKR_INSTANCES, FKR_BY_ID, FKR_SAVE, FKR_SAVE_CHANGE, FKR_CHANGE, FKR_CHANGE_COUNT, FKR_ADD, FKR_ADD_SEQ, ADD_APP_FILE;
+	
+	@Override
+	public int getElementCount() {
+		return FkrDaoSqlKey.values().length;
+	}
+
+}

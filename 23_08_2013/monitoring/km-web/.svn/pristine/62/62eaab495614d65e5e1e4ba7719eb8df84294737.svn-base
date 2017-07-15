@@ -1,0 +1,47 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список контрольных мероприятий сделки № ${spkpNumber}">
+
+<t:jquery.tabs  t:tabs="TabsPlan,TabsCalendar" t:activePanelId="curTab">
+	
+	<p:TabsPlan>
+		<h3>Формирование Плана мероприятий сделки № ${spkpNumber}"</h3><hr/>
+		<form t:type="form" t:id="dealPlanForm">
+			<table>
+				<tr valign="top">
+		            <td width="50%">
+				        <fieldset style="border:0;">
+			                <legend>Выбор из Классификатора контрольных мероприятий</legend>
+					        <t:tree class="test-hook" t:id="tree" model="treeModel" value="valueWrapper" label="block:renderTreeNodeLabel" />
+					        <t:block id="renderTreeNodeLabel">
+						        <t:if test="selectedLeaf">
+						        	<B style="color: orange;"> ${valueWrapper.label}</B>
+						        	<p:else>
+								        <t:if test="disabledLeaf">
+								        <B style="color: gray;"> ${valueWrapper.label}</B>						        	
+								        	<p:else>
+								        		<t:if test="valueWrapper.type">
+									                <a t:type="actionLink" t:id="addEventType" t:context="[valueWrapper.pageName, valueWrapper.label]" style="text-decoration: none" title="Добавить в план">
+									                     ${valueWrapper.label}<img src="${context:/img/right.gif}" style="margin-bottom: -6px;"/></a>
+									                <p:else>${valueWrapper.label}</p:else>
+									            </t:if>
+									        </p:else>
+									    </t:if>
+									</p:else>
+							    </t:if>
+					        </t:block>
+				        </fieldset>
+		            </td>	
+		            	            
+				</tr>
+			</table>
+		
+		</form>			
+	</p:TabsPlan>
+	
+	<p:TabsCalendar>
+		<h3>Формирование Календаря мероприятий сделки № ${spkpNumber}"</h3><hr/>
+	</p:TabsCalendar>
+	
+</t:jquery.tabs>
+		
+</t:layout>

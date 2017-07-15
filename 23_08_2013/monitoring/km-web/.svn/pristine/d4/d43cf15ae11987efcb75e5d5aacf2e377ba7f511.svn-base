@@ -1,0 +1,250 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.tapestry5.PersistenceConstants;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+import org.apache.tapestry5.tree.DefaultTreeModel;
+import org.apache.tapestry5.tree.TreeModel;
+
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.DealDao;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.util.ClassifierValueWrapper;
+import ru.masterdm.km.util.ValueWrapper;
+import ru.masterdm.km.web.util.ValueWrapperTreeModelAdapter;
+
+/**
+ * таб. панель "классификатор-план-календарь" КМ для сделки.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class DealClassifier {
+	private static final ValueWrapper rootNode = new ValueWrapper("Root", null);
+
+	@Persist
+	private long dealID;
+	@Persist
+	private long selectedEventTypeID;
+	@Persist
+	private Set<Long> arrayPlanForTree;
+	@Persist
+	private Set<Long> arrayCalendar;
+
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private DealDao dealDao;
+	@Inject
+	private EventDao eventDao;
+	@Inject
+	private BeanModelSource beanModelSource;
+	@Inject
+	private Messages messages;
+
+	@Persist(PersistenceConstants.FLASH)
+	@Property
+	private ClassifierValueWrapper valueWrapper;
+	@Persist
+	@Property
+	private int curTab;
+	@Property
+	@Persist
+	private String spkpNumber;
+	@Persist
+	@Property
+	private KmEvent filter;
+
+	@Property
+	private KmEventCalendar calendar;
+	@Property
+	private KmEventInstance eventInstance;
+
+	@Persist
+	List<KmEventCalendar> planList;
+	@Persist
+	List<KmEventInstance> calendarList;
+
+	void pageLoaded() {
+		synchronized (rootNode) {
+			if (rootNode.children.isEmpty()) {
+				dictionaryDao.initClassifierTree(rootNode);
+			}
+		}
+	}
+
+	void onActivate(long id, String spkpNumber, int curTab) {
+		this.curTab = curTab;
+		dealID = id;
+		this.spkpNumber = spkpNumber;
+		if (filter == null) {
+			filter = new KmEvent();
+		}
+		clearSelectedRow();
+		init();
+	}
+
+	@OnEvent(component = "addEventType")
+	void addEventType(long eventTypeID, String eventName) {
+		// if (!dealDao.isExistEventType(dealID, eventTypeID)) {
+		dealDao.addEventType(dealID, eventTypeID, eventName);
+		arrayPlanForTree.add(Long.valueOf(eventTypeID));
+		selectedEventTypeID = eventTypeID;
+		clearPlan();
+	}
+
+	@OnEvent(component = "removeEventType")
+	void removeEventType(long eventTypeID) {
+		dealDao.removeEventType(dealID, eventTypeID);
+		arrayPlanForTree.remove(Long.valueOf(eventTypeID));
+		clearSelectedRow();
+		clearPlan();
+	}
+
+	@OnEvent(component = "acceptEventType")
+	void acceptEventType(long eventCalendarID) {
+		dealDao.acceptEventType(dealID, eventCalendarID);
+		clearSelectedRow();
+		cleanCalendar();
+	}
+
+	@OnEvent(component = "removeEventInstance")
+	void removeEventInstance(long eventInstanceID) {
+		eventDao.removeEventInstance(eventInstanceID);
+		clearSelectedRow();
+		cleanCalendar();
+	}
+
+	private void init() {
+		clearPlan();
+		cleanCalendar();
+	}
+
+	private void initPlan() {
+		planList = dealDao.getDealPlan(0, Integer.MAX_VALUE, dealID, filter);
+		arrayPlanForTree = new HashSet<Long>();
+		for (KmEventCalendar planEvent : planList) {
+			arrayPlanForTree.add(planEvent.getClassifier().getEventType().getId());
+		}
+	}
+
+	private void initCalendar() {
+		calendarList = dealDao.getDealCalendar(0, Integer.MAX_VALUE, dealID, filter);
+		arrayCalendar = new HashSet<Long>();
+		for (KmEventInstance event : calendarList) {
+			arrayCalendar.add(event.getEvent().getId());
+		}
+	}
+
+	private void clearSelectedRow() {
+		selectedEventTypeID = -1;
+	}
+
+	private void cleanCalendar() {
+		calendarList = null;
+	}
+
+	private void clearPlan() {
+		planList = null;
+	}
+
+	public boolean isSelectedLeaf() {
+		if (valueWrapper != null && valueWrapper.isType() && valueWrapper.getPageName().equals("" + selectedEventTypeID)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isDisabledLeaf() {
+		if (valueWrapper != null && valueWrapper.isType()) {
+			Long typeId = Long.valueOf(valueWrapper.getPageName());
+			if (arrayPlanForTree.contains(typeId)) {
+				return true;
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isSelectedRowInCalendar() {
+		if (calendar != null && calendar.getClassifier().getEventType().getId().longValue() == selectedEventTypeID) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isRenderAcceptAllButton() {
+		return (arrayPlanForTree != null) && (!arrayPlanForTree.isEmpty());
+	}
+
+	public TreeModel<ValueWrapper> getTreeModel() {
+		ValueEncoder<ValueWrapper> encoder = new ValueEncoder<ValueWrapper>() {
+			public String toClient(ValueWrapper value) {
+				return value.uuid;
+			}
+
+			public ValueWrapper toValue(String clientValue) {
+				return rootNode.seek(clientValue);
+			}
+		};
+		return new DefaultTreeModel<ValueWrapper>(encoder, new ValueWrapperTreeModelAdapter(), rootNode.children);
+	}
+
+	public BeanModel<KmEventInstance> getEventInstanceModel() {
+		BeanModel<KmEventInstance> eventModel = beanModelSource.createDisplayModel(KmEventInstance.class, messages);
+		for (String prop : eventModel.getPropertyNames()) {
+			eventModel.get(prop).sortable(false);
+		}
+		return eventModel;
+	}
+
+	public long getDealID() {
+		return dealID;
+	}
+
+	public void setDealID(long dealID) {
+		this.dealID = dealID;
+	}
+
+	public String getPageName() {
+		return "dealClassifierPage";
+	}
+
+	public List<KmEventCalendar> getPlanList() {
+		if (planList == null) {
+			initPlan();
+		}
+		return planList;
+	}
+
+	public void setPlanList(List<KmEventCalendar> planList) {
+		this.planList = planList;
+	}
+
+	public List<KmEventInstance> getCalendarList() {
+		if (calendarList == null) {
+			initCalendar();
+		}
+		return calendarList;
+	}
+
+	public void setCalendarList(List<KmEventInstance> calendarList) {
+		this.calendarList = calendarList;
+	}
+}

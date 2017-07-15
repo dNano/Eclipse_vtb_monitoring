@@ -1,0 +1,29 @@
+package ru.masterdm.km.web.pages.executionEvent;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.web.base.event.ExecuteEventBasePage;
+
+/**
+ * Карточка контрольного мероприятий для клиента.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteContractorEvent extends ExecuteEventBasePage {
+	@Persist
+	@Property
+	private Contractor contractor;
+
+	void onActivate(long eventID, String contractorID) {
+		// System.out.println("onActivate =" + eventID + "; contractorID=" + contractorID);
+		init(eventID);
+		contractor = dictionaryDao.getContractor(contractorID);
+	}
+	
+	public String getPageName() {
+		return "executionEvent/ExecuteContractorEvent";
+	}
+}

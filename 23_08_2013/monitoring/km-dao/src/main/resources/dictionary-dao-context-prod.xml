@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.DictionaryDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.DictionaryDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+                <entry key="MONITORED_OBJECT_TYPES">
+                    <value>
+                        <![CDATA[
+                            select id mo_id, name mo_name
+                              from cd_monitored_object
+                             order by name
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_TYPE_GROUPS">
+                    <value>
+                        <![CDATA[
+                            select id_event_group etg_id, event_group_name etg_name
+                              from cd_event_group
+                             where id_object_type = ?
+                             order by event_group_name
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_TYPES">
+                    <value>
+                        <![CDATA[
+                            select id_event_type et_id, event_type_name et_name
+                              from cd_Event_Type
+                             where id_event_group = ?
+                             order by event_type_name
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_TYPES">
+                    <value>
+                        <![CDATA[
+                            select id_contractor_type ct_id, name_contractor_type ct_name
+                              from contractor_type
+                             order by name_contractor_type
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="USERS_BY_LAST_NAME_PATTERN_COUNT">
+                    <value>
+                        <![CDATA[
+                            select count(1)
+                              from users
+                             where lower(surname) like lower(?)
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="USERS_BY_LAST_NAME">
+                    <value>
+                        <![CDATA[
+                            select t.* from (
+                                select id_user u_id, mail_user u_email, login u_login, surname u_last_name,
+                                       name u_first_name, patronymic u_patronymic, row_number() over (order by surname, name, patronymic) rn
+                                  from users
+                                 where lower(surname) like lower(?)
+                             ) t
+                             where t.rn > ? and t.rn <= ?
+                          ]]>
+                    </value>
+                </entry>
+                <entry key="USER_BY_ID">
+                    <value>
+                        <![CDATA[
+                            select id_user u_id, mail_user u_email, login u_login, surname u_last_name, name u_first_name, patronymic u_patronymic
+                              from users
+                             where id_user = ?
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="CURRENCIES">
+                    <value>
+                        <![CDATA[
+                            select code c_code
+                              from v_cd_currency c
+                             where is_active = 'y'
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="DEAL_TYPES">
+                    <value>
+                        <![CDATA[
+                            select productid dt_id, name dt_name from v_spo_product 
+                            where is_active = 1
+                            order by name
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_GROUPS_BY_NAME_COUNT">
+                    <value>
+                        <![CDATA[
+                            select count(1)
+                              from v_companygroup
+                             where lower(name) like lower(?)
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_GROUPS_BY_NAME">
+                    <value>
+                        <![CDATA[
+                            select t.* from (
+                                select crmid cg_id, name cg_name, row_number() over (order by name) rn
+                                from v_companygroup
+                                where lower(name) like lower(?)
+                             ) t
+                             where t.rn > ? and t.rn <= ?
+                          ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_GROUP_BY_ID">
+                    <value>
+                        <![CDATA[
+                           select crmid cg_id, name cg_name
+                             from v_companygroup
+                            where crmid = ?
+                          ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_BY_NAME_COUNT">
+                    <value>
+                        <![CDATA[
+                            select count(1)
+                              from v_organisation
+                             	where lower(organizationname) like lower(?)
+	                            and organizationname IN (select distinct name from V_CPS_DEAL_CONTRACTOR vc
+									inner join V_CPS_CREDIT_DEAL vd on vc.id_mdtask = vd.id_mdtask
+									and vd.IS_MDTASK_CONFIRMED = 1 and vd.MDTASK_TYPE_KEY = 'DEAL')
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_BY_NAME">
+                    <value>
+                        <![CDATA[
+                            select t.* from (
+                                select crmid co_id, organizationname co_name, row_number() over (order by organizationname) rn
+                                from v_organisation
+                                where lower(organizationname) like lower(?)
+                                and organizationname IN (select distinct name from V_CPS_DEAL_CONTRACTOR vc
+									inner join V_CPS_CREDIT_DEAL vd on vc.id_mdtask = vd.id_mdtask
+									and vd.IS_MDTASK_CONFIRMED = 1 and vd.MDTASK_TYPE_KEY = 'DEAL')
+                             ) t
+                             where t.rn > ? and t.rn <= ?
+                          ]]>
+                    </value>
+                </entry>
+                <entry key="CONTRACTOR_BY_ID">
+                    <value>
+                        <![CDATA[
+                           select crmid co_id, organizationname co_name 
+                             from v_organisation
+                           where crmid = ?
+                          ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_INSTANCE_STATUSES">
+                    <value>
+                        <![CDATA[
+                            select id eis_id, name eis_name
+                            from km_event_instance_status
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="KM_REPEAT_TYPES">
+                    <value>
+                        <![CDATA[
+                            select id_repeat_type rt_id, repeat_type rt_name from cd_repeat_type
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="EVENT_CONFIRMATION_TYPES">
+                    <value>
+                        <![CDATA[
+                            select id_confirmation_type kct_id, confirmation_type kct_name from cd_confirmation_type
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="DAY_OF_WEEKS">
+                    <value>
+                        <![CDATA[
+                            select id_day_of_week dw_id, day_of_week dw_name
+                              from cd_day_of_week 
+                             order by id_day_of_week
+                        ]]>
+                    </value>
+                </entry>                
+                <entry key="MONTHS">
+                    <value>
+                        <![CDATA[
+                            select id_month m_id, month m_name
+                              from cd_month 
+                             	order by id_month
+                        ]]>
+                    </value>
+                </entry>
+                <entry key="ALL_CLASSIFIERS">
+					<value>
+					<![CDATA[
+						   select t.id_event_type as ET_id, t.event_type_name ET_name, 
+									m.id as MO_id, m.name as MO_name, 
+									g.id_event_group as ETG_id, g.event_group_name as ETG_name 
+							from cd_Event_Type  t 
+								inner join cd_event_group  g on t.id_event_group = g.id_event_group
+								inner join cd_monitored_object m on m.id = g.id_object_type
+							order by MO_name, ETG_name, ET_name
+					 ]]>
+					</value>
+				</entry>
+				<entry key="DOCUMENT_GROUPS">
+                    <value>
+                        <![CDATA[
+                            select id_group dg_id, name_document_group dg_name
+                              from document_group
+                             	order by name_document_group
+                        ]]>
+                    </value>
+                </entry>
+				<entry key="DOCUMENT_TYPES">
+                    <value>
+                        <![CDATA[
+                            select dot.id_document_type dot_id, dot.name_document_type dot_name
+                            	from documents_type dot
+                              	inner join r_document_group rdg on rdg.id_document_type = dot.id_document_type
+                              		where rdg.id_document_group = ?
+                              			order by dot.name_document_type
+                        ]]>
+                    </value>
+                </entry>
+				<entry key="FKR_GROUPS">
+                    <value>
+                        <![CDATA[
+                            select id_fkr_group fg_id, fkr_group fg_name
+                              from cd_fkr_group
+                             	order by fkr_group
+                        ]]>
+                    </value>
+                </entry>
+				<entry key="FKR_STATUSES">
+                    <value>
+                        <![CDATA[
+                            select id_fkr_status kfs_id, status kfs_name
+                              from km_fkr_status
+                             	order by status
+                        ]]>
+                    </value>
+                </entry>
+				<entry key="FKR_TYPES">
+                    <value>
+                        <![CDATA[
+                            select ft.id_fkr_type ft_id, ft.fkr_code || ' ' || ft.fkr_type ft_name,
+                            		ft.fkr_kind ft_kind, ft.is_significant ft_is_significant,
+                            		fg.id_fkr_group fg_id, fg.fkr_group fg_name
+                              from cd_fkr_type ft
+                              		inner join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group
+                              where ft.id_fkr_group = ?
+                             	order by ft_name
+                        ]]>
+                    </value>
+                </entry>
+               	<entry key="KM_SOURCE_DOC">
+                    <value>
+                        <![CDATA[
+                            select id_source_doc sd_id, source_name sd_name from cd_km_source_doc
+                        ]]>
+                    </value>
+                </entry>
+               	<entry key="PUNITIVE_MEASURE">
+                    <value>
+                        <![CDATA[
+                            select id_measure pm_id, name_measure pm_name, sumdesc pm_sum_desc from punitive_measure
+                        ]]>
+                    </value>
+                </entry>
+            </util:map>
+        </property>
+    </bean>
+</beans>

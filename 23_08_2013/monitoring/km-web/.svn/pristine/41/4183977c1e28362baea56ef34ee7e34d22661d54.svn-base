@@ -1,0 +1,110 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Список ФКР">
+    <h3 style="text-align: center;">Редактирование ФКР<br/>${fkrInfo}</h3>
+ 	   
+	<form t:type="form" t:id="fkrEditForm" t:clientValidation="none" t:autofocus="false">
+		<div t:type="errors" class="literal:km-error"></div>
+		<fieldset><legend>ФКР ИНФО</legend>
+			<table>
+				<tr>
+					<td>Тип ФКР:</td>
+					<td>
+	                    ${fkr.fkr.type.name}
+	                </td>
+	            </tr>
+	            <tr>
+		            <td>Группа ФКР:</td>
+					<td>					
+		       			${fkr.fkr.type.group.name}
+					</td>
+	            </tr>
+	            <tr>
+		            <td>Текущий статус:</td>
+					<td>					
+		       			<B>${fkr.fkr.status.name}</B>
+					</td>
+	            </tr>
+				<tr>
+					<td><span t:type="label" t:for="fkrNote">Описание ФКР:</span></td>
+					<td>
+						<t:textarea t:id="fkrNote" cols="110" rows="5" value="fkr.fkr.notes" disabled="true"/>
+	                </td>
+	            </tr>
+				<tr>
+					<td><span t:type="label" t:for="fkrSign">Признак существенности:</span></td>
+					<td>
+	                  	<t:checkbox t:id="fkrSign" t:value="fkr.fkr.significant" disabled="true"/>
+	                </td>
+	            </tr>
+				<tr>
+					<td>Дата возникновения:</td>
+					<td>
+				        <t:output size="15" t:id="fkrCreated" format="prop:dateInputPattern" value="fkr.fkr.created" disabled="true"/>
+				    </td>
+	            </tr>
+				<tr>
+					<td>Дата урегулирования:</td>
+					<td>
+				        <t:output size="15" t:id="fkrFinished" format="prop:dateInputPattern" value="fkr.fkr.finished" disabled="true"/>
+				    </td>
+	            </tr>
+	        </table>
+        </fieldset>
+        <fieldset><legend>История ФКР</legend>
+	        <table t:type="grid" t:source="fkrChanges" t:row="change" t:rowsPerPage="15" t:lean="true" t:pagerPosition="bottom" 
+            	t:include="accepted" t:add="status, whoAccepted, note" t:model="fkrChangesModel">
+          	    <p:statusCell>
+		            ${change.status.name}
+		        </p:statusCell>
+          	    <p:whoAcceptedCell>
+		            ${change.who}
+		        </p:whoAcceptedCell>
+          	    <p:noteCell>
+		            ${change.notes}
+		        </p:noteCell>
+		        
+    			<p:empty>
+					<h4>Записи не найдены</h4>
+				</p:empty>
+    		</table>
+        </fieldset>
+        <fieldset><legend>Решение по ФКР</legend>
+			<table>
+	            <tr>      
+	                 <td><span t:type="label" t:for="fkrStatusSelect">Решение:</span></td>
+	                 <td>
+	                     <input t:type="select" t:id="fkrStatusSelect" t:model="fkrStatusSelectModel"
+	                            t:value="fkr.change.status" t:encoder="fkrStatusValueEncoder"/>
+	                 </td>
+	            </tr>
+	            <tr>
+	           		<td><span t:type="label" t:for="fkrChangeWho">Кем принято:</span></td>
+	           		<td>
+	           			<input t:type="textField" t:id="fkrChangeWho" t:value="fkr.change.who" style="width: 400px;"/>
+	           		</td>
+	            </tr>
+				<tr>
+					<td><span t:type="label" t:for="fkrChangeNote">Комментарий:</span></td>
+					<td>
+						<t:textarea t:id="fkrChangeNote" cols="110" rows="5"  value="fkr.change.notes"/>
+	                </td>
+	            </tr>
+				<tr>
+					<td><span t:type="label" t:for="fkrChangeAccepted">Дата принятия решения:</span></td>
+					<td>
+				        <t:dynarchCalendar t:id="fkrChangeAccepted" t:value="fkr.change.accepted"/>
+				    </td>
+	            </tr>	            	            
+	        </table>
+        </fieldset>
+        <table>            
+			<tr>
+				<td colspan="2">
+					<input t:type="submit" t:id="editFkrButton" t:value="Добавить решение\Изменить статус ФКР" class="button" style="font-size: 8pt"/>
+					<input t:type="submit" t:id="cancelButton" t:value="Отмена" class="button" t:mode="cancel" style="font-size: 8pt"/>
+                </td>
+            </tr>
+       	</table>
+	</form>    
+
+</t:layout>

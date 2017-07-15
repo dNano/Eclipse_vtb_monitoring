@@ -1,0 +1,21 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+
+/**
+ * Исполнить мероприятие.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEvent {
+	@Persist
+	@Property
+	private long eventID;
+
+	void onActivate(long id) {
+		eventID = id;
+		System.out.println("eventID=" + eventID);
+	}
+}

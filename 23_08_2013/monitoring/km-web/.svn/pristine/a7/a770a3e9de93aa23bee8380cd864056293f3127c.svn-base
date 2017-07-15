@@ -1,0 +1,57 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+			xmlns:p="tapestry:parameter" t:title="Добавление ФКР">
+    		<h3 style="text-align: center;">Добавление ФКР<br/>${fkrInfo}</h3>
+	<form t:type="form" t:id="fkrAddForm" t:clientValidation="none" t:autofocus="false">
+		<div t:type="errors" class="literal:km-error"></div>
+		<fieldset><legend>Добавление ФКР</legend>
+		<table>
+			<tr>
+				<td>
+					<span t:type="label" t:for="fkrGroup">Группа ФКР:</span><br/>
+		       		<input t:type="select" t:id="fkrGroup" t:blankOption="always" t:zone="fkrTypeZone" t:blankLabel="------- Выберите группу ФКР -------"
+		       			t:value="fkrGroup" t:encoder="fkrGroupValueEncoder" t:model="fkrGroupSelectModel"/>
+				</td>
+			</tr>
+			<tr>
+				<td t:type="zone" t:id="fkrTypeZone" id="fkrTypeZone" t:update="show">
+					<table t:type="if" t:test="fkrGroup">
+						<tr>
+							<td>
+								<span t:type="label" t:for="fkrType">Наименование ФКР:</span><br/>
+			                   	<input t:type="select" t:id="fkrType" t:model="fkrTypeSelectModel" style="width: 100%;"
+	                                 t:encoder="fkrTypeValueEncoder" t:blankOption="always" t:zone="^"
+	                                 t:blankLabel="------------------------" t:value="fkr.fkr.type" t:validate="required"/>
+	                        </td>
+	                    </tr>
+	                    <tr>
+	                    	<td>
+	                    		<fieldset><legend>Решение по ФКР</legend>
+	                    		<table>
+									<tr>
+										<td>
+											<span t:type="label" t:for="fkrNote">Описание:</span><br/>
+											<t:textarea t:id="fkrNote" cols="110" rows="5"  value="fkr.fkr.notes" t:validate="required"/>
+				                        </td>
+				                    </tr>
+									<tr>
+										<td>
+											<span t:type="label" t:for="fkrSign">Признак существенности:</span>
+				                    		<input t:type="checkbox" t:id="fkrSign" t:value="fkr.fkr.significant"/>
+				                        </td>
+				                    </tr>
+			                    </table>
+								</fieldset>
+			                 </td>
+			            </tr>
+						<tr>
+							<td>
+								<input t:type="submit" t:id="createNewFkrButton" t:value="Сохранить" class="button" style="font-size: 8pt"/>
+	                        </td>
+	                    </tr>
+                	</table>
+				</td>
+			</tr>					
+      	</table>
+		</fieldset>
+	</form>
+</t:layout>    

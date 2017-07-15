@@ -1,0 +1,53 @@
+package ru.masterdm.km.web.base.event;
+
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.ajax.AjaxResponseRenderer;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * Общая функциональность для карточки контрольных мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEventBasePage extends SimpleBasePage {
+	@Persist
+	@Property
+	private KmEventInstance event;
+	@Persist
+	@Property
+	private boolean showRepeatType;
+
+	@Inject
+	private EventDao eventDao;
+	@Inject
+	protected DictionaryDao dictionaryDao;
+	@Inject
+	private AjaxResponseRenderer ajaxResponseRenderer;
+
+	@InjectComponent
+	private Zone repeatTypeZone;
+
+	protected void init(long eventID) {
+		event = eventDao.getEventForExecute(eventID);
+		// documentTypes = null;
+	}
+
+	public String getRepeatTypeInfo() {
+		return ExecuteEventUtil.getRepeatTypeInfo(event.getEvent(), getDateViewFormat());
+	}
+
+	void onToggleRepeatType() {
+		showRepeatType = !showRepeatType;
+		ajaxResponseRenderer.addRender(repeatTypeZone);
+	}
+}

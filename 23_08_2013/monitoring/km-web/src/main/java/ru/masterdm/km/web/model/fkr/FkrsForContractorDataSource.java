@@ -1,0 +1,50 @@
+package ru.masterdm.km.web.model.fkr;
+
+import java.util.List;
+
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.dao.ContractorDao;
+
+/**
+ * ФКР для клиента DataSource.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrsForContractorDataSource implements GridDataSource {
+	private int startIndex;
+	private String contractorID;
+
+	public FkrsForContractorDataSource(String contractorID, ContractorDao contractorDao) {
+		super();
+		this.contractorID = contractorID;
+		this.contractorDao = contractorDao;
+	}
+
+	private List<KmFkr> instances;
+	private ContractorDao contractorDao;
+
+	@Override
+	public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+		this.startIndex = startIndex;
+		instances = contractorDao.getContractorFkr(startIndex, endIndex - startIndex + 1, contractorID);
+	}
+
+	@Override
+	public Object getRowValue(int index) {
+		return instances.get(index - startIndex);
+	}
+
+	@Override
+	public Class<?> getRowType() {
+		return KmFkr.class;
+	}
+
+	@Override
+	public int getAvailableRows() {
+		return contractorDao.getContractorFkrCount(contractorID);
+	}
+}

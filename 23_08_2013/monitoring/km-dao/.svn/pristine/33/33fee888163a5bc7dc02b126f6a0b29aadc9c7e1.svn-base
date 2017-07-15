@@ -1,0 +1,26 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.EventResult;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * map for Исполнение контрольных мероприятий.
+ * 
+ * @author Shafgullin Ildar
+ * 
+ */
+public class KmEventResultRm extends BaseRm<EventResult> {
+
+	public KmEventResultRm() {
+		super("ER_");
+	}
+
+	@Override
+	protected EventResult map(ResultSetWrapper rsw) throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

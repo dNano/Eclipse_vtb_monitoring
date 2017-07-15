@@ -1,0 +1,11 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * Сущность Списка сделок.
+ * 
+ * @author Shafigullin Ildar
+ *
+ */
+public class DealInstance extends BaseIndexedEntity<Long>{
+	private Deal deal;
+}
