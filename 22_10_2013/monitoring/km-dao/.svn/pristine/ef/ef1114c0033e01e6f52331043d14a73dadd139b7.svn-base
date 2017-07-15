@@ -1,0 +1,82 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.dao.FkrDaoSqlKey.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.common.searchfilter.FkrFilter;
+import ru.masterdm.km.dao.mapper.KmFkrInstanceRm;
+import ru.masterdm.km.util.BaseJdbcDao;
+import ru.masterdm.km.util.query.SortCriterion;
+
+/**
+ * Реализация DAO интерфейса для сущности "ФКР".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class FkrDaoImpl extends BaseJdbcDao<FkrDaoSqlKey> implements FkrDao {
+
+	@Override
+	public List<KmFkrInstance> getInstances(int startIndex, int amount, FkrFilter filter, List<SortCriterion> sortCriteria) {
+		ArrayList<Object> params = new ArrayList<Object>();
+		String query = "select v.* from (";
+		query += sql.getValue(FKR_INSTANCES);
+		String orderBy = getOrderBy(sortCriteria);
+		query += ", row_number() over (order by " + orderBy + ") rn from km_fkr kf "
+				+ "inner join cd_fkr_type ft on kf.id_fkr_type = ft.id_fkr_type "
+				+ "inner join cd_fkr_group fg on ft.id_fkr_group = fg.id_fkr_group "
+				+ "left outer join v_cps_credit_deal m on m.id_mdtask = kf.id_mdtask "
+				+ "left outer join v_organisation o on m.id_borrower = o.crmid "
+				+ "left outer join v_organisation org on kf.id_organization = org.crmid "
+				+ "inner join km_fkr_status kfs on kf.id_fkr_status = kfs.id_fkr_status ";
+		query = filterQuery(filter, query, params);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		params.add(startIndex);
+		params.add(startIndex + amount);
+		return queryForList(query, new KmFkrInstanceRm(), "Error selecting fkr instances.", params.toArray());
+
+	}
+
+	private String getOrderBy(List<SortCriterion> sortCriteria) {
+		String orderBy = "ft.fkr_code desc";// "ft.fkr_code"
+		if (!sortCriteria.isEmpty()) {
+			SortCriterion sortCriterion = sortCriteria.get(0);
+			String propertyName = sortCriterion.getPropertyName();
+			if ("fkrType".equalsIgnoreCase(propertyName)) {
+				orderBy = "ft.fkr_code";
+			} else if ("note".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.notes";
+			} else if ("sign".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.is_significant";
+			} else if ("created".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.created";
+			} else if ("finished".equalsIgnoreCase(propertyName)) {
+				orderBy = "kf.finished";
+			} else if ("deal".equalsIgnoreCase(propertyName)) {
+				orderBy = "m.mdtask_number";
+			} else if ("client".equalsIgnoreCase(propertyName)) {
+				orderBy = "o.organizationname";
+			} else if ("status".equalsIgnoreCase(propertyName)) {
+				orderBy = "kfs.status";
+			}
+			orderBy += sortCriterion.getSortDirection().toStringForJpql();
+		}
+		return orderBy;
+	}
+
+	@Override
+	public int getInstanceCount(FkrFilter filter) {
+		String query = sql.getValue(FKR_INSTANCE_COUNT);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		return queryForInt(query, "Error selecting fkr instance count.", params.toArray());
+	}
+
+	private String filterQuery(FkrFilter filter, String query, ArrayList<Object> params) {
+		// TODO Auto-generated method stub
+		return query;
+	}
+
+}

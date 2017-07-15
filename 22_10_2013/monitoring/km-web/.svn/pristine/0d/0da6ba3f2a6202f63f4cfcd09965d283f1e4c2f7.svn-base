@@ -1,0 +1,146 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Список ФКР">
+    <h1 style="text-align: center;">Список ФКР</h1>
+	<fieldset>
+	<legend>Фильтр</legend>
+	<form t:type="form" t:id="searchFkrForm" t:clientValidation="none" t:autofocus="false">
+		<table style="width: 100%">
+			<tr>
+				<td style="vertical-align: top;">
+					<table>
+						<tr>
+							<td style="text-align: right;">Клиент&nbsp;</td>
+							<td colspan="3">
+                                <input t:type="textField" t:id="contractorNameInput" t:value="filter.contractorName" style="width: 300px;"/>
+                            </td>
+						</tr>
+						<tr>
+                        	<td style="text-align: right;">
+                        		<span t:type="label" t:for="spkpNumberInput">№ СПКП</span>&nbsp;
+                            </td>
+                            <td>
+                            	<input t:type="textField" t:id="spkpNumberInput" t:value="filter.spkpNumber"/>
+                        	</td>
+                            <td style="text-align: right;">Дата&nbsp;</td>
+                            <td>
+                                <t:dynarchCalendar t:value="filter.dealDate"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: right;">Выявлен с&nbsp;</td>
+                            <td>
+                                <t:dynarchCalendar t:value="filter.dateCreatedFrom"/>
+                            </td>
+                            <td>по&nbsp;</td>
+                            <td>
+                                <t:dynarchCalendar t:value="filter.dateCreatedTo"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Урегулирован с&nbsp;</td>
+                            <td>
+                                <t:dynarchCalendar t:value="filter.dateFinishedFrom"/>
+                            </td>
+                            <td>по&nbsp;</td>
+                            <td>
+                                <t:dynarchCalendar t:value="filter.dateFinishedTo"/>
+                            </td>
+                        </tr>
+					</table>
+				</td>
+				<td style="vertical-align: top;">
+					<table>
+						<tr>
+                            <td style="text-align: right;">все ФКР&nbsp;</td>
+                            <td>
+                            	 по сделкам контрагента
+                            	<input t:type="checkbox" t:id="isShowClientForDeal" t:value="filter.showClientForDeal"/>
+                            </td>
+						</tr>
+                        <tr>      
+                            <td style="text-align: right;" nowrap="nowrap">
+                               <span t:type="label" t:for="fkrStatusSelect">Статус ФКР</span>&nbsp;
+                            </td>
+                            <td>
+                                <input t:type="select" t:id="fkrStatusSelect" t:model="fkrStatusSelectModel"
+                                       t:value="filter.fkrStatus" t:encoder="fkrStatusValueEncoder"/>
+                            </td>
+                        </tr>
+                        <tr>
+							<td style="text-align: right;" nowrap="nowrap">
+								<span t:type="label" t:for="fkrGroupSelect">Группа ФКР:</span>&nbsp;
+							</td>
+                            <td>
+					       		<input t:type="select" t:id="fkrGroupSelect" t:model="fkrGroupSelectModel"
+					       			t:value="filter.fkrGroup" t:encoder="fkrGroupValueEncoder" t:zone="fkrTypeZone"/>
+							</td>
+						</tr>
+						<tr t:type="zone" t:id="fkrTypeZone" id="fkrTypeZone" t:update="show" nowrap="nowrap">
+							<td t:type="if" t:test="filter.fkrGroup">
+								<span t:type="label" t:for="fkrType">Тип ФКР:</span>&nbsp;
+							</td>
+							<td t:type="if" t:test="filter.fkrGroup">
+			                   	<input t:type="select" t:id="fkrType" t:model="fkrTypeSelectModel" style="width: 100%;"
+	                                 t:encoder="fkrTypeValueEncoder" t:zone="^" t:value="filter.fkrType"/>
+	                        </td>
+						</tr>						
+					</table>		
+				</td>		
+			</tr>
+		</table>
+		<div class="buttons">
+        	<input t:type="submit" t:value="Искать" class="button"/> 
+            <input t:type="submit" t:value="Очистить" class="button" t:mode="cancel" t:id="clearFilterButton"/>               
+        </div>
+	</form>
+	</fieldset>	
+	
+	<table t:type="grid" t:source="fkrInstances" t:row="fkrInstance" t:rowsPerPage="10" t:lean="true" t:pagerPosition="bottom"
+    	t:inPlace="true" t:model="fkrInstanceModel" style="width: 100%; text-align: left;">
+  		<p:dealCell>
+  			<t:if test="fkrInstance.fkr.deal.id">
+	           № ${fkrInstance.fkr.deal.spkpNumber}
+	           от <span t:type="output" t:format="dateListPattern" t:value="fkrInstance.fkr.deal.validTo"></span>
+	        </t:if>
+        </p:dealCell>
+  		<p:clientCell>
+            <t:if test="fkrInstance.fkr.deal.id">
+	        	${fkrInstance.fkr.deal.borrower.name}<br/>
+	           	<t:if test="fkrInstance.fkr.deal.borrower.inn">
+	           		ИНН ${fkrInstance.fkr.deal.borrower.inn}
+	           	</t:if>
+	           	<p:else>
+		        	${fkrInstance.client.name}<br/>
+		           	<t:if test="fkrInstance.client.inn">
+		           		ИНН ${fkrInstance.client.inn}
+		           	</t:if>	           		
+	           	</p:else>
+	        </t:if>
+        </p:clientCell>
+  		<p:fkrTypeCell>
+            ${fkrInstance.fkr.type.name}
+        </p:fkrTypeCell>
+      	<p:noteCell>
+            ${fkrInstance.fkr.notes}
+        </p:noteCell>
+      	<p:statusCell>
+            ${fkrInstance.fkr.status.name}
+        </p:statusCell>
+		<p:signCell>
+			<t:if test="fkrInstance.fkr.significant">
+				существенно
+				<p:else>несущественно</p:else>
+			</t:if>
+        </p:signCell>
+        <p:createdCell>
+            <span t:type="output" t:format="dateListPattern" t:value="fkrInstance.fkr.created"></span>
+        </p:createdCell>
+        <p:finishedCell>
+            <span t:type="output" t:format="dateListPattern" t:value="fkrInstance.fkr.finished"></span>
+        </p:finishedCell>
+        
+    	<p:empty>
+	    	<h3>ФКР не найдены</h3>
+	    </p:empty> 
+	</table>
+</t:layout>    

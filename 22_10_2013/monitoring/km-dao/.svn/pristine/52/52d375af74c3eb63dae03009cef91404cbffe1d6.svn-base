@@ -1,0 +1,28 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.KmEventNotification;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * map for Уведомление о наступлении мероприятий.
+ * 
+ * @author Shafgullin Ildar
+ * 
+ */
+public class KmEventNotificationRm extends BaseRm<KmEventNotification> {
+
+	public KmEventNotificationRm() {
+		super("EN_");
+	}
+
+	@Override
+	protected KmEventNotification map(ResultSetWrapper rsw) throws SQLException {
+		KmEventNotification notification = new KmEventNotification();
+		notification.setPeriod(rsw.getLong(getAliasPrefix() + "PERIOD"));
+		notification.setPeriodKind(rsw.getLong(getAliasPrefix() + "PERIOD_KIND"));
+		return notification;
+	}
+
+}

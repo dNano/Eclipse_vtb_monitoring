@@ -1,0 +1,216 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.tapestry5.PersistenceConstants;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+import org.apache.tapestry5.tree.DefaultTreeModel;
+import org.apache.tapestry5.tree.TreeModel;
+
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.ContractorDao;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.util.ClassifierValueWrapper;
+import ru.masterdm.km.util.ValueWrapper;
+import ru.masterdm.km.web.util.ValueWrapperTreeModelAdapter;
+
+/**
+ * таб. панель "классификатор-план-календарь" КМ для клиента.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ContractorClassifier {
+	private static final ValueWrapper rootNode = new ValueWrapper("Root", null);
+
+	@Persist(PersistenceConstants.FLASH)
+	@Property
+	private ClassifierValueWrapper valueWrapper;
+	@Persist
+	@Property
+	private int curTab;
+	@Persist
+	@Property
+	private Contractor contractor;
+	@Persist
+	@Property
+	private KmEvent filter;
+
+	@Persist
+	private String contractorID;
+	@Persist
+	private long selectedEventTypeID;
+	@Persist
+	private ArrayList<Long> arrayPlanForTree;
+
+	@Property
+	private KmEventCalendar calendar;
+	@Property
+	private KmEventInstance eventInstance;
+
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private ContractorDao contractorDao;
+	@Inject
+	private BeanModelSource beanModelSource;
+	@Inject
+	private Messages messages;
+
+	void pageLoaded() {
+		synchronized (rootNode) {
+			if (rootNode.children.isEmpty()) {
+				dictionaryDao.initClassifierTree(rootNode);
+			}
+		}
+	}
+
+	void onActivate(String contractorID, int curTab) {
+		this.curTab = curTab;
+		contractor = dictionaryDao.getContractor(contractorID);
+		this.contractorID = contractorID;
+		if (filter == null) {
+			filter = new KmEvent();
+		}
+		selectedEventTypeID = -1;
+		initArrayPlanForTree();
+	}
+
+	private void initArrayPlanForTree() {
+		List<KmEventCalendar> planList = contractorDao.getContractorPlan(0, Integer.MAX_VALUE, contractor.getId(), filter);
+		arrayPlanForTree = new ArrayList<Long>();
+		for (KmEventCalendar planEvent : planList) {
+			arrayPlanForTree.add(planEvent.getClassifier().getEventType().getId());
+		}
+	}
+
+	@OnEvent(component = "addEventType")
+	void addEventType(long eventTypeID, String eventName) {
+		// if (!contractorDao.isExistEventType(contractor.getId(), eventTypeID)) {
+		contractorDao.addEventType(contractor.getId(), eventTypeID);
+		// }
+		arrayPlanForTree.add(Long.valueOf(eventTypeID));
+		selectedEventTypeID = eventTypeID;
+	}
+
+	@OnEvent(component = "removeEventType")
+	void removeEventType(long eventTypeID) {
+		contractorDao.removeEventType(contractor.getId(), eventTypeID);
+		arrayPlanForTree.remove(Long.valueOf(eventTypeID));
+		selectedEventTypeID = -1;
+	}
+
+	public boolean isSelectedLeaf() {
+		if (valueWrapper != null && valueWrapper.isType() && valueWrapper.getPageName().equals("" + selectedEventTypeID)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isDisabledLeaf() {
+		if (valueWrapper != null && valueWrapper.isType()) {
+			Long typeId = Long.valueOf(valueWrapper.getPageName());
+			if (arrayPlanForTree.contains(typeId)) {
+				return true;
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
+
+	public TreeModel<ValueWrapper> getTreeModel() {
+		ValueEncoder<ValueWrapper> encoder = new ValueEncoder<ValueWrapper>() {
+			public String toClient(ValueWrapper value) {
+				return value.uuid;
+			}
+
+			public ValueWrapper toValue(String clientValue) {
+				return rootNode.seek(clientValue);
+			}
+		};
+		return new DefaultTreeModel<ValueWrapper>(encoder, new ValueWrapperTreeModelAdapter(), rootNode.children);
+	}
+
+	public GridDataSource getPlan() {
+		return new GridDataSource() {
+			private int startIndex;
+			private List<KmEventCalendar> instances;
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				instances = contractorDao.getContractorPlan(startIndex, endIndex - startIndex + 1, contractor.getId(), filter);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return instances.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return KmEventCalendar.class;
+			}
+
+			@Override
+			public int getAvailableRows() {
+				return contractorDao.getContractorPlanCount(contractor.getId(), filter);
+			}
+		};
+	}
+
+	public GridDataSource getEventInstances() {
+		return new GridDataSource() {
+			private int startIndex;
+			private List<KmEventInstance> instances;
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				instances = contractorDao.getContractorCalendar(startIndex, endIndex - startIndex + 1, contractor.getId(), filter);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return instances.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return KmEventInstance.class;
+			}
+
+			@Override
+			public int getAvailableRows() {
+				return contractorDao.getContractorCalendarCount(contractor.getId(), filter);
+			}
+		};
+	}
+
+	public BeanModel<KmEventInstance> getEventInstanceModel() {
+		BeanModel<KmEventInstance> eventModel = beanModelSource.createDisplayModel(KmEventInstance.class, messages);
+		for (String prop : eventModel.getPropertyNames()) {
+			eventModel.get(prop).sortable(false);
+		}
+		return eventModel;
+	}
+
+	public boolean isRenderAcceptAllButton() {
+		return (filter != null) && (contractorDao.getContractorPlanCount(contractor.getId(), filter) > 0);
+	}
+}

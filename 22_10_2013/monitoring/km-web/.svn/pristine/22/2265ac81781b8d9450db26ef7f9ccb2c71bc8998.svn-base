@@ -1,0 +1,41 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Новое мероприятие">
+    <h1 style="text-align: center;">Настройки пользователя</h1>
+	<form t:type="form" t:id="form">
+		<table class="recordblock" border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td>
+					<t:errors />
+					<div class="record">
+						<table border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<th><t:label for="dateListPattern"/></th>
+								<td><select t:id="dateListPattern" t:type="Select" t:value="user.dateListPattern" t:model="datePatterns"/></td>
+							</tr>
+							<tr>
+								<th><t:label for="dateViewPattern"/></th>
+								<td><select t:id="dateViewPattern" t:type="Select" t:value="user.dateViewPattern" t:model="datePatterns"/></td>
+							</tr>
+							<tr>
+								<th><t:label for="dateInputPattern"/></th>
+								<td><select t:id="dateInputPattern" t:type="Select" t:value="user.dateInputPattern" t:model="datePatterns"/></td>
+							</tr>
+						</table>
+					</div>
+					<div class="buttons">
+						<table>
+							<tr>
+								<td><input t:type="submit" value="Сохранить"/></td>
+							</tr>
+						</table>
+					</div>
+					<div class="info">${message}</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+    
+</t:layout>    
+
+    
+    

@@ -1,0 +1,28 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.FkrType;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * map for типу ФКР.
+ * 
+ * @author Shafgullin Ildar
+ * 
+ */
+public class FkrTypeRm extends BaseRm<FkrType> {
+
+	public FkrTypeRm() {
+		super("FT_");
+	}
+	@Override
+	protected FkrType map(ResultSetWrapper rsw) throws SQLException {
+		FkrType instanse = new FkrType();
+		instanse.setId(rsw.getLong(getAliasPrefix() + "ID"));
+		instanse.setName(rsw.getString(getAliasPrefix() + "NAME"));
+		return instanse;
+	}
+
+
+}

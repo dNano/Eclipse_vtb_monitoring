@@ -1,0 +1,40 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd" xmlns:p="tapestry:parameter"
+	t:title="Исполнение контрольного мероприятия">
+
+	<h1 style="text-align: center;">Исполнение контрольного мероприятия "${event?.event?.name}"</h1>
+	<fieldset>
+		<legend>Информация</legend>
+		<form t:type="form" t:id="executeEventsForm" t:clientValidation="none" t:autofocus="false">
+			<table style="width: 50%">
+				<tr>
+					<td>Дата:</td>
+					<td><span t:type="output" t:format="literal:dd.MM.yyyy" t:value="event.planExecutionDate" /></td>
+				</tr>
+				<tr>
+					<td>Контрагент:</td>
+					<td>${event?.contractor?.name} (${event?.contractorType?.name})</td>
+				</tr>
+				<tr>
+					<td>№ Сделки:</td>
+					<td>${event?.event?.deal?.id}</td>
+				</tr>
+				<tr>
+					<td>Сумма:</td>
+					<td>${event?.event?.deal?.amount} ${event?.event?.deal?.currency?.id}</td>
+				</tr>
+				<tr>
+					<td>Исполнитель:</td>
+					<td>${event?.executor?.shortFullName}</td>
+				</tr>
+
+				<tr>
+					<td><span t:type="label" t:for="eventResults">Действие</span>&nbsp;</td>
+					<td><input t:type="select" t:id="eventResults" t:value="eventResult"
+						 t:encoder="eventResultValueEncoder" t:model="eventResultSelectModel" style="width: 100%" /></td>
+				</tr>
+			</table>
+			<div class="buttons"><input t:type="submit" t:value="Завершить" class="button"/></div>
+		</form>
+	</fieldset>
+</t:layout>

@@ -1,0 +1,46 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.ContractorInstance;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.searchfilter.EventsByContractorFilter;
+
+/**
+ * DAO интерфейс для сущности "Контрагент"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public interface ContractorDao {
+
+	List<KmEventInstance> getContractorCalendar(int startIndex, int amount, String contractorID);
+
+	int getContractorCalendarCount(String contractorID);
+
+	int getInstanceCount(EventsByContractorFilter filter);
+
+	List<ContractorInstance> getInstances(int startIndex, int amount, EventsByContractorFilter filter);
+
+	List<KmEventCalendar> getContractorPlan(int startIndex, int i, String id, KmEvent filter);
+
+	int getContractorPlanCount(String id, KmEvent filter);
+
+	boolean isExistEventType(String id, long eventTypeID);
+
+	void addEventType(String id, long eventTypeID);
+
+	void removeEventType(String id, long eventTypeID);
+
+	KmEventCalendar getPlanEventForContractor(long eventPlanID);
+
+	void savePlanEventForContractor(KmEventCalendar event);
+
+	List<KmEventInstance> getContractorCalendar(int startIndex, int amount, String contractorID, KmEvent filter);
+
+	int getContractorCalendarCount(String contractorID, KmEvent filter);
+
+	void acceptEventType(String contractorID, long eventCalendarID);
+}

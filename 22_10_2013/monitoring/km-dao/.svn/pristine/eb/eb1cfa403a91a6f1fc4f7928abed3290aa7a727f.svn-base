@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.FkrDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.FkrDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+                <entry key="FKR_INSTANCE_COUNT">
+                    <value>
+                        <![CDATA[
+                              select count(id_fkr) from km_fkr where 1=1  
+                        ]]>
+                    </value>
+                </entry>
+                 <entry key="FKR_INSTANCES">
+                    <value>
+                        <![CDATA[
+	                        select kf.id_fkr kf_id, kf.notes kf_note, kf.is_significant is_significant, kf.created kf_created,
+                            	   	ft.id_fkr_type ft_id, ft.fkr_code || ' ' || ft.fkr_type ft_name, ft.fkr_kind ft_kind,
+                            	   	kf.finished kf_finished, fg.id_fkr_group fg_id, fg.fkr_group fg_name,
+                            	   	m.id_mdtask d_id, m.mdtask_number d_spkp_number, m.valid_to d_valid_to,
+                            	   	m.id_borrower co_id, o.organizationname co_name, o.inn co_inn
+                        ]]>
+                    </value>
+                </entry>
+            </util:map>
+        </property>
+    </bean>
+</beans>

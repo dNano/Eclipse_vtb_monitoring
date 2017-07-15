@@ -1,0 +1,36 @@
+package ru.masterdm.km.dao.mapper;
+
+import java.sql.SQLException;
+
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventNotification;
+import ru.masterdm.km.util.ResultSetWrapper;
+
+/**
+ * map for Календарь контрольных мероприятий.
+ * 
+ * @author Shafgullin Ildar
+ * 
+ */
+public class KmEventCalendarRm extends BaseRm<KmEventCalendar> {
+
+	public KmEventCalendarRm() {
+		super("EC_");
+	}
+
+	@Override
+	protected KmEventCalendar map(ResultSetWrapper rsw) throws SQLException {
+		KmEventCalendar instance = new KmEventCalendar();
+		instance.setId(rsw.getLong(getAliasPrefix() + "ID"));
+		instance.setName(rsw.getString(getAliasPrefix() + "NAME"));
+		instance.setClassifier(new KmClassifiersRm().map(rsw));
+		instance.setRepeatType(new KmRepeatTypeRm().map(rsw));
+		
+		KmEventNotification notification = new KmEventNotification();
+		notification.setPeriod(rsw.getLong("period"));
+		notification.setPeriodKind(rsw.getLong("period_kind"));
+		instance.setNotification(notification);// TODO map
+		
+		return instance;
+	}
+}

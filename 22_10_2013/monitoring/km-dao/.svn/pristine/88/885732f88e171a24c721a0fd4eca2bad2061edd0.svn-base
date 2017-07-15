@@ -1,0 +1,97 @@
+package ru.masterdm.km.dao;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+
+/**
+ * Mok-реализация DAO интерфейса для сущности "Сделка".
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class DealDaoMockImpl implements DealDao {
+
+	private List<DealInstance> dealInstances;
+
+	private boolean dealInstanceMatchesFilter(DealInstance inst, EventsByDealFilter filter) {
+		// TODO добавить фильтры
+		// if (!filter.getStatuses().contains(inst.getStatus())) {
+		// return false;
+		// }
+		// if (filter.getDateFrom() != null && filter.getDateFrom().after(inst.getPlanExecutionDate())) {
+		// return false;
+		// }
+		// if (filter.getDateTo() != null) {
+		// Calendar calendar = Calendar.getInstance();
+		// calendar.setTime(filter.getDateTo());
+		// calendar.add(Calendar.DATE, 1);
+		// if (!calendar.getTime().after(inst.getPlanExecutionDate())) {
+		// return false;
+		// }
+		// }
+		if (filter.getCurrency() != null && !filter.getCurrency().equals(inst.getDeal().getCurrency())) {
+			return false;
+		}
+		if (filter.getAmountFrom() != null && filter.getAmountFrom() > inst.getDeal().getAmount()) {
+			return false;
+		}
+		if (filter.getAmountTo() != null && filter.getAmountTo() < inst.getDeal().getAmount()) {
+			return false;
+		}
+		if (filter.getSpkpNumber() != null && !filter.getSpkpNumber().equals(inst.getDeal().getSpkpNumber())) {
+			return false;
+		}
+		if (filter.getContractNumber() != null && !filter.getContractNumber().equals(inst.getDeal().getContractNumber())) {
+			return false;
+		}
+		if (filter.getContractor() != null && !filter.getContractor().getId().equals(inst.getContractor().getId())) {
+			return false;
+		}
+		if (filter.getExecutor() != null && !filter.getExecutor().getId().equals(inst.getExecutor().getId())) {
+			return false;
+		}
+		if (filter.getContractorGroup() != null && !filter.getContractorGroup().getId().equals(inst.getContractorGroup().getId())) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int getInstanceCount(EventsByDealFilter filter) {
+		int result = 0;
+		for (DealInstance inst : dealInstances) {
+			if (dealInstanceMatchesFilter(inst, filter)) {
+				result++;
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter) {
+		List<DealInstance> matches = new ArrayList<DealInstance>();
+		int start = 0;
+		for (DealInstance inst : dealInstances) {
+			/* filter precondition checks */
+			boolean add = dealInstanceMatchesFilter(inst, filter);
+
+			/* page list precondition checks */
+			if (add && ++start > startIndex) {
+				matches.add(inst);
+			}
+			if (matches.size() == amount) {
+				return matches;
+			}
+		}
+		return matches;
+	}
+
+	public void setDealInstances(List<DealInstance> dealInstances) {
+		this.dealInstances = dealInstances;
+	}
+
+}

@@ -1,0 +1,4 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Плановое мероприятие">
+	<h1 style="text-align: center;">Плановое мероприятие "${event?.name}" для сделки</h1>
+</t:layout>

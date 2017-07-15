@@ -1,0 +1,135 @@
+package ru.masterdm.km.common.entity;
+
+import java.util.Date;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+@SuppressWarnings("serial")
+public class KmEventInstance extends BaseIndexedEntity<Long> {
+
+	private KmEventStatus status;
+	private EventResult result;
+	private KmConfirmationType confirmationType;
+	private DocumentGroup documentGroup;
+	private DocumentType documentType;
+	private Date planExecutionDate;
+	private Date executedDate;
+	private User executor;
+	private KmEvent event;
+	private Contractor contractor;
+	private ContractorType contractorType;
+	private String resultNote;
+	private AppFile confirmFile;
+
+	public KmEventStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(KmEventStatus status) {
+		this.status = status;
+	}
+
+	public Date getPlanExecutionDate() {
+		return planExecutionDate;
+	}
+
+	public void setPlanExecutionDate(Date planExecutionDate) {
+		this.planExecutionDate = planExecutionDate;
+	}
+
+	public User getExecutor() {
+		return executor;
+	}
+
+	public void setExecutor(User executor) {
+		this.executor = executor;
+	}
+
+	public KmEvent getEvent() {
+		return event;
+	}
+
+	public void setEvent(KmEvent event) {
+		this.event = event;
+	}
+
+	public Contractor getContractor() {
+		return contractor;
+	}
+
+	public void setContractor(Contractor contractor) {
+		this.contractor = contractor;
+	}
+
+	public ContractorType getContractorType() {
+		return contractorType;
+	}
+
+	public void setContractorType(ContractorType contractorType) {
+		this.contractorType = contractorType;
+	}
+
+	public String getResultNote() {
+		return resultNote;
+	}
+
+	public void setResultNote(String resultNote) {
+		this.resultNote = resultNote;
+	}
+
+	public EventResult getResult() {
+		return result;
+	}
+
+	public void setResult(EventResult result) {
+		this.result = result;
+	}
+
+	public KmConfirmationType getConfirmationType() {
+		return confirmationType;
+	}
+
+	public void setConfirmationType(KmConfirmationType confirmationType) {
+		this.confirmationType = confirmationType;
+	}
+
+	public DocumentGroup getDocumentGroup() {
+		return documentGroup;
+	}
+
+	public void setDocumentGroup(DocumentGroup documentGroup) {
+		this.documentGroup = documentGroup;
+	}
+
+	public DocumentType getDocumentType() {
+		return documentType;
+	}
+
+	public void setDocumentType(DocumentType documentType) {
+		this.documentType = documentType;
+	}
+
+	public AppFile getConfirmFile() {
+		return confirmFile;
+	}
+
+	public void setConfirmFile(AppFile confirmFile) {
+		this.confirmFile = confirmFile;
+	}
+
+	public boolean isExpared() {
+		// boolean isWaitProcessing = (status != null) && (status.getId().equals(KmEventStatusDictionary.WAIT_PROCESSING.getId()));
+		// return isWaitProcessing && (planExecutionDate != null) && (planExecutionDate.before(new Date()));
+		return (executedDate == null) && (planExecutionDate != null) && (planExecutionDate.before(new Date()));
+	}
+
+	public Date getExecutedDate() {
+		return executedDate;
+	}
+
+	public void setExecutedDate(Date executedDate) {
+		this.executedDate = executedDate;
+	}
+}

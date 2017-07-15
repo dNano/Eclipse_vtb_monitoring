@@ -1,0 +1,33 @@
+package ru.masterdm.km.web.pages.executionEvent;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+
+import ru.masterdm.km.web.base.event.ExecuteEventBasePage;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * Карточка контрольного мероприятий для сделки.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteDealEvent extends ExecuteEventBasePage {
+	@Persist
+	@Property
+	private String spkpNumber;
+
+	void onActivate(long eventID, String spkpNumber) {
+		// System.out.println("onActivate =" + eventID + "; spkpNumber=" + spkpNumber);
+		init(eventID);
+		this.spkpNumber = spkpNumber;
+	}
+
+	public String getDealInfo() {
+		return ExecuteEventUtil.getDealInfo(event.getEvent().getDeal(), getDateViewFormat(), getAmountViewFormat());
+	}
+
+	public String getPageName() {
+		return "executionEvent/ExecuteDealEvent";
+	}
+}

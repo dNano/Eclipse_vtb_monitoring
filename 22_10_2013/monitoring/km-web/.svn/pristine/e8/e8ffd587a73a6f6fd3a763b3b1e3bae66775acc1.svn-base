@@ -1,0 +1,11 @@
+package ru.masterdm.km.web.services.fkr;
+
+/**
+ * Механизм автоматической смены статуса контрольных мероприятий на "просрочено"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public interface FkrService {
+	void doJob();
+}

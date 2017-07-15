@@ -1,0 +1,70 @@
+package ru.masterdm.km.common.entity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+@SuppressWarnings("serial")
+public class KmEvent extends BaseNamedEntity<Long> {
+
+    private MonitoredObjectType monitoredObjectType;
+    private KmEventTypeGroup eventTypeGroup;
+    private KmEventType eventType;
+    private List<ContractorType> contractorTypes;
+    private String contractNumber;
+    private Deal deal;
+
+    public MonitoredObjectType getMonitoredObjectType() {
+        return monitoredObjectType;
+    }
+
+    public void setMonitoredObjectType(MonitoredObjectType monitoredObjectType) {
+        this.monitoredObjectType = monitoredObjectType;
+    }
+
+    public KmEventTypeGroup getEventTypeGroup() {
+        return eventTypeGroup;
+    }
+
+    public void setEventTypeGroup(KmEventTypeGroup eventTypeGroup) {
+        this.eventTypeGroup = eventTypeGroup;
+    }
+
+    public KmEventType getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(KmEventType eventType) {
+        this.eventType = eventType;
+    }
+
+    public List<ContractorType> getContractorTypes() {
+        if (contractorTypes == null) {
+            contractorTypes = new ArrayList<ContractorType>();
+        }
+        return contractorTypes;
+    }
+
+    public void setContractorTypes(List<ContractorType> contractorTypes) {
+        this.contractorTypes = contractorTypes;
+    }
+
+    public String getContractNumber() {
+        return contractNumber;
+    }
+
+    public void setContractNumber(String contractNumber) {
+        this.contractNumber = contractNumber;
+    }
+
+    public Deal getDeal() {
+        return deal;
+    }
+
+    public void setDeal(Deal deal) {
+        this.deal = deal;
+    }
+}

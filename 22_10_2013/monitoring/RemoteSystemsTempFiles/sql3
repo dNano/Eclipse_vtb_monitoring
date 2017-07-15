@@ -1,0 +1,23 @@
+							select  c.id_event_calendar EC_ID, c.event_name EC_NAME,
+									t.id_event_type as ET_id, t.event_type_name ET_name, 
+									m.id as MO_id, m.name as MO_name, 
+									g.id_event_group as ETG_id, g.event_group_name as ETG_name 
+							from KM_EVENT_CALENDAR c
+								inner join Km_Event_Type t on c.id_event_type = t.id_event_type 
+								inner join km_event_group g on t.id_event_group = g.id_event_group
+								inner join km_monitored_object m on m.id = g.id_object_type
+							where c.id_event_calendar = 1
+							
+							select * from Km_Event_Type
+							
+							 select id_event_type et_id, event_type_name et_name
+                              from Km_Event_Type
+                             where id_event_group = 1
+                             order by event_type_name
+                             
+                             select * from km_event_group
+                             
+                            select id_event_group etg_id, event_group_name etg_name
+                              from km_event_group
+                             where id_object_type = 1
+                             order by event_group_name

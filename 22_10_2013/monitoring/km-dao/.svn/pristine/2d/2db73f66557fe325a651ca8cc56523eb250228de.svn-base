@@ -1,0 +1,28 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.EventResult;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDateFilter;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+public interface EventDao {
+
+    int getInstanceCount(EventsByDateFilter filter);
+
+    List<KmEventInstance> getInstances(int startIndex, int amount, EventsByDateFilter filter);
+
+	KmEventInstance getEventForExecute(long eventID);
+
+	List<EventResult> getEventResults();
+
+	void removeEventInstance(long eventInstanceID);
+
+	void saveEventInstance(KmEventInstance event);
+
+	void executeEventInstance(KmEventInstance event);
+}

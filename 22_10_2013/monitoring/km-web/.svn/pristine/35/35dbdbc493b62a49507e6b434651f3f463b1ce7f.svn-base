@@ -1,0 +1,11 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+/**
+ * Календарь мероприятий для сделки.
+ * 
+ * @author Shafigullin Ildar
+ *
+ */
+public class DealCalendar {
+
+}

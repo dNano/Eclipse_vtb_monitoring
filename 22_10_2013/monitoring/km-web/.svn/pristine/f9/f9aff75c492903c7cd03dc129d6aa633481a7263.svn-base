@@ -1,0 +1,117 @@
+package ru.masterdm.km.web.components.event;
+
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.FKR;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.OK;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.REMARK;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.SANCTION;
+import static ru.masterdm.km.common.dictionary.EventResultDictionary.SANCTION_FKR;
+import static ru.masterdm.km.common.dictionary.KmEventStatusDictionary.IN_JOB;
+import static ru.masterdm.km.common.dictionary.KmEventStatusDictionary.SUSPEND;
+import static ru.masterdm.km.common.dictionary.KmEventStatusDictionary.WAIT_PROCESSING;
+
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+
+import org.apache.tapestry5.annotations.Parameter;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+
+import ru.masterdm.km.common.dictionary.EventResultDictionary;
+import ru.masterdm.km.common.dictionary.KmEventStatusDictionary;
+import ru.masterdm.km.common.entity.KmEventChronology;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.EventDao;
+import ru.masterdm.km.web.model.event.EventChronologyDataSource;
+import ru.masterdm.km.web.util.ExecuteEventUtil;
+
+/**
+ * Хронология исполнения мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EventChronology {
+	@Parameter(required = true)
+	@Property
+	private long eventID;
+	@Parameter(required = true)
+	@Property
+	private DateFormat dateFormat;
+	@Parameter(required = true)
+	@Property
+	private DecimalFormat amountFormat;
+	@Parameter(required = true)
+	@Property
+	private String returnPageName;
+
+	@Property
+	private KmEventChronology event;
+	@Property
+	private GridDataSource events;
+	@Property
+	private KmEventInstance eventInstance;
+	@Property
+	private String info;
+
+	@Inject
+	private EventDao eventDao;
+	@Inject
+	private Messages messages;
+	@Inject
+	private BeanModelSource beanModelSource;
+
+	void onProgressiveDisplayFromShowChronology() {
+		// void setupRender() {
+		if (eventID != 0) {
+			eventInstance = eventDao.getEventInstance(eventID);
+			info = ExecuteEventUtil.getEventInfo(eventInstance, dateFormat, amountFormat);
+			events = new EventChronologyDataSource(eventDao, eventInstance.getEvent().getId());
+		}
+	}
+
+	public BeanModel<KmEventChronology> getEventsModel() {
+		BeanModel<KmEventChronology> eventsModel = beanModelSource.createDisplayModel(KmEventChronology.class, messages);
+		for (String prop : eventsModel.getPropertyNames()) {
+			eventsModel.get(prop).sortable(false);
+		}
+		return eventsModel;
+	}
+
+	public boolean isOkResult() {
+		return isEventResult(OK, event);
+	}
+
+	public boolean isSanctionOrRemarkResult() {
+		return isEventResult(SANCTION, event) || isEventResult(REMARK, event);
+	}
+
+	public boolean isFkrResult() {
+		return isEventResult(FKR, event) || isEventResult(SANCTION_FKR, event);
+	}
+
+	public boolean isSanctionResult() {
+		return isEventResult(SANCTION, event) || isEventResult(SANCTION_FKR, event);
+	}
+
+	private boolean isEventResult(EventResultDictionary dict, KmEventChronology kmEventChronology) {
+		Long result = kmEventChronology.getResult().getId();
+		return (result != null && result.intValue() == dict.getId()) ? true : false;
+	}
+
+	public String getEventRowClass() {
+		return isFkrResult() ? "FKR" : "";
+	}
+
+	public boolean isCanExecuted() {
+		return isEventStatus(WAIT_PROCESSING) || isEventStatus(IN_JOB) || isEventStatus(SUSPEND);
+	}
+
+	private boolean isEventStatus(KmEventStatusDictionary dict) {
+		Long status = event.getStatus().getId();
+		return (status != null && status.intValue() == dict.getId()) ? true : false;
+	}
+}

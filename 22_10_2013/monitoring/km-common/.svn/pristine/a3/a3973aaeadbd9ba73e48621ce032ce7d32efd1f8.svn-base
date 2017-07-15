@@ -1,0 +1,32 @@
+/**
+ * 
+ */
+package ru.masterdm.km.common.entity;
+
+/**
+ * 
+ * Сущность Списка клиентов.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ContractorInstance {
+	private Contractor contractor;
+	private ContractorGroup contractorGroup;
+
+	public Contractor getContractor() {
+		return contractor;
+	}
+
+	public void setContractor(Contractor contractor) {
+		this.contractor = contractor;
+	}
+
+	public ContractorGroup getContractorGroup() {
+		return contractorGroup;
+	}
+
+	public void setContractorGroup(ContractorGroup contractorGroup) {
+		this.contractorGroup = contractorGroup;
+	}
+}

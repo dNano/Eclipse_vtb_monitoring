@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.ContractorDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.ContractorDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+            	<entry key="CONTRACTOR_INSTANCE_COUNT">
+					<value>
+                        <![CDATA[
+                            select count(*) from V_ORGANISATION o where 1=1
+                        ]]>
+					</value>
+				</entry>
+				<entry key="CONTRACTOR_INSTANCES">
+					<value>
+                        <![CDATA[
+							 select o.crmid CO_ID, o.organizationname CO_NAME,
+									o.inn CO_INN, o.crmid CO_NUMBER,
+									(select count(id_fkr) from KM_FKR where id_organization = o.CRMID) fkr_count,
+							   		(select count(id_event) from km_event e
+										inner join km_event_calendar c on c.id_event_calendar = e.id_event_calendar
+										where c.id_organization = o.crmid and e.executed_date is null
+											and e.plan_date < sysdate) expared_count
+          	            ]]>
+					</value>
+				</entry>
+            
+                <entry key="CONTRACTOR_CALENDAR_COUNT">
+                    <value>
+                        <![CDATA[
+                              select count(id_event) from km_event ei
+                              			left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+                              			left join mdtask m on m.id_mdtask = e.id_mdtask
+										left join crm_organization o on o.id_org = e.id_organization
+                              			where o.id_org = ?   
+                        ]]>
+                    </value>
+                </entry>
+                 <entry key="CONTRACTOR_CALENDAR">
+                    <value>
+                        <![CDATA[
+                        select v.* from (
+                            select ei.id_event ei_id, ei.plan_date ei_plan_date,
+                            	   ei.id_event_status kes_id, kes.event_status kes_name,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_sum d_amount, m.currency c_code,
+                                   o.id_org co_id, o.organization_name co_name,                                   
+                                   row_number() over (order by ei.plan_date desc) rn
+                              from km_event ei left join users u on u.id_user = ei.id_executor
+                                                            left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar 
+                                                            left join mdtask m on m.id_mdtask = e.id_mdtask
+                                                            left join crm_organization o on o.id_org = e.id_organization
+                                                            left join km_event_status kes on kes.id_event_status = ei.id_event_status
+                              where o.id_org = ?
+                        ]]>
+                    </value>
+                </entry>
+				<entry key="CONTRACTOR_PLAN_COUNT_BY_FILTER">
+					<value>
+						<![CDATA[
+							select count(*)  
+							from KM_EVENT_CALENDAR c
+								inner join cd_Event_Type  t on c.id_event_type = t.id_event_type 
+								inner join cd_event_group  g on t.id_event_group = g.id_event_group
+								inner join cd_monitored_object m on m.id = g.id_object_type
+							where c.id_organization = ?
+						]]>
+					</value>
+				</entry>				
+				<entry key="CONTRACTOR_PLAN_BY_FILTER">
+					<value>
+					<![CDATA[
+					 select v.* from (
+							select  c.id_event_calendar EC_ID, 
+									t.id_event_type as ET_id, t.event_type_name ET_name, 
+									m.id as MO_id, m.name as MO_name, 
+									g.id_event_group as ETG_id, g.event_group_name as ETG_name,									
+									row_number() over (order by t.event_type_name) rn 
+							from KM_EVENT_CALENDAR c
+								inner join cd_Event_Type  t on c.id_event_type = t.id_event_type 
+								inner join cd_event_group  g on t.id_event_group = g.id_event_group
+								inner join cd_monitored_object m on m.id = g.id_object_type
+							where c.id_organization = ?
+					 ]]>
+					</value>
+				</entry>
+				<entry key="IS_EXIST_EVENT_TYPE">
+					<value>
+						<![CDATA[
+							select count(*) from KM_EVENT_CALENDAR where id_organization = ? and id_event_type = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="IS_EXIST_EVENT_INSTANCE">
+					<value>
+						<![CDATA[
+							select count(*) from KM_EVENT where id_event_calendar = ? and plan_date = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="ADD_EVENT_TYPE">
+					<value>
+						<![CDATA[
+							insert into KM_EVENT_CALENDAR(id_event_calendar, event_name, id_organization, id_event_type, id_repeat_type, repeat_period, repeat_period_kind,
+									notify_period, notify_period_kind, repeat_period_weekend, repeat_period_weekend_exclude, notify_at_day, notify_after, notify_link_msg) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+						]]>
+					</value>
+				</entry>
+				<entry key="ADD_EVENT_TYPE_SEQ">
+					<value>
+						<![CDATA[
+							select km_event_seq.nextval from dual
+						]]>
+					</value>
+				</entry>
+				<entry key="REMOVE_EVENT_TYPE">
+					<value>
+						<![CDATA[
+							delete from KM_EVENT_CALENDAR where id_organization=? and id_event_type=?
+						]]>
+					</value>
+				</entry>
+				<entry key="ACCEPT_EVENT_TYPE">
+					<value>
+						<![CDATA[
+							insert into km_event(id_event,  id_event_calendar, plan_date, id_event_status, id_confirmation_type, id_document_group, id_document_type, id_executor) values(km_event_seq.nextval, ?, ?, ?, ?, ?, ?, 156)
+						]]>
+					</value>
+				</entry>				
+				<entry key="DETACH_DAYS_OF_WEEK_FROM_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							delete from KM_EVENT_DAY_OF_WEEK where id_event_calendar = ?
+						]]>
+					</value>							
+				</entry>
+				<entry key="ATTACH_DAYS_OF_WEEK_TO_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							insert into KM_EVENT_DAY_OF_WEEK(id_event_calendar, id_day_of_week) values(?, ?)
+						]]>
+					</value>							
+				</entry>
+				<entry key="DETACH_SCHEDULE_FROM_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							delete from KM_EVENT_CALENDAR_DATES where id_event_calendar = ?
+						]]>
+					</value>							
+				</entry>
+				<entry key="ATTACH_SCHEDULE_TO_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							insert into KM_EVENT_CALENDAR_DATES(id_event_calendar, plan_dt) values(?, ?)
+						]]>
+					</value>							
+				</entry>
+				<entry key="DAYS_OF_WEEK_FOR_EVENT_TYPE">
+					<value>
+						<![CDATA[
+							select e.id_day_of_week DW_ID, d.day_of_week DW_NAME 
+								from R_TYPE_DAY_OF_WEEK e	
+									inner join CD_DAY_OF_WEEK d on e.id_day_of_week = d.id_day_of_week 
+									where e.id_event_type = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="COPY_PLAN_EVENT_FOR_CONTRACTOR_FROM_TYPE">
+					<value>
+						<![CDATA[
+							select  c.id_event_type EC_ID, c.event_type_name EC_NAME,
+									c.repeat_period EC_REPEAT_PERIOD, c.repeat_period_kind EC_REPEAT_PERIOD_KIND, c.repeat_period_weekend EC_REPEAT_PERIOD_WEEKEND,
+									c.notify_period as EN_PERIOD, c.notify_period_kind as EN_PERIOD_KIND,
+									c.notify_at_day EN_NOTIFY_AT_DAY, c.notify_after EN_NOTIFY_AFTER, c.notify_link_msg EN_NOTIFY_LINK_MSG,
+									c.repeat_period_weekend_exclude EC_WEEKEND_EXCLUDE,
+									c.id_event_type as ET_ID, c.event_type_name ET_NAME, 
+									m.id as MO_ID, m.name as MO_NAME, 
+									g.id_event_group as ETG_ID, g.event_group_name as ETG_NAME,
+									rt.id_repeat_type as RT_ID, rt.repeat_type as RT_NAME
+							from cd_Event_Type  c
+								inner join cd_event_group  g on c.id_event_group = g.id_event_group
+								inner join cd_monitored_object m on m.id = g.id_object_type
+								left outer join cd_repeat_type rt on c.id_repeat_type = rt.id_repeat_type
+							where c.id_event_type  = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="PLAN_EVENT_FOR_CONTRACTOR">
+					<value>
+						<![CDATA[
+							select  c.id_event_calendar ec_id, c.event_name ec_name, c.start_date ec_start_date, c.end_date ec_end_date,
+									c.repeat_period ec_repeat_period, c.repeat_period_kind ec_repeat_period_kind, c.repeat_period_weekend ec_repeat_period_weekend,
+									c.notify_period as en_period, c.notify_period_kind as en_period_kind, c.notify_at_day en_notify_at_day,
+									c.notify_after en_notify_after, c.notify_link_msg en_notify_link_msg, c.repeat_period_weekend_exclude ec_weekend_exclude,
+									c.id_confirmation_type kct_id, c.id_document_group dg_id, c.id_document_type dot_id, c.documents_type ec_doc_type_by_hand,
+									t.id_event_type as et_id, t.event_type_name et_name, 
+									m.id as mo_id, m.name as mo_name, 
+									g.id_event_group as etg_id, g.event_group_name as etg_name,
+									rt.id_repeat_type as rt_id, rt.repeat_type as rt_name
+							from km_event_calendar c
+								inner join cd_event_type  t on c.id_event_type = t.id_event_type 
+								inner join cd_event_group  g on t.id_event_group = g.id_event_group
+								inner join cd_monitored_object m on m.id = g.id_object_type
+								left outer join cd_repeat_type rt on c.id_repeat_type = rt.id_repeat_type
+							where c.id_event_calendar = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="DAYS_OF_WEEK_FOR_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							select e.id_day_of_week DW_ID, d.day_of_week DW_NAME 
+								from KM_EVENT_DAY_OF_WEEK e	
+									inner join CD_DAY_OF_WEEK d on e.id_day_of_week = d.id_day_of_week 
+									where e.id_event_calendar = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="SCHEDULE_FOR_PLAN_EVENT">
+					<value>
+						<![CDATA[
+							select plan_dt from KM_EVENT_CALENDAR_DATES
+								where id_event_calendar = ?
+								 order by plan_dt
+						]]>
+					</value>
+				</entry>
+				<entry key="SAVE_PLAN_EVENT_FOR_CONTRACTOR">
+					<value>
+						<![CDATA[
+							update KM_EVENT_CALENDAR SET ID_REPEAT_TYPE = ?, NOTIFY_PERIOD_KIND = ?, NOTIFY_PERIOD = ?,
+										START_DATE = ?,  END_DATE = ?, REPEAT_PERIOD = ?, REPEAT_PERIOD_KIND = ?, REPEAT_PERIOD_WEEKEND = ?,
+										REPEAT_PERIOD_WEEKEND_EXCLUDE = ?, NOTIFY_AT_DAY = ?, NOTIFY_AFTER = ?, NOTIFY_LINK_MSG = ?,
+										ID_CONFIRMATION_TYPE = ?, ID_DOCUMENT_GROUP = ?, ID_DOCUMENT_TYPE = ?, DOCUMENTS_TYPE = ?
+								WHERE ID_EVENT_CALENDAR = ?
+						]]>
+					</value>
+				</entry>
+				<entry key="CONTRACTOR_CALENDAR_COUNT_BY_FILTER">
+					<value>
+                        <![CDATA[
+              				select count(*)
+                              from km_event ei left join users u on u.id_user = ei.id_executor
+                                                            left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar 
+                                                            left join mdtask m on m.id_mdtask = e.id_mdtask
+                                                            inner join cd_Event_Type  t on e.id_event_type = t.id_event_type 
+															inner join cd_event_group  g on t.id_event_group = g.id_event_group
+															inner join cd_monitored_object o on o.id = g.id_object_type
+								where e.id_organization = ?
+                        ]]>
+					</value>
+				</entry>
+				<entry key="CONTRACTOR_CALENDAR_BY_FILTER">
+					<value>
+                        <![CDATA[
+                        select v.* from (
+              				select ei.id_event ei_id, ei.plan_date ei_plan_date,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_sum d_amount, m.currency c_code,
+                                   t.id_event_type et_id, t.event_type_name et_name,
+                                   row_number() over (order by ei.plan_date desc) rn
+                              from km_event ei 
+                              				left join users u on u.id_user = ei.id_executor
+                                            left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar 
+                                            left join mdtask m on m.id_mdtask = e.id_mdtask
+                                            inner join cd_Event_Type  t on e.id_event_type = t.id_event_type 
+											inner join cd_event_group  g on t.id_event_group = g.id_event_group
+											inner join cd_monitored_object o on o.id = g.id_object_type
+								where e.id_organization = ?
+                        ]]>
+					</value>
+				</entry>
+				<entry key="ADD_FKR">
+					<value>
+                        <![CDATA[
+                            insert into KM_FKR (id_fkr, id_fkr_type, id_organization, is_significant, notes)
+                            	 values (km_fkr_seq.nextval, ?, ?, ?, ?)
+                        ]]>
+					</value>
+				</entry>
+   				<entry key="CONTRACTOR_FKR_COUNT">
+					<value>
+                        <![CDATA[
+                            select count(id_fkr) from KM_FKR where id_organization = ?
+                        ]]>
+					</value>
+				</entry>
+				<entry key="CONTRACTOR_FKR">
+					<value>
+                        <![CDATA[
+                        select v.* from (
+                            select kf.id_fkr KF_ID, kf.notes KF_NOTE, kf.is_significant IS_SIGNIFICANT,
+                            	   ft.id_fkr_type FT_ID, ft.fkr_type FT_NAME,
+                            	   kf.id_fkr_status kfs_id, kfs.status kfs_name,
+                                   row_number() over (order by ft.fkr_type desc) rn
+                              from KM_FKR kf
+                              	   inner join cd_fkr_type ft on kf.id_fkr_type = ft.id_fkr_type
+                              	   inner join km_fkr_status kfs on kf.id_fkr_status = kfs.id_fkr_status
+                              where kf.id_organization = ?                            
+                        ]]>
+					</value>
+				</entry>
+												                
+            </util:map>
+        </property>
+    </bean>
+</beans>

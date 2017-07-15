@@ -1,0 +1,110 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventNotification;
+import ru.masterdm.km.common.entity.NotificationRecipient;
+import ru.masterdm.km.common.entity.User;
+import ru.masterdm.km.dao.DealDao;
+import ru.masterdm.km.dao.DictionaryDao;
+
+/**
+ * Окно редактирования планового мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EditPlanForDeal {
+	@Persist
+	@Property
+	private KmEventCalendar event;
+	@Persist
+	@Property
+	private KmEventNotification kmEventNotification;
+	@Property
+	@Persist
+	private String lastNamePattern;
+
+	@Property
+	private NotificationRecipient notificationRecipient;
+	@Property
+	private NotificationRecipient loopRcpt;
+
+	@Property(write = false)
+	private boolean dialogAppeared;
+	@Property
+	private User user;
+
+	@Inject
+	private DealDao dealDao;
+    @Inject
+    private DictionaryDao dictionaryDao;
+    
+    @Inject
+    private BeanModelSource beanModelSource;
+    @Inject
+    private Messages messages;
+
+	void onActivate(long eventPlanID) {
+		System.out.println("onActivate =" + eventPlanID);
+		event = dealDao.getPlanEventForDeal(eventPlanID);
+	}
+
+	@OnEvent(value = EventConstants.ACTIVATE)
+	void prepare() {
+		if (kmEventNotification == null) {
+			kmEventNotification = new KmEventNotification();
+		}
+		notificationRecipient = new NotificationRecipient();
+	}
+	
+    public BeanModel<User> getUserModel() {
+        BeanModel<User> userModel = beanModelSource.createDisplayModel(User.class, messages);
+        for (String prop: userModel.getPropertyNames()) {
+            userModel.get(prop).sortable(false);
+        }
+        return userModel;
+    }
+
+    public GridDataSource getUsers() {
+        return new GridDataSource() {
+
+            private int startIndex;
+            private List<User> users;
+
+            @Override
+            public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+                this.startIndex = startIndex;
+                users = dictionaryDao.getUsers(startIndex, endIndex - startIndex + 1, lastNamePattern);
+            }
+
+            @Override
+            public Object getRowValue(int index) {
+                return users.get(index - startIndex);
+            }
+
+            @Override
+            public Class<?> getRowType() {
+                return User.class;
+            }
+
+            @Override
+            public int getAvailableRows() {
+                return dictionaryDao.getUserCount(lastNamePattern);
+            }
+        };
+    }
+
+}

@@ -1,0 +1,9 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+          xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"  xmlns:p="tapestry:parameter" t:title="Добавление ФКР">
+    		<h3 style="text-align: center;">Добавление ФКР<br/>${fkrInfo}</h3>
+
+	<form t:type="form" t:id="fkrAddForm" t:clientValidation="none" t:autofocus="false">
+		<div t:type="errors" class="literal:km-error"></div>
+		
+	</form>
+</t:layout>    

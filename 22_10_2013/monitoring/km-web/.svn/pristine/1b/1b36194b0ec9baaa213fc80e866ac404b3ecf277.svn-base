@@ -1,0 +1,96 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Плановое мероприятие">
+	<h1 style="text-align: center;">Редактирование Планового мероприятия</h1>
+	<fieldset>
+		<legend>Карточка мероприятия</legend>
+		<form t:type="form" t:id="createKmEventForm" t:clientValidation="none" t:autofocus="false">
+			<div t:type="errors" class="literal:km-error"/>
+			    <table style="width: 100%">
+                    <tr>
+                        <td colspan="2" style="white-space: nowrap;">
+                            Название
+                            <input t:type="textField" t:id="eventNameInput" value="event.name" style="width: 800px;"
+                                   t:mixins="textboxHint" t:hintText="${message:event-name-watermark}" t:hintColor="#808080" t:validate="required"/>
+                        </td>
+                    </tr>
+					<tr>
+						<td style="vertical-align: top;">
+							<table>
+								<tr>
+									<td>
+										<fieldset>
+											<legend>Плановая периодичность</legend>
+										</fieldset>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<fieldset>
+								<legend>Уведомление о наступлении мероприятия</legend>
+								Начать информировать за Х дней до наступления с периодичностью раз в У дней.
+								<table>
+									<tr>
+										<td><input t:type="checkbox" t:id="alarmOnEventStartDayCheckbox"
+											t:value="kmEventNotification.alarmOnEventStartDay" /></td>
+										<td><span t:type="label" t:for="alarmOnEventStartDayCheckbox"> Информировать в день мероприятия </span></td>
+									</tr>
+									<tr>
+										<td><input t:type="checkbox" t:id="continueToAlarmWhenUnfulfilledCheckbox"
+											t:value="kmEventNotification.continueToAlarmWhenUnfulfilled" /></td>
+										<td><span t:type="label" t:for="continueToAlarmWhenUnfulfilledCheckbox"> Продолжить информировать
+												после даты мероприятия, при неисполнении </span></td>
+									</tr>
+								</table>
+							</fieldset>
+						</td>
+					</tr>
+                   	<tr>
+                        <td colspan="2">
+                        	<fieldset>
+                                    <legend>Адреса рассылки</legend>
+                                    <span t:type="label" t:for="rcptFullNameTextField">ФИО:&nbsp;</span>
+                                    <input t:type="textField" t:id="rcptFullNameTextField" t:value="notificationRecipient.fullName"
+                                           style="width: 200px;" maxlength="${message:rcptFullNameTextField-maxLength}"/>
+                                    &nbsp;
+                                    <span t:type="label" t:for="rcptEmailTextField">E-mail:&nbsp;</span>
+                                    <input t:type="textField" t:id="rcptEmailTextField" t:value="notificationRecipient.email"
+                                           style="width: 150px;" maxlength="${message:rcptEmailTextField-maxLength}"/>
+                                    <input t:type="submit" t:id="addRecipientButton" t:value="Добавить" class="button"/>
+                                    
+                                    <a t:type="jquery/dialogAjaxLink" t:id="selectRecepientLink"
+                                       t:dialog="selectRecipientDialog" t:zone="userListZone" t:mixins="dialogAjaxLinkFix">Выбрать по ФИО</a>
+      
+                                    <span t:type="unless" t:test="kmEventNotification.recipients.empty" style="text-align: center;">
+                                        <table style="width: 50%">
+                                            <thead>
+                                                <tr>
+                                                    <th>ФИО</th>
+                                                    <th>E-mail</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t:type="loop" t:source="kmEventNotification.recipients" t:value="loopRcpt" t:formState="none">
+                                                    <td>${loopRcpt.fullName}</td>
+                                                    <td>${loopRcpt.email}</td>
+                                                    <td>
+                                                        <a t:type="eventLink" t:event="deleteRecipient" t:context="loopRcpt.email" t:zone="^">удалить</a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </span>                                                                        
+                            </fieldset>
+                        </td>
+                    </tr>
+			</table>
+			<div style="text-align: center;">
+                 <input t:type="submit" t:id="createEventButton" t:value="Сохранить" class="button"/>
+                 <input t:type="submit" t:id="cancelButton" t:mode="cancel" t:value="Отмена" class="button"/>
+             </div>
+		</form>
+	</fieldset>
+</t:layout>

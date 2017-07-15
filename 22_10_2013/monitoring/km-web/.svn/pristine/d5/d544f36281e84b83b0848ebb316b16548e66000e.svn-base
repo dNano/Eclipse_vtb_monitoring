@@ -1,0 +1,57 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список плановых мероприятий клиента {contractor?.name}">
+	<h1 style="text-align: left;">
+		План контрольных мероприятий клиента "${contractor?.name}" | 
+		<t:pagelink t:page="eventInstances/ContractorCalendar" t:context="contractor?.id" style="text-decoration: none">
+	 		Календарь контрольных мероприятий клиента "${contractor?.name}"
+		</t:pagelink>
+	</h1>
+	<span t:type="zone" t:id="contractorPlanZone" id="ContractorPlanZone">
+	<fieldset>
+		<form t:type="form" t:id="contractorPlanForm">
+			<div t:type="errors" class="literal:km-error"></div>
+		    <table width="100%">
+					<tr>
+						<td colspan="2">
+							<fieldset>
+								<legend>Фильтр</legend>
+								       	<table>
+		                                    <tr>
+		                                        <td>
+		                                            <span t:type="label" t:for="monitoredObjectTypeSelect">Пo объекту:</span>
+		                                        </td>
+		                                        <td>
+		                                            <input t:type="select" t:id="monitoredObjectTypeSelect" t:model="monitoredObjectTypeSelectModel"
+		                                                   t:encoder="monitoredObjectTypeValueEncoder" t:blankOption="always" t:zone="^"
+		                                                   t:blankLabel="------------------------" t:value="filter.monitoredObjectType"/>
+		                                        </td>
+		                                    </tr>
+		                                    <tr t:type="if" t:test="renderEventTypeGroup">
+		                                        <td>
+		                                            <span t:type="label" t:for="eventTypeGroupSelect">Пo группе:</span>
+		                                        </td>
+		                                        <td>
+		                                            <input t:type="select" t:id="eventTypeGroupSelect" t:model="eventTypeGroupSelectModel"
+		                                                   t:encoder="eventTypeGroupValueEncoder" t:blankOption="always" t:zone="^"
+		                                                   t:blankLabel="------------------------" t:value="filter.eventTypeGroup"/>
+		                                        </td>
+		                                    </tr>
+		                                     <tr t:type="if" t:test="renderEventType">
+		                                        <td>
+		                                            <span t:type="label" t:for="eventTypeSelect">По типу:</span>
+		                                        </td>
+		                                        <td>
+		                                            <input t:type="select" t:id="eventTypeSelect" t:model="eventTypeSelectModel"
+		                                                   t:encoder="eventTypeValueEncoder" t:blankOption="always" t:zone="^"
+		                                                   t:blankLabel="------------------------" t:value="filter.eventType"/>
+		                                        </td>
+		                                    </tr>                                    
+		                               	</table>
+							</fieldset>
+						</td>
+					</tr>
+			</table>
+		</form>
+	</fieldset>
+	</span>
+</t:layout>

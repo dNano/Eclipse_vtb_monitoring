@@ -1,0 +1,17 @@
+package ru.masterdm.km.dao;
+
+import ru.masterdm.km.util.Enumerable;
+
+/**
+ * Ключи для SQL по контрагентам(клиентам).
+ * 
+ * @author Shafigullin Ildar
+ */
+public enum ContractorDaoSqlKey implements Enumerable {
+
+	CONTRACTOR_CALENDAR, CONTRACTOR_CALENDAR_COUNT, CONTRACTOR_INSTANCES, CONTRACTOR_INSTANCE_COUNT, CONTRACTOR_PLAN_COUNT_BY_FILTER, CONTRACTOR_PLAN_BY_FILTER;
+	@Override
+	public int getElementCount() {
+		return ContractorDaoSqlKey.values().length;
+	}
+}

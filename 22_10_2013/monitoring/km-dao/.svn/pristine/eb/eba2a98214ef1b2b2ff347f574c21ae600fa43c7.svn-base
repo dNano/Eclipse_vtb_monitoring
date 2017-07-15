@@ -1,0 +1,58 @@
+package ru.masterdm.km.dao;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+
+/**
+ * Mok-реализация DAO интерфейса для сущности "Сделка".
+ * 
+ * @author Shafigullin Ildar
+ *
+ */
+public class DealDaoMockImpl implements DealDao {
+	
+    private List<DealInstance> dealInstances;
+
+	private boolean dealInstanceMatchesFilter(DealInstance inst, EventsByDealFilter filter) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int getInstanceCount(EventsByDealFilter filter) {
+	      int result = 0;
+	        for (DealInstance inst : dealInstances) {
+	            if (dealInstanceMatchesFilter(inst, filter)) {
+	                result++;
+	            }
+	        }
+	        return result;
+	}
+
+	@Override
+	public List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter) {
+	       List<DealInstance> matches = new ArrayList<DealInstance>();
+	        int start = 0;
+	        for (DealInstance inst : dealInstances) {
+	            /* filter precondition checks */
+	            boolean add = dealInstanceMatchesFilter(inst, filter);
+
+	            /* page list precondition checks */
+	            if (add && ++start > startIndex) {
+	                matches.add(inst);
+	            }
+	            if (matches.size() == amount) {
+	                return matches;
+	            }
+	        }
+	        return matches;
+	}
+
+	public void setDealInstances(List<DealInstance> dealInstances) {
+		this.dealInstances = dealInstances;
+	}
+
+}

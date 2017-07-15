@@ -1,0 +1,75 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.common.entity.KmEventInstanceStatus;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+import ru.masterdm.km.dao.DictionaryDao;
+
+/**
+ * 
+ * @author Alexey Chalov
+ * @author Shafigullin Ildar
+ */
+public class ByDeal {
+	@Persist
+	@Property
+	private EventsByDealFilter filter;
+
+	@Inject
+	private DictionaryDao dictionaryDao;
+
+	// private Calendar calendar;
+	private List<KmEventInstanceStatus> statuses;
+	@Property
+	private KmEventInstanceStatus status;
+
+	@OnEvent(value = EventConstants.ACTIVATE)
+	void prepare() {
+		if (filter == null) {
+			filter = emptyFilter();
+		}
+		/*
+		 * calendar = Calendar.getInstance();
+		 * calendar.setTimeInMillis(System.currentTimeMillis());
+		 */
+	}
+
+	private EventsByDealFilter emptyFilter() {
+		EventsByDealFilter filter = new EventsByDealFilter();
+		List<KmEventInstanceStatus> statuses = new ArrayList<KmEventInstanceStatus>();
+		statuses.addAll(getStatuses());
+		filter.setStatuses(statuses);
+		return filter;
+	}
+
+	public List<KmEventInstanceStatus> getStatuses() {
+		if (statuses == null) {
+			statuses = dictionaryDao.getInstanceStatusesForDeal();
+		}
+		return statuses;
+	}
+
+	public boolean isStatusSelected() {
+		return filter.getStatuses().contains(status);
+	}
+
+	public void setStatusSelected(boolean statusSelected) {
+		if (statusSelected) {
+			if (!filter.getStatuses().contains(status)) {
+				filter.getStatuses().add(status);
+			}
+		} else {
+			filter.getStatuses().remove(status);
+		}
+	}
+
+}

@@ -1,0 +1,17 @@
+package ru.masterdm.km.dao;
+
+import ru.masterdm.km.util.Enumerable;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+public enum EventDaoSqlKey implements Enumerable {
+
+    EVENT_INSTANCE_COUNT, EVENT_INSTANCES, EVENT_FOR_EXECUTE;
+
+    @Override
+    public int getElementCount() {
+        return EventDaoSqlKey.values().length;
+    }
+}

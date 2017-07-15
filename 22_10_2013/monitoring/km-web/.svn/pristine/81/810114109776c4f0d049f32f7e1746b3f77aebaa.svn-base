@@ -1,0 +1,216 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import static ru.masterdm.km.common.util.DataTypeUtil.isEmpty;
+
+import java.util.List;
+import java.util.ListIterator;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.SelectModel;
+import org.apache.tapestry5.ValueEncoder;
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.InjectPage;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+import org.apache.tapestry5.services.SelectModelFactory;
+import org.apache.tapestry5.services.ajax.AjaxResponseRenderer;
+
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventNotification;
+import ru.masterdm.km.common.entity.KmRepeatType;
+import ru.masterdm.km.common.entity.NotificationRecipient;
+import ru.masterdm.km.common.entity.User;
+import ru.masterdm.km.dao.DealDao;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.web.util.BaseEntityValueEncoder;
+
+/**
+ * Окно редактирования планового мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EditPlanForDeal {
+	@Persist
+	@Property
+	private long dealID;
+	@Persist
+	@Property
+	private KmEventCalendar event;
+	@Persist
+	@Property
+	private KmEventNotification kmEventNotification;
+	@Property
+	@Persist
+	private String lastNamePattern;
+	@Property
+	@Persist
+	private String eventPeriodDetails;
+	@Property
+	@Persist
+	private String eventPeriodDate;
+
+	@Property
+	private NotificationRecipient notificationRecipient;
+	@Property
+	private NotificationRecipient loopRcpt;
+	@Property(write = false)
+	private boolean dialogAppeared;
+	@Property
+	private User user;
+
+	@Inject
+	private DealDao dealDao;
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private BeanModelSource beanModelSource;
+	@Inject
+	private Messages messages;
+	@Inject
+	private AjaxResponseRenderer ajaxResponseRenderer;
+	@Inject
+	private SelectModelFactory selectModelFactory;
+
+	@InjectComponent
+	private Zone userListZone;
+	@InjectComponent
+	private Zone recipientsZone;
+
+	@InjectPage
+	private DealPlan dealPlanPage;
+
+	private List<KmRepeatType> repeatTypes;
+
+	@OnEvent(value = EventConstants.SUCCESS, component = "editPlanEventForm")
+	Object editPlanEventForm() {
+		// switch (action) {
+		// case CREATE_EVENT:
+		// //TODO: complete event creation
+		// componentResources.discardPersistentFieldChanges();
+		// return Index.class;
+		// case ADD_RECIPIENT:
+		// kmEventNotification.getRecipients().add(notificationRecipient);
+		// notificationRecipient = new NotificationRecipient();
+		// return null;
+		// default:
+		// return null;
+		// }
+		// return "eventInstances/DealPlan/3";//TODO
+		// return DealPlan.class;
+		dealPlanPage.setDealID(dealID);
+		return dealPlanPage;
+	}
+
+	void onActivate(long eventPlanID, long dealID) {
+		System.out.println("onActivate =" + eventPlanID + "; dealID=" + dealID);
+		this.dealID = dealID;
+		event = dealDao.getPlanEventForDeal(eventPlanID);
+	}
+
+	@OnEvent(value = EventConstants.ACTIVATE)
+	void prepare() {
+		if (kmEventNotification == null) {
+			kmEventNotification = new KmEventNotification();
+		}
+		notificationRecipient = new NotificationRecipient();
+		eventPeriodDate = "1";
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "selectRecepientLink")
+	void prepareUserSelectDialog() {
+		dialogAppeared = true;
+		lastNamePattern = null;
+		ajaxResponseRenderer.addRender(userListZone);
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "userSearchButton")
+	void searchUsers() {
+		ajaxResponseRenderer.addRender(userListZone);
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "selectUserLink")
+	void addRecepient(Long userId) {
+		User u = dictionaryDao.getUser(userId);
+		if (u != null && !isEmpty(u.getEmail())) {
+			NotificationRecipient rcpt = new NotificationRecipient();
+			rcpt.setFullName(u.getFullName());
+			rcpt.setEmail(u.getEmail());
+			if (!kmEventNotification.getRecipients().contains(rcpt)) {
+				kmEventNotification.getRecipients().add(rcpt);
+				ajaxResponseRenderer.addRender(recipientsZone);
+			}
+		}
+	}
+
+	@OnEvent(value = "deleteRecipient")
+	void deleteRecipient(String email) {
+		for (ListIterator<NotificationRecipient> li = kmEventNotification.getRecipients().listIterator(); li.hasNext();) {
+			if (li.next().getEmail().equals(email)) {
+				li.remove();
+			}
+		}
+		ajaxResponseRenderer.addRender(recipientsZone);
+	}
+
+	public BeanModel<User> getUserModel() {
+		BeanModel<User> userModel = beanModelSource.createDisplayModel(User.class, messages);
+		for (String prop : userModel.getPropertyNames()) {
+			userModel.get(prop).sortable(false);
+		}
+		return userModel;
+	}
+
+	public GridDataSource getUsers() {
+		return new GridDataSource() {
+
+			private int startIndex;
+			private List<User> users;
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				users = dictionaryDao.getUsers(startIndex, endIndex - startIndex + 1, lastNamePattern);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return users.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return User.class;
+			}
+
+			@Override
+			public int getAvailableRows() {
+				return dictionaryDao.getUserCount(lastNamePattern);
+			}
+		};
+	}
+
+	public List<KmRepeatType> getRepeatTypes() {
+		if (repeatTypes == null) {
+			repeatTypes = dictionaryDao.getKmRepeatTypes();
+		}
+		return repeatTypes;
+	}
+
+	public SelectModel getRepeatTypeSelectModel() {
+		return selectModelFactory.create(getRepeatTypes(), "name");
+	}
+
+	public ValueEncoder<KmRepeatType> getRepeatTypeValueEncoder() {
+		return new BaseEntityValueEncoder<KmRepeatType>(getRepeatTypes());
+	}
+
+}

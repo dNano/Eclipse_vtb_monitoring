@@ -1,0 +1,28 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.dao.DealDao;
+
+/**
+ * Окно редактирования планового мероприятия.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class EditPlanForDeal {
+	@Persist
+	@Property
+	private KmEventCalendar event;
+	
+	@Inject
+	private DealDao dealDao;
+	
+	void onActivate(long eventPlanID) {
+		System.out.println("onActivate =" + eventPlanID);
+		event = dealDao.getPlanEventForDeal(eventPlanID);
+	}
+}

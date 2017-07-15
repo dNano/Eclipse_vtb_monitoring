@@ -1,0 +1,107 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.dao.EventDaoSqlKey.EVENT_INSTANCES;
+import static ru.masterdm.km.dao.EventDaoSqlKey.EVENT_INSTANCE_COUNT;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import ru.masterdm.km.common.dictionary.EventRepeatTypeDictionary;
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.EventResult;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.entity.KmRepeatType;
+import ru.masterdm.km.common.searchfilter.EventsByDateFilter;
+import ru.masterdm.km.dao.mapper.DayOfWeekRm;
+import ru.masterdm.km.dao.mapper.KmEventInstanceRm;
+import ru.masterdm.km.dao.mapper.KmEventResultRm;
+import ru.masterdm.km.util.BaseJdbcDao;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+public class EventDaoImpl extends BaseJdbcDao<EventDaoSqlKey> implements EventDao {
+
+	@Override
+	public int getInstanceCount(EventsByDateFilter filter) {
+		String query = sql.getValue(EVENT_INSTANCE_COUNT);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		return queryForInt(query, "Error selecting event instance count.", params.toArray());
+	}
+
+	@Override
+	public List<KmEventInstance> getInstances(int startIndex, int amount, EventsByDateFilter filter) {
+		String query = sql.getValue(EVENT_INSTANCES);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		query += " ) v where v.rn > ? and v.rn <= ? ";
+		params.add(startIndex);
+		params.add(startIndex + amount);
+		return queryForList(query, new KmEventInstanceRm(), "Error selecting event instances.", params.toArray());
+	}
+
+	private String filterQuery(EventsByDateFilter filter, String query, ArrayList<Object> params) {
+		if (filter.getCurrency() != null) {
+			query += " AND m.currency = '" + filter.getCurrency().getId() + "'";
+		}
+		if (filter.getAmountFrom() != null) {
+			query += " AND m.MDTASK_SUM >= " + filter.getAmountFrom();
+		}
+		if (filter.getAmountTo() != null) {
+			query += " AND m.MDTASK_SUM <= " + filter.getAmountTo();
+		}
+		if (filter.getDateFrom() != null) {
+			query += " AND ei.plan_date >= ? ";
+			params.add(new java.sql.Date(filter.getDateFrom().getTime()));
+		}
+		if (filter.getDateTo() != null) {
+			query += " AND ei.plan_date <= ? ";
+			params.add(new java.sql.Date(filter.getDateTo().getTime()));
+		}
+		if (filter.getContractor() != null) {
+			query += " AND e.id_organization = ? ";
+			params.add(filter.getContractor().getId());
+		}
+
+		return query;
+	}
+
+	@Override
+	public KmEventInstance getEventForExecute(long eventID) {
+		String query = sql.getValue(EventDaoSqlKey.EVENT_FOR_EXECUTE);
+		KmEventInstance instance = queryForObject(query, new KmEventInstanceRm(), "Error in getEventForExecute", eventID);
+		KmRepeatType repeatType = instance.getEvent().getRepeatType();
+		if (repeatType != null && EventRepeatTypeDictionary.EVERY_WEEK.getId().equals(repeatType.getId())) {
+			query = sql.getValue(EventDaoSqlKey.DAYS_OF_WEEK_FOR_PLAN_EVENT);
+			List<DayOfWeek> daysOfWeek = queryForList(query, new DayOfWeekRm(), "Error in getEventForExecute.", instance.getEvent().getId());
+			instance.getEvent().setDaysOfWeek(daysOfWeek);
+		}
+		if (repeatType != null && EventRepeatTypeDictionary.RANDOM.getId().equals(repeatType.getId())) {
+			query = sql.getValue(EventDaoSqlKey.SCHEDULE_FOR_PLAN_EVENT);
+			List<Date> schedule = queryForList(query, Date.class, "Error in getEventForExecute.", instance.getEvent().getId());
+			instance.getEvent().setSchedule(schedule);
+		}
+		return instance;
+	}
+
+	@Override
+	public List<EventResult> getEventResults() {
+		String query = sql.getValue(EventDaoSqlKey.EVENT_RESULTS);
+		return queryForList(query, new KmEventResultRm(), "Error selecting event results.");
+	}
+
+	@Override
+	public void removeEventInstance(long eventInstanceID) {
+		String query = sql.getValue(EventDaoSqlKey.REMOVE_EVENT_INSTANCE);
+		update(query, "Error removeEventInstance", eventInstanceID);
+	}
+
+	@Override
+	public void saveEventInstance(KmEventInstance event) {
+		String query = sql.getValue(EventDaoSqlKey.SAVE_EVENT_INSTANCE);
+		update(query, "Error removeEventInstance", event.getResultNote(), event.getId());
+	}
+}

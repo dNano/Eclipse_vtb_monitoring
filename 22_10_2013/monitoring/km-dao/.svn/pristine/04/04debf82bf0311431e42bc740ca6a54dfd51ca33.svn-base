@@ -1,0 +1,270 @@
+package ru.masterdm.km.dao;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.common.entity.ContractorGroup;
+import ru.masterdm.km.common.entity.ContractorType;
+import ru.masterdm.km.common.entity.Currency;
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.DealType;
+import ru.masterdm.km.common.entity.KmEventInstanceStatus;
+import ru.masterdm.km.common.entity.KmEventType;
+import ru.masterdm.km.common.entity.KmEventTypeGroup;
+import ru.masterdm.km.common.entity.KmRepeatType;
+import ru.masterdm.km.common.entity.MonitoredObjectType;
+import ru.masterdm.km.common.entity.Month;
+import ru.masterdm.km.common.entity.User;
+import ru.masterdm.km.common.util.DataTypeUtil;
+
+/**
+ *
+ * @author Alexey Chalov
+ */
+public class DictionaryDaoMockImpl implements DictionaryDao {
+
+    private List<MonitoredObjectType> monitoredObjectTypes;
+    private Map<Long, List<KmEventTypeGroup>> eventTypeGroups;
+    private Map<Long, List<KmEventType>> eventTypes;
+    private List<ContractorType> contractorTypes;
+    private List<User> users;
+    private List<KmEventInstanceStatus> instanceStatuses;
+    private List<KmEventInstanceStatus> instanceStatusesForDeal;
+    private List<Currency> currencies;
+    private List<DealType> dealTypes;
+    private List<Contractor> contractors;
+    private List<ContractorGroup> contractorGroups;
+
+    @Override
+    public List<MonitoredObjectType> getMonitoredObjectTypes() {
+        return monitoredObjectTypes;
+    }
+
+    @Override
+    public List<KmEventTypeGroup> getEventTypeGroups(Long monitoredObjectTypeId) {
+        return eventTypeGroups.get(monitoredObjectTypeId);
+    }
+
+    @Override
+    public List<KmEventType> getKmEventTypes(Long kmEventTypeGroupId) {
+        return eventTypes.get(kmEventTypeGroupId);
+    }
+
+    @Override
+    public List<ContractorType> getContractorTypes() {
+        return contractorTypes;
+    }
+
+    @Override
+    public int getUserCount(String lastNamePattern) {
+        int matches = 0;
+        if (DataTypeUtil.isEmpty(lastNamePattern)) {
+            return matches;
+        }
+        for (User u : users) {
+            if (u.getLastName().toLowerCase().startsWith(lastNamePattern.toLowerCase())) {
+                matches++;
+            }
+        }
+        return matches;
+    }
+
+    @Override
+    public List<User> getUsers(int startIndex, int amount, String lastNamePattern) {
+        if (DataTypeUtil.isEmpty(lastNamePattern)) {
+            return Collections.emptyList();
+        }
+        int start = 0;
+        List<User> matches = new ArrayList<User>();
+        for (User u : users) {
+            if (u.getLastName().toLowerCase().startsWith(lastNamePattern.toLowerCase())) {
+                if (++start > startIndex) {
+                    matches.add(u);
+                }
+                if (matches.size() == amount) {
+                    return matches;
+                }
+            }
+        }
+        return matches;
+    }
+
+    @Override
+    public User getUser(Long id) {
+        for (User u : users) {
+            if (u.getId().equals(id)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public List<KmEventInstanceStatus> getInstanceStatuses() {
+        return instanceStatuses;
+    }
+    
+    public List<KmEventInstanceStatus> getInstanceStatusesForDeal() {
+        return instanceStatusesForDeal;
+    }
+    
+    public List<Currency> getCurrencies() {
+        return currencies;
+    }
+
+    public List<DealType> getDealTypes() {
+        return dealTypes;
+    }
+
+    @Override
+    public int getContractorCount(String namePattern) {
+        int matches = 0;
+        if (DataTypeUtil.isEmpty(namePattern)) {
+            return matches;
+        }
+        for (Contractor c : contractors) {
+            if (c.getName().toLowerCase().indexOf(namePattern.toLowerCase()) != -1) {
+                matches++;
+            }
+        }
+        return matches;
+    }
+
+    @Override
+    public List<Contractor> getContractors(int startIndex, int amount, String namePattern) {
+        if (DataTypeUtil.isEmpty(namePattern)) {
+            return Collections.emptyList();
+        }
+        int start = 0;
+        List<Contractor> matches = new ArrayList<Contractor>();
+        for (Contractor c : contractors) {
+            if (c.getName().toLowerCase().indexOf(namePattern.toLowerCase()) != -1) {
+                if (++start > startIndex) {
+                    matches.add(c);
+                }
+                if (matches.size() == amount) {
+                    return matches;
+                }
+            }
+        }
+        return matches;
+    }
+
+    @Override
+    public Contractor getContractor(String id) {
+        for (Contractor c : contractors) {
+            if (c.getId().equals(id)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public int getContractorGroupCount(String namePattern) {
+        int matches = 0;
+        if (DataTypeUtil.isEmpty(namePattern)) {
+            return matches;
+        }
+        for (ContractorGroup c : contractorGroups) {
+            if (c.getName().toLowerCase().indexOf(namePattern.toLowerCase()) != -1) {
+                matches++;
+            }
+        }
+        return matches;
+    }
+
+    @Override
+    public List<ContractorGroup> getContractorGroups(int startIndex, int amount, String namePattern) {
+        if (DataTypeUtil.isEmpty(namePattern)) {
+            return Collections.emptyList();
+        }
+        int start = 0;
+        List<ContractorGroup> matches = new ArrayList<ContractorGroup>();
+        for (ContractorGroup c : contractorGroups) {
+            if (c.getName().toLowerCase().indexOf(namePattern.toLowerCase()) != -1) {
+                if (++start > startIndex) {
+                    matches.add(c);
+                }
+                if (matches.size() == amount) {
+                    return matches;
+                }
+            }
+        }
+        return matches;
+    }
+
+    @Override
+    public ContractorGroup getContractorGroup(String id) {
+        for (ContractorGroup c : contractorGroups) {
+            if (c.getId().equals(id)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public void setMonitoredObjectTypes(List<MonitoredObjectType> monitoredObjectTypes) {
+        this.monitoredObjectTypes = monitoredObjectTypes;
+    }
+
+    public void setEventTypeGroups(Map<Long, List<KmEventTypeGroup>> eventTypeGroups) {
+        this.eventTypeGroups = eventTypeGroups;
+    }
+
+    public void setEventTypes(Map<Long, List<KmEventType>> eventTypes) {
+        this.eventTypes = eventTypes;
+    }
+
+    public void setContractorTypes(List<ContractorType> contractorTypes) {
+        this.contractorTypes = contractorTypes;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public void setInstanceStatuses(List<KmEventInstanceStatus> instanceStatuses) {
+        this.instanceStatuses = instanceStatuses;
+    }
+    
+    public void setInstanceStatusesForDeal(List<KmEventInstanceStatus> instanceStatuses) {
+        this.instanceStatusesForDeal = instanceStatuses;
+    }
+
+    public void setCurrencies(List<Currency> currencies) {
+        this.currencies = currencies;
+    }
+
+    public void setDealTypes(List<DealType> dealTypes) {
+        this.dealTypes = dealTypes;
+    }
+
+    public void setContractors(List<Contractor> contractors) {
+        this.contractors = contractors;
+    }
+
+    public void setContractorGroups(List<ContractorGroup> contractorGroups) {
+        this.contractorGroups = contractorGroups;
+    }
+
+	@Override
+	public List<KmRepeatType> getKmRepeatTypes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<DayOfWeek> getDaysOfWeek() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Month> getMonths() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

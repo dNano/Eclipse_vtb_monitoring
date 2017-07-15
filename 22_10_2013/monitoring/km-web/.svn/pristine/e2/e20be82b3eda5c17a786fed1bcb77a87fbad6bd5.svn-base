@@ -1,0 +1,49 @@
+package ru.masterdm.km.web.model.fkr;
+
+import java.util.List;
+
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+
+import ru.masterdm.km.common.entity.KmFkrStatusChange;
+import ru.masterdm.km.dao.FkrDao;
+
+/**
+ * История изменений решений по ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrChangeDataSource implements GridDataSource {
+	private int startIndex;
+	private long fkrID;
+	private List<KmFkrStatusChange> instances;
+	private FkrDao fkrDao;
+
+	public FkrChangeDataSource(long fkrID, FkrDao fkrDao) {
+		super();
+		this.fkrID = fkrID;
+		this.fkrDao = fkrDao;
+	}
+
+	@Override
+	public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+		this.startIndex = startIndex;
+		instances = fkrDao.getFkrChange(startIndex, endIndex - startIndex + 1, fkrID);
+	}
+
+	@Override
+	public Object getRowValue(int index) {
+		return instances.get(index - startIndex);
+	}
+
+	@Override
+	public Class<?> getRowType() {
+		return KmFkrStatusChange.class;
+	}
+
+	@Override
+	public int getAvailableRows() {
+		return fkrDao.getFkrChangeCount(fkrID);
+	}
+}

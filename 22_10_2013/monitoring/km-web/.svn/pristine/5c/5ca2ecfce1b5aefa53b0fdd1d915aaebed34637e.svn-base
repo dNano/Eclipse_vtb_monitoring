@@ -1,0 +1,103 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список клиентов">
+	<h1 style="text-align: center;">Список клиентов</h1>
+	<fieldset>
+		<legend>Фильтр</legend>
+		<form t:type="form" t:id="searchEventsForm" t:clientValidation="none" t:autofocus="false">
+			<table style="width: 100%">
+				<tr>
+					<td style="vertical-align: top;">
+						<table>
+							<tr>
+								<td style="text-align: right;">Клиент&nbsp;</td>
+								<td colspan="2" style="white-space: nowrap;">
+                                    <span t:type="zone" t:id="contractorZone" id="contractorZone" t:update="show">
+                                        <input type="text" value="${filter.contractor?.name}" disabled="disabled" style="width: 100%;"/>
+                                    </span>
+                                    <a t:type="jquery/dialogAjaxLink" t:id="showContractorListDialogLink"
+                                       t:dialog="selectContractorDialog" t:zone="contractorListZone" t:mixins="dialogAjaxLinkFix">
+                                        <img src="${context:/img/view.png}" style="margin-bottom: -6px; margin-right: 2px; margin-left: 2px;"/></a>
+                                    <a t:type="actionLink" t:id="deleteContractorLink" t:zone="contractorZone">
+                                        <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/></a>
+                                </td>
+							</tr>
+							<tr>
+								<td style="text-align: right;"><span>Группа клиентов</span>&nbsp;</td>
+								<td colspan="2" style="white-space: nowrap;">
+                                    <span t:type="zone" t:id="contractorGroupZone" id="contractorGroupZone" t:update="show">
+                                        <input type="text" value="${filter.contractorGroup?.name}" disabled="disabled" style="width: 100%;"/>
+                                    </span>
+                                    <a t:type="jquery/dialogAjaxLink" t:id="showContractorGroupListDialogLink"
+                                       t:dialog="selectContractorGroupDialog" t:zone="contractorGroupListZone" t:mixins="dialogAjaxLinkFix">
+                                        <img src="${context:/img/view.png}" style="margin-bottom: -6px; margin-right: 2px; margin-left: 2px;"/></a>
+                                    <a t:type="actionLink" t:id="deleteContractorGroupLink" t:zone="contractorGroupZone">
+                                        <img src="${context:/img/delete.gif}" style="margin-bottom: -6px;"/></a>
+                                </td>
+                            </tr> 
+						</table>
+					</td>
+				</tr>
+			</table>
+			<div class="buttons">
+                <input t:type="submit" t:value="Искать" class="button"/> 
+                <input t:type="submit" t:value="Очистить" class="button" t:mode="cancel" t:id="clearFilterButton"/>               
+            </div>
+		</form>
+	</fieldset>
+
+	<table t:type="grid" t:source="contractorInstances" t:row="contractorInstance" t:rowsPerPage="10" t:lean="false"
+		t:pagerPosition="bottom" t:inPlace="true" t:exclude="id" t:add="contractorName" style="width: 100%; text-align: center;">
+		<p:contractorNameCell>
+            ${contractorInstance?.contractor?.name}
+        </p:contractorNameCell>
+        
+        <p:empty>
+            <h2>Клиенты не найдены</h2>
+        </p:empty>        
+	</table>
+
+	<div t:type="jquery/dialog" t:id="selectContractorDialog" t:clientId="selectContractorDialog" t:params="literal:{title:'Выбор клиента', modal:'true', height:350, width:500}">
+        <span t:type="zone" t:id="contractorListZone" id="contractorListZone" t:update="show">
+            <form t:type="form" t:id="contractorListForm" id="contractorListForm" t:zone="^" t:clientValidation="none" t:autofocus="false">
+                <div style="text-align: center;">
+                    Название:&nbsp;<input t:type="textField" t:value="contractorNamePattern" class="input"/>
+                    <input t:type="submit" t:id="contractorSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+                </div>
+            </form>
+            <span t:type="unless" t:test="contractorDialogAppeared">
+                <table t:type="grid" t:source="contractors" t:row="contractor" t:rowsPerPage="10" t:inPlace="true"
+                       t:include="name" t:model="contractorModel" style="width: 100%" t:pagerPosition="bottom" t:lean="true">
+                    <p:nameCell>
+                        <a t:type="actionLink" t:id="selectContractorLink" t:context="contractor.id" t:zone="contractorZone">${contractor.name}</a>
+                    </p:nameCell>
+                    <p:empty>
+                        <div style="text-align: center;">Клиенты не найдены</div>
+                    </p:empty>
+                </table>
+            </span>
+        </span>
+    </div>
+    
+    <div t:type="jquery/dialog" t:id="selectContractorGroupDialog" t:clientId="selectContractorGroupDialog" t:params="literal:{title:'Выбор Группы клиентов', modal:'true', height:350, width:500}">
+        <span t:type="zone" t:id="contractorGroupListZone" id="contractorGroupListZone" t:update="show">
+            <form t:type="form" t:id="contractorGroupListForm" id="contractorGroupListForm" t:zone="^" t:clientValidation="none" t:autofocus="false">
+                <div style="text-align: center;">
+                    Название:&nbsp;<input t:type="textField" t:value="contractorGroupNamePattern" class="input"/>
+                    <input t:type="submit" t:id="contractorGroupSearchButton" t:value="Найти" class="button" style="font-size: 10pt"/>
+                </div>
+            </form>
+            <span t:type="unless" t:test="contractorGroupDialogAppeared">
+                <table t:type="grid" t:source="contractorGroups" t:row="contractorGroup" t:rowsPerPage="10" t:inPlace="true"
+                       t:include="name" t:model="contractorGroupModel" style="width: 100%" t:pagerPosition="bottom" t:lean="true">
+                    <p:nameCell>
+                        <a t:type="actionLink" t:id="selectContractorGroupLink" t:context="contractorGroup.id" t:zone="contractorGroupZone">${contractorGroup.name}</a>
+                    </p:nameCell>
+                    <p:empty>
+                        <div style="text-align: center;">Группы клиентов не найдены</div>
+                    </p:empty>
+                </table>
+            </span>
+        </span>
+    </div>    
+    	
+</t:layout>

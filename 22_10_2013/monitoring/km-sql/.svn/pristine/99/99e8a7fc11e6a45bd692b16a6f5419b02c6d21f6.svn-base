@@ -1,0 +1,218 @@
+create table tmp_km_monitored_object_type(
+    id   number(1, 0)  not null,
+    name varchar2(64)  not null,
+    constraint tmp_monitored_object_type_pk primary key(id)
+)
+/
+insert into tmp_km_monitored_object_type(id, name) values(1, 'Контрагент')
+/
+insert into tmp_km_monitored_object_type(id, name) values(2, 'Сделка')
+/
+insert into tmp_km_monitored_object_type(id, name) values(3, 'Обеспечение')
+/
+create table tmp_km_event_type_group(
+    id                       number(3, 0)  not null,
+    name                     varchar2(256) not null,
+    monitored_object_type_id number(1, 0)  not null,
+    constraint tmp_km_event_type_group_pk    primary key(id),
+    constraint tmp_km_event_type_group_fk01 foreign key(monitored_object_type_id) references tmp_km_monitored_object_type(id)
+)
+/
+create sequence tmp_km_event_type_group_seq nocycle order nocache start with 0 minvalue 0
+/
+create table tmp_km_event_type(
+    id                  number(5, 0)  not null,
+    name                varchar2(256) not null,
+    event_type_group_id number(3, 0)  not null,
+    constraint tmp_km_event_type_pk   primary key(id),
+    constraint tmp_km_event_type_fk01 foreign key(event_type_group_id) references tmp_km_event_type_group(id)
+)
+/
+create sequence tmp_km_event_type_seq nocycle order nocache start with 0 minvalue 0
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг групп взаимосвязанных Контрагентов', 1)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг финансового состояния и рейтинга Контрагента', 1)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг факторов отраслевого риска', 1)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг прочих факторов, связанных с деятельностью контрагента(Мониторинг деятельности Клиентов с позиций экономической и репутационной безопасности Банка)', 1)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг платежных обязательств по Сделке', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг неплатежных обязательства Контрагента', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг целевого использования кредита', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг  операций по банковскому счету Контрагента', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг залогового обеспечения', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг с целью планового изменения параметров Сделки', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Заключение Д/С с Контрагентами по Сделке', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Заключение Д/С с третьими лицами (сторонними организациями)', 2)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг целевого использования кредита(обеспечение)', 3)
+/
+insert into tmp_km_event_type_group (id, name, monitored_object_type_id)
+values (tmp_km_event_type_group_seq.nextval, 'Мониторинг платежных обязательств по сделке(обеспечение)', 3)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Актуализация состава групп взаимосвязанных Клиентов', 1)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Расчет рейтинга Клиента', 2)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Проведение отраслевого анализа', 3)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Проверка Клиента подразделением по обеспечению безопасности', 4)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль оплаты неустоек/штрафов', 5)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль частичного/полного погашения основного долга', 5)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль возмещения Приказодателем суммы платежа по аккредитиву, произведенному Банком за счет собственных средств', 5)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль возмещения Принципалом суммы платежа, выплаченной по банковской гарантии', 5)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль оплаты процентов, комиссии', 5)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Заключение договоров/доп. соглашений между Банком, Клиентом и третьими лицами', 6)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль выполнения мероприятий  календарного плана реализации проекта, показателей бизнес-плана и иных обязательств по инвестиционным проектам', 6)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль предоставления Клиентом документов, связанных с условиями Сделки', 6)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль соблюдения необходимого уровня финансовых показателей', 6)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль предоставления Клиентом документов – финансовой отчетности и пр. документов для целей определения фин.положения и рейтинга Клиента', 6)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль целевого использования кредита', 7)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль выполнения обязательств по оборотам по счету Клиента', 8)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль поступления выручки по финансируемым контрактам', 8)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль динамики оборотов по счету Клиента', 8)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль наличия, состояния и условий хранения предмета залога', 9)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль количества обремененных акций, учтенных Депозитарием', 9)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Контроль наступления события Margin call по заложенным ценным бумагам', 9)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Изменение %% ставки', 10)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Изменение суммы Сделки (основного долга) при капитализации %%', 10)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Изменение Лимита овердрафта', 10)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Заключение Договора залога', 11)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Заключение Договора поручительства', 11)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Заключение Кредитного соглашения между Банком и другой кредитной организацией', 12)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Заключение Кредитного соглашения между Банком и гос.организацией', 12)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Мониторинг обеспечения', 13)
+/
+insert into tmp_km_event_type (id, name, event_type_group_id)
+values (tmp_km_event_type_seq.nextval, 'Мониторинг обеспечения 2', 14)
+/
+create table tmp_km_event_instance_status(
+    id   number(1, 0)  not null,
+    name varchar2(64)  not null,
+    constraint tmp_km_event_instance_status_pk primary key(id)
+)
+/
+insert into tmp_km_event_instance_status(id, name) values(1, 'Выявленные ФКР')
+/
+insert into tmp_km_event_instance_status(id, name) values(2, 'Просроченные')
+/
+insert into tmp_km_event_instance_status(id, name) values(3, 'Неисполненные')
+/
+insert into tmp_km_event_instance_status(id, name) values(4, 'Исполненные')
+/
+create table tmp_km_event(
+    id      number(38, 0) not null,
+    name    varchar(256)  not null,
+    deal_id number(38, 0),
+    constraint tmp_km_event_pk primary key(id),
+    constraint tmp_km_event_fk01 foreign key(deal_id) references mdtask(id_mdtask)
+)
+/
+create sequence tmp_km_event_seq nocycle order nocache start with 0 minvalue 0
+/
+insert into tmp_km_event(id, name, deal_id)
+values(tmp_km_event_seq.nextval, 'Мероприятие №1', 23024)
+/
+insert into tmp_km_event(id, name, deal_id)
+values(tmp_km_event_seq.nextval, 'Мероприятие №2', 23023)
+/
+insert into tmp_km_event(id, name, deal_id)
+values(tmp_km_event_seq.nextval, 'Мероприятие №3', 23022)
+/
+create table tmp_km_event_instance(
+    id          number(38, 0) not null,
+    executor_id number(38, 0),
+    plan_date   timestamp,
+    event_id    number(38, 0) not null,
+    constraint tmp_km_event_instance_pk primary key(id),
+    constraint tmp_km_event_instance_fk01 foreign key(executor_id) references users(id_user),
+    constraint tmp_km_event_instance_fk02 foreign key(event_id) references tmp_km_event(id)
+)
+/
+create sequence tmp_km_event_instance_seq nocycle order nocache start with 0 minvalue 0
+/
+insert into tmp_km_event_instance(id, executor_id, plan_date, deal_id)
+values(tmp_km_event_instance_seq.nextval, 155, to_date('20130315', 'yyyymmdd'), 1)
+/
+insert into tmp_km_event_instance(id, executor_id, plan_date, deal_id)
+values(tmp_km_event_instance_seq.nextval, 156, to_date('20130316', 'yyyymmdd'), 2)
+/
+insert into tmp_km_event_instance(id, executor_id, plan_date, deal_id)
+values(tmp_km_event_instance_seq.nextval, 157, to_date('20130317', 'yyyymmdd'), 3)
+/

@@ -1,0 +1,26 @@
+package ru.masterdm.km.dao;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.util.BaseJdbcDao;
+
+/**
+ * Реализация DAO интерфейса для сущности "Контрагент".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class ContractorDaoImpl extends BaseJdbcDao<ContractorDaoSqlKey> implements ContractorDao {
+
+	@Override
+	public List<KmEventInstance> getContractorCalendar(int startIndex, int amount, long contractorID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getContractorCalendarCount(long contractorID) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+}

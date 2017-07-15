@@ -1,0 +1,375 @@
+package ru.masterdm.km.web.util;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.tapestry5.upload.services.UploadedFile;
+
+import ru.masterdm.km.common.dictionary.EventRepeatTypeDictionary;
+import ru.masterdm.km.common.dictionary.MonthDictionary;
+import ru.masterdm.km.common.dictionary.OwnerType;
+import ru.masterdm.km.common.entity.AppFile;
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.Deal;
+import ru.masterdm.km.common.entity.DocumentType;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventInstance;
+
+/**
+ * Util Для режима "Исполнение контрольных мероприятий"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEventUtil {
+	private static final int MSEC_IN_DAY = 24 * 60 * 60 * 1000;
+
+	public final static void initConfirmFile(KmEventInstance event, UploadedFile confirmFile) {
+		AppFile doc = new AppFile();
+		DocumentType docType = event.getDocumentType();
+		if (docType != null) {
+			doc.setType(docType.getName());
+		}
+		doc.setId(UUID.randomUUID().toString());
+		doc.setName(confirmFile.getFileName());
+
+		doc.setMimeType(confirmFile.getContentType());
+		doc.setDateOfAdd(new Date());
+		doc.setDocType(docType);
+		doc.setDocGroup(event.getDocumentGroup());
+		doc.setOwnerType(OwnerType.DEAL.getId());
+		if (event.getEvent().getDeal().getPupProcessID() != null) {
+			doc.setOwnerID(event.getEvent().getDeal().getPupProcessID().toString());
+		}
+
+		// User currentUser = delegate.getCurrentUser();TODO выполнить после добавления инфо о текущем пользователе.
+		// doc.setWhoAdd(currentUser);
+
+		try {
+			byte[] data = IOUtils.toByteArray(confirmFile.getStream());
+			doc.setData(data);
+			event.setConfirmFile(doc);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Инфо о сделке.
+	 * 
+	 * @param deal
+	 * @param decimalFormat
+	 * @param dateFormat
+	 * @return
+	 */
+	public final static String getDealInfo(Deal deal, DateFormat dateFormat, DecimalFormat decimalFormat) {
+		String info = "";
+		if (deal != null) {
+			info += "Сделка ";
+			if (deal.getSpkpNumber() != null) {
+				info += " № " + deal.getSpkpNumber() + ", ";
+			}
+			if (deal.getValidTo() != null) {
+				info += "действует до " + dateFormat.format(deal.getValidTo());
+				long days = (deal.getValidTo().getTime() - System.currentTimeMillis()) / MSEC_IN_DAY;
+				if (days > 0) {
+					info += ", осталось " + days + " дней. ";
+				} else {
+					info += ", срок истек " + (-days) + " дней назад. ";
+				}
+				info += "Соглашение № " + deal.getSpkpNumber() + " от " + dateFormat.format(deal.getValidTo()) + ", ";
+			}
+			if (deal.getType() != null && deal.getType().getName() != null) {
+				info += deal.getType().getName();
+			}
+			info += " на сумму " + decimalFormat.format(deal.getAmount()) + " " + deal.getCurrency().getId();
+		}
+		return info;
+	}
+
+	/**
+	 * Инфо о договоре/соглашении.
+	 * 
+	 * @param deal
+	 * @param dateFormat
+	 * @param amountFormat
+	 * @return
+	 */
+	public final static String getDocumentInfo(Deal deal, DateFormat dateFormat, DecimalFormat amountFormat) {
+		String info = "";
+		if (deal != null) {
+			info += "№ " + deal.getContractNumber();
+			if (deal.getValidTo() != null) {
+				info += " от " + dateFormat.format(deal.getValidTo());
+			}
+		}
+		return info;
+	}
+
+	/**
+	 * Инфо о сроке сделки.
+	 * 
+	 * @param date
+	 * @return
+	 */
+	public static final String getDealDateInfo(Date date) {
+		String info = "";
+		long days = (date.getTime() - System.currentTimeMillis()) / MSEC_IN_DAY;
+		if (days > 0) {
+			info += "осталось " + days + " дн.";
+		} else {
+			info += "истек " + (-days) + " дн. назад";
+		}
+		return info;
+	}
+
+	/**
+	 * Инфо по периодичности мероприятия.
+	 * 
+	 * @param planEvent
+	 * @return
+	 */
+	public final static String getRepeatTypeInfo(KmEvent planEvent, DateFormat dateFormat) {
+		String info = "СРОК: ";
+		if (planEvent != null && planEvent.getRepeatType() != null) {
+			if (EventRepeatTypeDictionary.ONCE.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTOnce(planEvent, info, dateFormat);
+			} else if (EventRepeatTypeDictionary.EVERY_DAY.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTEveryDay(planEvent, info);
+			} else if (EventRepeatTypeDictionary.EVERY_WEEK.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTEveryWeek(planEvent, info);
+			} else if (EventRepeatTypeDictionary.EVERY_MONTH.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTEveryMonth(planEvent, info);
+			} else if (EventRepeatTypeDictionary.EVERY_QUARTER.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTEveryQuarter(planEvent, info);
+			} else if (EventRepeatTypeDictionary.EVERY_HALF_YEAR.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTEveryHalfYear(planEvent, info);
+			} else if (EventRepeatTypeDictionary.YEAR.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTYear(planEvent, info);
+			} else if (EventRepeatTypeDictionary.RANDOM.getId().equals(planEvent.getRepeatType().getId())) {
+				info = infoForRTRandom(planEvent, info, dateFormat);
+			} else {
+				info += "не определен";
+			}
+		}
+		return info;
+	}
+
+	public final static String getClientInfo(String pref, Contractor client) {
+		String info = "";
+		if (client != null) {
+			info += pref + client.getName();
+			if (client.getInn() != null) {
+				info += " ИНН: " + client.getInn();
+			}
+		}
+		return info;
+	}
+
+	public final static String getEventInfo(KmEventInstance event, DateFormat dateFormat, DecimalFormat amountFormat) {
+		Deal deal = event.getEvent().getDeal();
+		if (deal != null && deal.getId() != null) {
+			return getDealInfo(deal, dateFormat, amountFormat);
+		} else {
+			return getClientInfo("Клиент: ", event.getContractor());
+		}
+	}
+
+	/**
+	 * * ИНФО для периодичности по рассписанию.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTRandom(KmEvent planEvent, String info, DateFormat dateFormat) {
+		info = "РАСПИСАНИЕ: ";
+		if (planEvent.getSchedule() != null && !planEvent.getSchedule().isEmpty()) {
+			for (java.util.Date date : planEvent.getSchedule()) {
+				info += dateFormat.format(date) + "; ";
+			}
+		} else if (planEvent.getStartDate() != null) {
+			info += dateFormat.format(planEvent.getStartDate());
+		} else {
+			info = "РАСПИСАНИЕ НЕ ЗАДАНО";
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для годовой периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTYear(KmEvent planEvent, String info) {
+		if (planEvent.getPeriodDetails() != null) {
+			if (planEvent.getPeriodDetails() > 0) {
+				info += planEvent.getPeriodDetails() + " числа";
+			} else {
+				info += "Один раз";
+			}
+		}
+		Long periodDate = planEvent.getPeriodDate();
+		if (periodDate != null) {
+			if (periodDate > 0) {
+				for (MonthDictionary month : MonthDictionary.values()) {
+					if (month.getId() == periodDate) {
+						info += ", " + month.getName();
+						break;
+					}
+				}
+			} else {
+				info += " каждого месяца в году.";
+			}
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для полугодичной периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTEveryHalfYear(KmEvent planEvent, String info) {
+		if (planEvent.getPeriodDetails() != null) {
+			if (planEvent.getPeriodDetails() > 0) {
+				info += planEvent.getPeriodDetails() + " числа";
+			} else {
+				info += "Один раз";
+			}
+		} else {
+			info += "Один раз";
+		}
+		if (planEvent.getPeriodDate() != null) {
+			if (planEvent.getPeriodDate() > 0) {
+				info += " " + planEvent.getPeriodDate() + "-го месяца в полугодии.";
+			} else {
+				info += " каждого месяца в полугодии.";
+			}
+		} else {
+			info += " каждого месяца в полугодии.";
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для ежеквартальной периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTEveryQuarter(KmEvent planEvent, String info) {
+		if (planEvent.getPeriodDetails() != null) {
+			if (planEvent.getPeriodDetails() > 0) {
+				info += planEvent.getPeriodDetails() + " числа";
+			} else {
+				info += "Один раз";
+			}
+		} else {
+			info += "Один раз";
+		}
+		if (planEvent.getPeriodDate() != null) {
+			if (planEvent.getPeriodDate() > 0) {
+				info += " " + planEvent.getPeriodDate() + "-го месяца в квартале.";
+			} else {
+				info += " каждого месяца в квартале.";
+			}
+		} else {
+			info += " каждого месяца в квартале.";
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для ежемесячной периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTEveryMonth(KmEvent planEvent, String info) {
+		if (planEvent.getPeriodDate() != null) {
+			if (planEvent.getPeriodDate() > 0) {
+				info += planEvent.getPeriodDate() + " числа";
+			} else {
+				info += "Один раз";
+			}
+		}
+		if (planEvent.getPeriodDetails() != null) {
+			if (planEvent.getPeriodDetails() > 1) {
+				info += " в каждые " + planEvent.getPeriodDetails() + " месяца.";
+			} else {
+				info += " каждого месяца.";
+			}
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для еженедельной периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTEveryWeek(KmEvent planEvent, String info) {
+		if (planEvent.getPeriodDetails() != null) {
+			if (planEvent.getPeriodDetails() > 0) {
+				info += "Один раз в " + planEvent.getPeriodDetails() + " недели.";
+			} else {
+				info += "Один раз в неделю.";
+			}
+		}
+		List<DayOfWeek> daysOfWeek = planEvent.getDaysOfWeek();
+		if (daysOfWeek != null && !daysOfWeek.isEmpty()) {
+			info += "Дни недели: ";
+			for (DayOfWeek day : daysOfWeek) {
+				info += day.getName() + " ";
+			}
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для ежедневной периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTEveryDay(KmEvent planEvent, String info) {
+		if (planEvent.getPeriodDetails() != null && planEvent.getPeriodDetails() > 0) {
+			info += "Один раз в " + planEvent.getPeriodDetails() + " дней.";
+		} else {
+			info += "Один раз в 1 день";
+		}
+		return info;
+	}
+
+	/**
+	 * ИНФО для однократной периодичности.
+	 * 
+	 * @param planEvent
+	 * @param info
+	 * @return
+	 */
+	private static String infoForRTOnce(KmEvent planEvent, String info, DateFormat dateFormat) {
+		if (dateFormat != null && planEvent.getStartDate() != null) {
+			info += "однократно: " + dateFormat.format(planEvent.getStartDate());
+		} else {
+			info += "не определен";
+		}
+		return info;
+	}
+}

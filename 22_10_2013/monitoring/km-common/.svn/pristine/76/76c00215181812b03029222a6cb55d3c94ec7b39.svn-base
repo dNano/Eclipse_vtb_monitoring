@@ -1,0 +1,23 @@
+/**
+ * 
+ */
+package ru.masterdm.km.common.entity;
+
+/**
+ * Тип ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class FkrType extends BaseNamedEntity<Long> {
+	private FkrGroup group;
+
+	public FkrGroup getGroup() {
+		return group;
+	}
+
+	public void setGroup(FkrGroup group) {
+		this.group = group;
+	}
+}

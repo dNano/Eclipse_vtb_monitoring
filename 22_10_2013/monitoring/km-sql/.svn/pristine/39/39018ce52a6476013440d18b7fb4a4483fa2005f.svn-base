@@ -1,0 +1,18 @@
+begin
+    PKG_DDL_UTILS.DROP_OBJECT('km_fkr_sc_seq');
+    PKG_DDL_UTILS.DROP_OBJECT('km_fkr_status_change');
+	PKG_DDL_UTILS.DROP_OBJECT('km_fkr_seq');
+    PKG_DDL_UTILS.DROP_OBJECT('km_fkr');
+    PKG_DDL_UTILS.DROP_OBJECT('km_fkr_status');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_seq');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_status');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_instance_status');
+    PKG_DDL_UTILS.DROP_OBJECT('tmp_km_event_instance');
+
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_day_of_week');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_calendar_dates');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_calendar_seq');
+    PKG_DDL_UTILS.DROP_OBJECT('km_event_calendar');
+end;
+/

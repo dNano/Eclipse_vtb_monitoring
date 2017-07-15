@@ -1,0 +1,30 @@
+						
+	select v.crmid, v.ORGANIZATIONNAME, t.id_contractor_type, t.name_contractor_type
+		from (SELECT r.ID_R, r.ID_CRMORG FROM R_ORG_MDTASK r where ID_MDTASK= 23035 and rownum < 2 order by ID_R ) d
+			left outer join v_organisation v on v.crmid = d.ID_CRMORG
+			left outer join r_contractor_type_mdtask rt on rt. id_r = d.id_r
+			left outer join contractor_type t on t.id_contractor_type = rt.id_contractor_type
+		where rownum < 2
+		order by t.id_contractor_type
+		
+		
+		select r.id_opp_type, r.validto, r.useperiod, r.descr, t.name, t.family  
+				from R_MDTASK_OPP_TYPE r 
+				left outer join v_spo_product t on r.id_opp_type = t.productId
+				where r.ID_MDTASK= 23035 and r.flag='Y'
+				
+				           select productid dt_id, name dt_name from v_spo_product 
+                            where is_active = 1
+                            order by name
+				
+	select r.id_opp_type, t.name
+	from R_MDTASK_OPP_TYPE r 
+	left outer join v_spo_product t on r.id_opp_type = t.productId
+	where r.ID_MDTASK= 23035 and r.flag='Y'	
+	
+		select m.ID_MDTASK d_id, m.MDTASK_NUMBER, m.MDTASK_SUM d_amount, m.CURRENCY C_CODE,
+	           m.VALIDTO di_date, r.id_opp_type, p.name  
+       	from MDTASK m
+       		left outer join R_MDTASK_OPP_TYPE r on m.ID_MDTASK = r.ID_MDTASK
+       		left outer join v_spo_product p on r.id_opp_type = p.productId
+	    where exists (select id_event_calendar from KM_EVENT_CALENDAR e where e.id_mdtask = m.id_mdtask)

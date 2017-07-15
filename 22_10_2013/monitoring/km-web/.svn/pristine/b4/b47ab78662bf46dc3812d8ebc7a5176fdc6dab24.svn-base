@@ -1,0 +1,48 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import org.apache.tapestry5.Link;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.PageRenderLinkSource;
+
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * AddPage for ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrAdd extends SimpleBasePage {
+	@Persist
+	@Property
+	private KmFkrInstance fkr;
+
+	@Persist
+	Link returnPage;
+
+	@Inject
+	private PageRenderLinkSource pageRenderLinkSource;
+
+	void onActivate(long id, String returnPageName) {
+		fkr = new KmFkrInstance();
+		if ("buildingEvent/ByDeal".equalsIgnoreCase(returnPageName)) {
+			returnPage = pageRenderLinkSource.createPageRenderLinkWithContext(returnPageName);
+		}
+	}
+
+	public String getFkrInfo() {
+		// TODO формирование инфо перенести в onActivate
+		String fkrInfo = "";
+		// Deal deal = fkr.getFkr().getDeal();
+		// if (deal.getId() != null) {
+		// fkrInfo = ExecuteEventUtil.getDealInfo(deal, getDateViewFormat(), getAmountViewFormat());
+		// fkrInfo += ", " + ExecuteEventUtil.getClientInfo("", deal.getBorrower());
+		// } else if (fkr.getClient().getId() != null) {
+		// fkrInfo = ExecuteEventUtil.getClientInfo("Клиент: ", fkr.getClient());
+		// }
+		return fkrInfo;
+	}
+}

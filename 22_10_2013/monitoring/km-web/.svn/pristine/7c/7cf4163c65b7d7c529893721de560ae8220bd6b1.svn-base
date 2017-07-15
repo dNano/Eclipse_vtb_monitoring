@@ -1,0 +1,341 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd" xmlns:p="tapestry:parameter"
+	t:title="Карточка контрольного мероприятия">
+
+	<h1 style="text-align: center;">Карточка контрольного мероприятия</h1>
+	<form t:type="form" t:id="executeEventsForm" t:clientValidation="none" t:autofocus="false">
+		<table>
+		    <tr valign="bottom">
+			     <td>
+			          <p style="margin-bottom:1px;">Тип объекта мониторинга</p>
+			          	<t:textfield t:id="monitored_object" size="10" value="${event?.event?.monitoredObjectType?.name}" disabled="true"/>
+			     </td>
+			     <td t:type="if" t:test="event?.event?.deal?.id">
+			          <p style="margin-bottom:1px;margin-left:15px;">Договор/соглашение</p>
+			          №&nbsp;<t:textfield t:id="task_number" size="10" value="${event?.event?.deal?.id}" disabled="true"/>&nbsp;от&nbsp;<t:textfield t:id="task_date" size="10" value="literal:18.06.2011" disabled="true"/>
+			     </td>
+			     <td t:type="if" t:test="event?.event?.deal?.id">
+                    <p style="margin-bottom:1px;">Информация по сделке</p>
+                     <t:textArea t:id="task_info" cols="50" rows="3" value="literal:Соглашение действует до 09.09.2013, осталось 130 дней. Кредитная линия с лимитом выдачи" disabled="true"/>
+                </td>
+                <td>
+                    <p style="margin-bottom:1px;">Тип мероприятия</p>
+                    <t:textfield t:id="km_event_type" size="70"  value="${event?.event?.name}" disabled="true"/>
+                </td>
+                <td t:type="if" t:test="event?.event?.deal?.id">
+                    <p style="margin-bottom:1px;">№ CRM (СПО)</p>
+                    <a t:type="actionLink" t:id="task_spo_number_Link">050000000057(12162)</a>
+                </td>
+		    </tr>
+            <tr valign="bottom">
+                <td colspan="3">
+                    <p style="margin-bottom:1px;">Текстовое описание мероприятия/события</p>
+                    <t:textfield t:id="km_event_descr" size="90"  value="literal: " disabled="true"/>
+                </td>
+                <td colspan="2">
+                    <p style="margin-bottom:1px;">Текущий статус мероприятия</p>
+                    <b>На исполнении</b>
+                </td>
+               </tr>
+		    <tr valign="bottom" t:type="if" t:test="event?.contractor?.id">
+                <td>
+                    <p style="margin-bottom:1px;">Тип контрагента</p>
+                    <t:textfield t:id="contractor_type" size="10"  value="${event?.contractorType?.name}" disabled="true"/>
+                </td>
+                <td colspan="2">
+                    <p style="margin-bottom:1px;">Наименование контрагента</p>
+                    <t:textfield t:id="contractor_name" size="74"  value="${event?.contractor?.name}" disabled="true"/>
+                </td>
+                <td colspan="2">
+                    <p style="margin-bottom:1px;">Рейтинг</p>
+                    C1
+                </td>
+               </tr>
+		    <tr valign="bottom">
+                <td>
+                    <p style="margin-bottom:1px;margin-top:15px;"><b><u>Периодичность</u></b></p>
+                    <p style="margin-bottom:1px;margin-top:1px;">Тип периодичности</p>
+                    <t:textfield t:id="event_period_type" size="15"  value="${event?.event?.repeatType?.name}" disabled="true"/>
+                </td>
+                <td>
+                    <table>
+                        <tr>
+                            <td>
+                                <p style="margin-bottom:1px;">Начиная с</p>
+                                <span t:type="output" t:format="literal:dd.MM.yyyy" t:value="event?.event.startDate"></span>
+                            </td>
+                            <td>
+                               <p style="margin-bottom:1px;">по</p>
+                                <span t:type="output" t:format="literal:dd.MM.yyyy" t:value="event?.event.endDate"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    СРОК: 01 числа каждого месяца, начиная с 03.04.2013
+                </td>
+                <td>
+                   <input t:type="submit" t:value="Показать/Изменить график" class="button"/>
+                </td>
+                <td>
+                </td>
+               </tr>
+            <tr valign="bottom">
+                <td colspan="2">
+                   <table>
+                   <tr valign="bottom">
+                       <td colspan="3">
+                           <p style="margin-bottom:1px;margin-top:15px;"><b><u>Создание мероприятия и планируемое выполнение</u></b></p>
+                       </td>
+                   </tr>
+                   <tr valign="bottom">
+                    <td>
+                     <p style="margin-bottom:1px;margin-top:8px;"><u>Создано</u></p>
+                     <p style="margin-bottom:1px;margin-top:1px;">Подразделение</p>
+                        <t:textfield t:id="event_department_created" size="10"  value="literal:КБ-КД1-УРКК1" disabled="true"/>
+                    </td>
+                    <td>
+                        <p style="margin-bottom:1px;margin-top:1px;">Сотрудник</p>
+                        <t:textfield t:id="event_creator_fullname" size="6"  value="literal:Бабичев С.А." disabled="true"/>
+                    </td>
+                    <td>
+                       <p style="margin-bottom:1px;margin-top:1px;">Дата</p>
+                       <t:textfield t:id="event_date_created" size="6"  value="literal:01.04.2013" disabled="true"/>
+                    </td>
+                   </tr>
+                  </table>
+                </td>
+                <td colspan="3">
+                   <table>
+                       <tr valign="bottom">
+                          <td>
+		                 <p style="margin-bottom:1px;margin-top:8px;"><u>Исполнение</u></p>
+		                 <p style="margin-bottom:1px;margin-top:1px;">Подразделение</p>
+		                 <t:textfield t:id="event_department_executor" size="10"  value="literal:КБ-КД1-УРКК1" disabled="true"/>
+                          </td>
+                          <td>
+		                 <p style="margin-bottom:1px;margin-top:1px;">Контрольная дата</p>
+		                 <t:textfield t:id="event_exec_control_date" size="6"  value="literal:15.04.2013" disabled="true"/>
+                          </td>
+                          <td>
+		                 <p style="margin-bottom:1px;margin-top:1px;">Дата уведомления</p>
+		                 <t:textfield t:id="event_notify_date" size="6"  value="literal:10.04.2013" disabled="true"/>
+		               </td>
+		               <td>
+		                 <p style="margin-bottom:1px;">Вид подтверждения</p>
+		                 <select style="width:200px" id="eventConfirmationType" name="eventConfirmationType">
+		                      <option value=""></option>
+		                      <option value="1">Договор, соглашение</option>
+		                      <option value="2">Документ  Контрагента</option>
+		                      <option value="3">Документ Банка</option>
+		                      <option value="4">Прочие документы</option>
+		                      <option value="5">Только отметка об исполнении КМ</option>
+		                  </select>
+		               </td>
+		               <td>
+                            <p style="margin-bottom:1px;">Требуемый документ</p>
+                            <select style="width:200px" id="eventDocType" name="eventDocType">
+                                 <option value=""></option>
+                                 <option value="1">Отчет по оборотам</option>
+                                 <option value="2">График фактического погашения ОД</option>
+                                 <option value="3">График фактического погашения прцоентов</option>
+                                 <option value="4">Прочие документы</option>
+                             </select>
+                          </td>
+                       </tr>
+                   </table>
+                </td>
+               </tr>
+            <tr valign="bottom">
+                <td colspan="2">
+                   <p style="margin-bottom:1px;">Основание для создания мероприятия</p>
+                    <select style="width:200px" id="eventFoundation" name="eventFoundation">
+                         <option value=""></option>
+                         <option value="1">Инструкция О порядке проведения мониторинга кредитных сделок</option>
+                         <option value="2">Прочие документы</option>
+                     </select>
+                </td>
+                <td colspan="2">
+                   <table>
+                       <tr>
+                           <td>
+		                    <p style="margin-bottom:1px;margin-top:1px;">Уточнение</p>
+		                    <t:textfield t:id="eventFoundationDetails" size="100"  value="literal: " disabled="true"/>
+		                </td>
+		                <td>
+		                    <p style="margin-bottom:1px;margin-top:1px;">№ документа</p>
+		                    <t:textfield t:id="eventDocNumber" size="9"  value="literal: ИП - 279" disabled="true"/>
+		                </td>
+	                 </tr>
+	              </table> 
+                </td>
+                <td>
+                   <p style="margin-bottom:1px;margin-top:1px;">Дата документа</p>
+                   <t:textfield t:id="eventDocDate" size="9"  value="literal: 25.03.2013" disabled="true"/>
+                 </td>
+               </tr>
+		    <tr valign="bottom">
+                <td colspan="3">
+                   <p style="margin-bottom:1px;margin-top:1px;">Санкции за невыполнение</p>
+                   <select style="width:350px" id="punitiveMeasureList" name="punitiveMeasure" size="4">
+                        <option value="1">Штраф за неисполнение</option>
+                        <option value="2">Требование исполнения Заемщиком обязательств досрочно</option>
+                        <option value="3">Приостановление предоставления кредита</option>
+                        <option value="4">Неустойки, начисляемые на сумму просроченной задолженности по основному долгу</option>
+                    </select>
+                </td>
+                <td colspan="2">
+                   <p style="margin-bottom:1px;margin-top:1px;">Описание санкции</p>
+                   <t:textArea t:id="punitiveMeasureDescr" cols="100" rows="4" value="literal:Неустойка в размере 1% годовых от средней суммы задолженности по долгу за месяц" disabled="true"/>
+                </td>
+               </tr>
+            <tr valign="bottom">
+                <td colspan="5">
+                   <table>
+                   <tr valign="bottom">
+                       <td colspan="5">
+                           <p style="margin-bottom:1px;margin-top:15px;"><b><u>Результат исполнения мероприятия</u></b></p>
+                       </td>
+                   </tr>
+                   <tr valign="bottom">
+                    <td>
+                        <p style="margin-bottom:1px;margin-top:1px;">Результат</p>
+                        <input t:type="select" t:id="eventResults" t:value="eventResult" size="5" 
+                            t:encoder="eventResultValueEncoder" t:model="eventResultSelectModel" style="width: 200px" />
+                    </td>
+                    <td>
+                        <p style="margin-bottom:1px;margin-top:1px;">Комментарий по исполнению/отмене</p>
+                        <t:textArea t:id="result_comment" cols="50" rows="5" value="literal: "/>
+                    </td>
+                    <td>
+                       <p style="margin-bottom:1px;margin-top:1px;">Подтверждающий документ</p>
+                       <t:textfield t:id="event_doc_approve" size="60"  value="literal:Справка по оборотам" />
+                    </td>
+                    <td align="left">
+                       <p style="margin-bottom:1px;">Определен</p>
+                           <input type="checkbox" name="fkr" value="fkr" />
+                           ФКР
+                           <input type="checkbox" name="fkr" value="fzr" />
+                           ФЗР
+                    </td>
+                    <td>
+                       <p style="margin-bottom:1px;margin-top:1px;">Связанные мероприятия/процесс</p>
+                       <t:textfield t:id="event_referenced_events" size="60"  value="literal: " />
+                    </td>
+                   </tr>
+                  </table>
+                </td>
+	        </tr>
+	        <tr valign="bottom">
+                <td colspan="3">
+                   <p style="margin-bottom:1px;margin-top:1px;">Санкции за невыполнение</p>
+                   <t:textArea t:id="punitiveMeasureResult" cols="100" rows="2" value="literal:Неустойка при неисполнении Заемщиков обязательств по поддержанию кредитовых оборотов по счетам в Банке"/>
+                </td>
+                <td colspan="2">
+                   <p style="margin-bottom:1px;margin-top:1px;">Описание санкции</p>
+                   <t:textArea t:id="punitiveMeasureDescrResult" cols="100" rows="2" value="literal:Неустойка в размере 1% годовых от средней суммы задолженности по долгу за март"/>
+                </td>
+            </tr>
+	        
+	        <tr valign="bottom">
+                <td>
+                    <input type="radio" name="punitiveMeasureResult" value="yes" />Санкции применяются    
+                </td>
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td>
+                                <p style="margin-bottom:1px;">Дата</p>
+                                <t:textfield t:id="punitiveMeasureResult_yes_date" size="6"  value="literal:15.04.2013"/>
+                            </td>
+                            <td>
+                                <p style="margin-bottom:1px;">В размере</p>
+                                <t:textfield t:id="punitiveMeasureResult_yes_sum" size="6"  value="literal:1"/>
+                            </td>
+                            <td>
+                                <p style="margin-bottom:1px;">Валюта</p>
+                                <select style="width:40px" id="punitiveMeasureResult_yes_currency" name="eventConfirmationType">
+                                  <option value="1">%</option>
+                                  <option value="2">RUR</option>
+                                  <option value="3">USD</option>
+                                  <option value="4">EUR</option>
+                              </select>
+                            </td>
+                            <td>
+                                <p style="margin-bottom:1px;">Документ по санкции</p>
+                                <t:textfield t:id="punitiveMeasureResult_yes_doc" size="60"  value="literal:Распоряжение о взимании неустойки"/>
+                            </td>
+                            <td>
+                               <p style="margin-bottom:1px;margin-top:1px;">Связанные мероприятия/процесс</p>
+                               <t:textfield t:id="punitiveMeasureResult_yes_referenced_events" size="60"  value="literal: " />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr valign="bottom">
+                <td>
+                    <input type="radio" name="punitiveMeasureResult" value="no" />Санкции отменены решением    
+                </td>
+                <td>
+                    <p style="margin-bottom:1px;margin-top:1px;">Уполномоченный орган/лицо</p>
+                    <t:textfield t:id="punitiveMeasureResult_no_creditCommittee" size="30"  value="literal: " />
+                </td>
+                <td colspan = "3">
+                    <table>
+                        <tr>
+                            <td>
+			                    <p style="margin-bottom:1px;margin-top:1px;">№ документа</p>
+			                    <t:textfield t:id="punitiveMeasureResult_no_DocNumber" size="9"  value="literal: "/>        
+                            </td>
+			                <td>
+			                    <p style="margin-bottom:1px;margin-top:1px;">Дата документа</p>
+			                    <t:textfield t:id="punitiveMeasureResult_no_DocDate" size="20"  value="literal: "/>
+			                </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+	        
+	        <tr valign="bottom">
+                <td colspan="5">
+                	<span t:type="zone" t:id="chronologyZone" id="chronologyZone" t:update="show">
+					<fieldset>
+						<legend>
+							Хронология исполнения мероприятия
+							<t:if test="showChronology">
+								<a t:type="eventLink" t:event="hideChronology" t:zone="^">(скрыть)</a>
+								<p:else>
+									<a t:type="eventLink" t:event="showChronology" t:zone="^">(показать)</a>
+								</p:else>
+							</t:if>
+						</legend>
+						<table t:type="if" t:test="showChronology">
+							<tr align="left">
+								<th>Операция</th>
+								<th>Подразделение</th>
+								<th>Сотрудник</th>
+								<th>Контрольная дата</th>
+								<th>Дата-время</th>
+								<th>Комментарий</th>
+							</tr>
+							<tr align="left">
+								<td>Создание КМ</td>
+								<td>КБ-КД1-УРКК1</td>
+								<td>Бабичев С.А.</td>
+								<td>15.04.2013</td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+							</tr>
+						</table>
+					</fieldset>
+					</span>
+				</td>
+              </tr>
+		</table>
+		<div class="buttons">
+			<input t:type="submit" t:value=" OK " class="button"/>
+			<input t:type="submit" t:value="Отмена" class="button" t:mode="cancel" t:id="canselButton"/>
+		</div>
+	</form>
+</t:layout>

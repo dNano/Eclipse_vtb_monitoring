@@ -1,0 +1,131 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.List;
+
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+
+import ru.masterdm.km.common.entity.Contractor;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.ContractorDao;
+import ru.masterdm.km.dao.DictionaryDao;
+
+/**
+ * таб. панель "классификатор-план-календарь" КМ для клиента.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ContractorClassifier {
+	@Persist
+	@Property
+	private int curTab;
+	@Persist
+	@Property
+	private Contractor contractor;
+	@Persist
+	@Property
+	private KmEvent filter;
+
+	@Persist
+	private String contractorID;
+
+	@Property
+	private KmEventCalendar calendar;
+	@Property
+	private KmEventInstance eventInstance;
+
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private ContractorDao contractorDao;
+	@Inject
+	private BeanModelSource beanModelSource;
+	@Inject
+	private Messages messages;
+
+	void onActivate(String contractorID, int curTab) {
+		this.curTab = curTab;
+		contractor = dictionaryDao.getContractor(contractorID);
+		this.contractorID = contractorID;
+		if (filter == null) {
+			filter = new KmEvent();
+		}
+	}
+
+	public GridDataSource getPlan() {
+		return new GridDataSource() {
+			private int startIndex;
+			private List<KmEventCalendar> instances;
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				instances = contractorDao.getContractorPlan(startIndex, endIndex - startIndex + 1, contractor.getId(), filter);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return instances.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return KmEventCalendar.class;
+			}
+
+			@Override
+			public int getAvailableRows() {
+				return contractorDao.getContractorPlanCount(contractor.getId(), filter);
+			}
+		};
+	}
+
+	public GridDataSource getEventInstances() {
+		return new GridDataSource() {
+			private int startIndex;
+			private List<KmEventInstance> instances;
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				instances = contractorDao.getContractorCalendar(startIndex, endIndex - startIndex + 1, contractor.getId(), filter);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return instances.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return KmEventInstance.class;
+			}
+
+			@Override
+			public int getAvailableRows() {
+				return contractorDao.getContractorCalendarCount(contractor.getId(), filter);
+			}
+		};
+	}
+
+	public BeanModel<KmEventInstance> getEventInstanceModel() {
+		BeanModel<KmEventInstance> eventModel = beanModelSource.createDisplayModel(KmEventInstance.class, messages);
+		for (String prop : eventModel.getPropertyNames()) {
+			eventModel.get(prop).sortable(false);
+		}
+		return eventModel;
+	}
+
+	public boolean isRenderAcceptAllButton() {
+		return (filter != null) && (contractorDao.getContractorPlanCount(contractor.getId(), filter) > 0);
+	}
+}

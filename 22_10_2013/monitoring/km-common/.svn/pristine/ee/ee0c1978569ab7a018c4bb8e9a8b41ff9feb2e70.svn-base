@@ -1,0 +1,57 @@
+package ru.masterdm.km.common.entity;
+
+/**
+ * Сущность Списка сделок.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class DealInstance extends BaseIndexedEntity<Long> {
+	private KmEventInstanceStatus status;
+
+	private Deal deal;
+	private Contractor contractor;
+	private User executor;
+	private ContractorGroup contractorGroup;
+
+	public Deal getDeal() {
+		return deal;
+	}
+
+	public void setDeal(Deal deal) {
+		this.deal = deal;
+	}
+
+	public Contractor getContractor() {
+		return contractor;
+	}
+
+	public void setContractor(Contractor contractor) {
+		this.contractor = contractor;
+	}
+
+	public User getExecutor() {
+		return executor;
+	}
+
+	public void setExecutor(User executor) {
+		this.executor = executor;
+	}
+
+	public ContractorGroup getContractorGroup() {
+		return contractorGroup;
+	}
+
+	public void setContractorGroup(ContractorGroup contractorGroup) {
+		this.contractorGroup = contractorGroup;
+	}
+
+	public KmEventInstanceStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(KmEventInstanceStatus status) {
+		this.status = status;
+	}
+}

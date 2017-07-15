@@ -1,0 +1,11 @@
+package ru.masterdm.km.web.services;
+
+/**
+ * Сервисы для мониторинга мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public interface KmService {
+	void doJob();
+}

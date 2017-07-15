@@ -1,0 +1,109 @@
+   							select m.ID_MDTASK d_id, m.MDTASK_NUMBER, m.MDTASK_SUM d_amount, m.CURRENCY C_CODE,
+						           m.VALIDTO di_date, r.id_opp_type dt_id, p.name dt_name,
+           							(select count(id_fkr) from KM_FKR where id_mdtask = m.ID_MDTASK) fkr_count 
+					       	from MDTASK m
+					       		left outer join R_MDTASK_OPP_TYPE r on m.ID_MDTASK = r.ID_MDTASK
+					       		left outer join v_spo_product p on r.id_opp_type = p.productId
+						    where exists (select id_event_calendar from KM_EVENT_CALENDAR e where e.id_mdtask = m.id_mdtask)
+
+   select count(*) from V_CED_CREDIT_DEAL
+   select count(ID_MDTASK) from V_CED_CREDIT_DEAL m where 1=1
+   
+   select * from V_ORGANISATION m where lower(m.MDTASK_NUMBER) like lower('%20%')
+   
+   select * from CD_CONFIRMATION_TYPE
+   
+   select * from document_group
+   select * from documents_type
+   select * from R_DOCUMENT_GROUP
+   
+   select id eis_id, name eis_name from km_event_instance_status
+   
+   select * from KM_EVENT_CALENDAR where ID_EVENT_CALENDAR=231
+   
+   						     select ei.id_event ei_id, ei.plan_date ei_plan_date, ei.result_notes ei_result_note,
+						     		ei.id_event_status kes_id, kes.event_status kes_name,
+						     		ei.id_event_result er_id, cer.event_result er_name,
+						     		ei.id_document_group dg_id, dg.name_document_group dg_name,
+						     		ei.id_document_type dot_id, dot.name_document_type dot_name,
+						     		ei.id_confirmation_type kct_id, kct.confirmation_type kct_name,
+						            u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+						            e.id_event_calendar e_id, e.event_name e_name, e.start_date E_START_DATE, e.end_date E_END_DATE,
+						            e.repeat_period E_REPEAT_PERIOD, e.repeat_period_kind E_REPEAT_PERIOD_KIND, e.repeat_period_weekend E_REPEAT_PERIOD_WEEKEND,
+						        	t.id_event_type as ET_ID, t.event_type_name ET_NAME, 
+									mo.id as MO_ID, mo.name as MO_NAME, 
+									g.id_event_group as ETG_ID, g.event_group_name as ETG_NAME,
+									rt.id_repeat_type as RT_ID, rt.repeat_type as RT_NAME,					            
+						            e.id_mdtask d_id, m.mdtask_number d_number, m.mdtask_sum d_amount, m.currency c_code, m.validto d_valid_to,
+						            v.crmid co_id, v.organizationname co_name, ct.id_contractor_type ct_id, ct.name_contractor_type ct_name,
+						            p.productId dt_id, p.name dt_name 
+						     from km_event ei 
+				    			  left join users u on u.id_user = ei.id_executor
+				    			  left join km_event_status kes on kes.id_event_status = ei.id_event_status
+				    			  left join cd_event_result cer on cer.id_event_result = ei.id_event_result
+				    			  left join cd_confirmation_type kct on kct.id_confirmation_type = ei.id_confirmation_type
+				    			  left join documents_type dot on dot.id_document_type = ei.id_document_type
+				    			  left join document_group dg on dg.id_group = ei.id_document_group
+				                  left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+				                  inner join cd_event_type t on e.id_event_type = t.id_event_type 
+								  inner join cd_event_group g on t.id_event_group = g.id_event_group
+								  inner join cd_monitored_object mo on mo.id = g.id_object_type
+								  left join cd_repeat_type rt on e.id_repeat_type = rt.id_repeat_type						                   
+				                  left join mdtask m on m.id_mdtask = e.id_mdtask
+				                  left join r_org_mdtask r on r.id_mdtask = m.id_mdtask
+				                  left join v_organisation v on v.crmid = r.id_crmorg
+				                  left join r_contractor_type_mdtask rct on rct.id_r = r.id_r
+				                  left join contractor_type ct on ct.id_contractor_type = rct.id_contractor_type
+				                  left join r_mdtask_opp_type rmot on m.id_mdtask = rmot.id_mdtask
+					       		  left outer join v_spo_product p on rmot.id_opp_type = p.productId
+   
+                             select dot.id_document_type dot_id, dot.name_document_type dot_name
+                            	from documents_type dot
+                              	inner join r_document_group rdg on rdg.id_document_type = dot.id_document_type
+                              		where rdg.id_document_group = 262
+                              			order by dot.name_document_type
+
+
+   
+                              select id_group dg_id, name_document_group dg_name
+                              from document_group
+                             	order by name_document_group
+   
+   						   select t.id_event_type as ET_id, t.event_type_name ET_name, 
+									m.id as MO_id, m.name as MO_name, 
+									g.id_event_group as ETG_id, g.event_group_name as ETG_name 
+							from cd_Event_Type  t 
+								inner join cd_event_group  g on t.id_event_group = g.id_event_group
+								inner join cd_monitored_object m on m.id = g.id_object_type
+							order by MO_name desc, ETG_name, ET_name
+   
+   select ei.id_event ei_id, ei.plan_date ei_plan_date, ei.result_notes ei_result_note,
+						     		ei.id_event_status kes_id, kes.event_status kes_name,
+						     		ei.id_event_result er_id, cer.event_result er_name, 
+						            u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+						            e.id_event_calendar e_id, e.event_name e_name, e.start_date E_START_DATE, e.end_date E_END_DATE,
+						            e.repeat_period E_REPEAT_PERIOD, e.repeat_period_kind E_REPEAT_PERIOD_KIND, e.repeat_period_weekend E_REPEAT_PERIOD_WEEKEND,
+						        	t.id_event_type as ET_ID, t.event_type_name ET_NAME, 
+									mo.id as MO_ID, mo.name as MO_NAME, 
+									g.id_event_group as ETG_ID, g.event_group_name as ETG_NAME,
+									rt.id_repeat_type as RT_ID, rt.repeat_type as RT_NAME,					            
+						            e.id_mdtask d_id, m.mdtask_number d_number, m.mdtask_sum d_amount, m.currency c_code, m.validto d_valid_to,
+						            v.crmid co_id, v.organizationname co_name, ct.id_contractor_type ct_id, ct.name_contractor_type ct_name,
+						            p.productId dt_id, p.name dt_name 
+						     from km_event ei 
+				    			  left join users u on u.id_user = ei.id_executor
+				    			  left join km_event_status kes on kes.id_event_status = ei.id_event_status
+				    			  left join cd_event_result cer on cer.id_event_result = ei.id_event_result
+				                  left join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+				                  inner join cd_event_type t on e.id_event_type = t.id_event_type 
+								  inner join cd_event_group g on t.id_event_group = g.id_event_group
+								  inner join cd_monitored_object mo on mo.id = g.id_object_type
+								  left join cd_repeat_type rt on e.id_repeat_type = rt.id_repeat_type						                   
+				                  left join mdtask m on m.id_mdtask = e.id_mdtask
+				                  left join r_org_mdtask r on r.id_mdtask = m.id_mdtask
+				                  left join v_organisation v on v.crmid = r.id_crmorg
+				                  left join r_contractor_type_mdtask rct on rct.id_r = r.id_r
+				                  left join contractor_type ct on ct.id_contractor_type = rct.id_contractor_type
+				                  left join r_mdtask_opp_type rmot on m.id_mdtask = rmot.id_mdtask
+					       		  left outer join v_spo_product p on rmot.id_opp_type = p.productId				                  
+						 	 where ei.id_event = 1 and rownum < 2

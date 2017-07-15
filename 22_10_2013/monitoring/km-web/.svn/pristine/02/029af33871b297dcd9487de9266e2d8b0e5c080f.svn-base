@@ -1,0 +1,440 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+			xmlns:p="tapestry:parameter" t:title="Карточка контрольного мероприятия сделки">
+
+	<h1 style="text-align: center;">Карточка контрольного мероприятия сделки №&nbsp;<a href="${message:serverRoot}/ProdflexWorkflow/form.jsp?mdtaskid=${event?.event?.deal?.id}"
+		title="Информация о сделке" target="_blank">${event.event.deal?.spkpNumber}</a>&nbsp;
+		<t:pagelink t:page="eventInstances/DealClassifier" t:context="[event.event?.deal?.id, 0]" title="Сделка: план мероприятий, календарь, ФКР">
+		    <img src="${context:/img/viewInfo.gif}" style="margin-bottom: -6px;"/>
+		</t:pagelink>
+	</h1>
+	<form t:type="form" t:id="executeDealEventForm" t:clientValidation="none" t:autofocus="false">
+		<div t:type="errors" class="literal:km-error"></div>
+		<table style="width: 100%">
+		    <tr valign="bottom">
+		    	<td>
+					<table class="Basic" style="width: 100%">
+						<tr>
+						    <th>Тип&nbsp;объекта&nbsp;мониторинга</th>
+						    <th>Договор/соглашение</th>
+						    <th style="width:160px">Информация&nbsp;по&nbsp;сделке</th>
+			                <th style="width:800px">Тип&nbsp;мероприятия</th>
+		    			</tr>
+                        <tr>
+                            <td>Сделка</td>
+                            <td>${docInfo}</td>
+                            <td style="width:160px">${dealInfo}</td>
+                            <td style="width:800px">${event?.event?.name}</td>
+                        </tr>
+			            <tr>
+			                <th colspan="3">Текстовое&nbsp;описание&nbsp;мероприятия/события</th>
+			                <th colspan="1">Текущий&nbsp;статус&nbsp;мероприятия</th>
+			            </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td colspan="1">${event?.status?.name}</td>
+                        </tr>
+					    <tr t:type="if" t:test="event?.contractor?.id">
+			                <th>Тип&nbsp;контрагента</th>
+			                <th colspan="1">Наименование&nbsp;контрагента</th>
+			                <th colspan="2">Рейтинг</th>
+			           	</tr>
+			           	<tr t:type="if" t:test="event?.contractor?.id">
+                            <td>${event?.contractorType?.name}</td>
+                            <td colspan="1">${event?.contractor?.name}</td>
+                            <td colspan="2">C1</td>
+                        </tr>
+					</table>
+				</td>
+			</tr>			           	
+		    <tr valign="bottom">
+		    	<td>
+                	<span t:type="zone" t:id="repeatTypeZone" id="repeatTypeZone" t:update="show">
+					<fieldset>
+						<legend>Периодичность</legend>
+						<table class="Basic" style="width: 50%">
+							<tr>
+								<th>Тип&nbsp;периодичности</th><th>Начиная&nbsp;с</th><th>по&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th>
+							</tr>
+							<tr>
+				                <td valign="bottom">
+				                    <t:if test="event?.event?.repeatType?.id">
+				                        ${event?.event?.repeatType?.name}
+				                    	<p:else>не определен</p:else>
+				                    </t:if>
+				                </td>
+	                            <td>
+	                                <t:output size="15" t:id="event_startDate" format="prop:dateInputPattern" value="event?.event?.startDate" disabled="true"/>&nbsp;
+	                            </td>
+	                            <td>
+	                                <t:output size="15" t:id="end_startDate" format="prop:dateInputPattern" value="event?.event?.endDate" disabled="true"/>&nbsp;
+	                            </td>
+				                <td>
+				                    ${repeatTypeInfo}
+				                </td>
+				                <td t:type="if" t:test="event?.event?.deal?.id">
+						            <t:pagelink title="Показать/Изменить график" t:page="eventInstances/EditPlanForDeal"
+						            	t:context="[event.event.id, pageName, event.id, event.event.deal?.spkpNumber]">
+					                    <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/></t:pagelink>           
+				                </td>
+							</tr>
+						</table>
+					</fieldset>
+					</span>
+				</td>
+            </tr>
+	        <tr valign="bottom">
+                <td>
+                	<span t:type="zone" t:id="executionZone" id="executionZone" t:update="show">
+					<fieldset>
+						<legend>
+							<t:if test="showExecution">
+								<a t:type="eventLink" t:event="toggleExecution" t:zone="^">
+									<img src="${context:/img/toClose.gif}" style="margin-bottom: -3px;" title="Скрыть"/></a>
+								<p:else>
+									<a t:type="eventLink" t:event="toggleExecution" t:zone="^">
+										<img src="${context:/img/toOpen.gif}" style="margin-bottom: -1px;" title="Показать"/></a>
+								</p:else>
+							</t:if>
+							Создание мероприятия и планируемое выполнение
+						</legend>
+						<table t:type="if" t:test="showExecution" style="width: 100%">
+				            <tr valign="bottom">
+				                <td>
+				                   <table style="width: 50%">
+					                   <tr valign="bottom">
+						                    <td>
+							                     <p style="margin-bottom:1px;margin-top:8px;"><u>Создано</u></p>
+							                     <p style="margin-bottom:1px;margin-top:1px;">Подразделение</p>
+							                        <t:textfield t:id="event_department_created" size="10"  value="literal:КБ-КД1-УРКК1" disabled="true"/>
+						                    </td>
+						                    <td>
+						                        <p style="margin-bottom:1px;margin-top:1px;">Сотрудник</p>
+						                        <t:textfield t:id="event_creator_fullname" size="6"  value="literal:Бабичев С.А." disabled="true"/>
+						                    </td>
+						                    <td>
+						                       <p style="margin-bottom:1px;margin-top:1px;">Дата</p>
+						                       <t:textfield t:id="event_date_created" size="6"  value="literal:01.04.2013" disabled="true"/>
+						                    </td>
+					                   </tr>
+				                  </table>
+				                </td>
+				                <td colspan="2">
+				                   <table style="width: 80%">
+				                       <tr valign="bottom">
+				                          <td>
+							                 <p style="margin-bottom:1px;margin-top:8px;"><u>Исполнение</u></p>
+							                 <p style="margin-bottom:1px;margin-top:1px;">Подразделение</p>
+							                 <t:textfield t:id="event_department_executor" size="10"  value="literal:КБ-КД1-УРКК1" disabled="true"/>
+				                          </td>
+				                          <td>
+							                 <p style="margin-bottom:1px;margin-top:1px;">Контрольная дата</p>
+							                 <t:datefield size="15" t:id="event_exec_control_date" format="prop:dateInputPattern"
+							                 	value="event?.planExecutionDate" disabled="true"/>
+				                          </td>
+				                          <td>
+							                 <p style="margin-bottom:1px;margin-top:1px;">Дата уведомления</p>
+							             	 	<t:datefield size="15" t:id="event_notify_date" format="prop:dateInputPattern"
+							                 	value="event?.notifyDate" disabled="true"/>							                 
+							               </td>
+							               <td>
+							                 <p style="margin-bottom:1px;">Вид подтверждения</p>
+							              		<input t:type="select" t:id="eventConfirmationType" t:value="event.confirmationType"
+							              		       t:encoder="confirmationTypeValueEncoder" t:model="confirmationTypeSelectModel"/>
+							               </td>
+				                       </tr>
+				                   </table>
+				                </td>
+				            </tr>
+				            <tr valign="bottom">
+				            	<td colspan="3">
+		            				<p style="margin-bottom:1px;">Группа требуемого документа</p>
+					              		<input t:type="select" t:id="eventDocumentGroup" t:blankOption="always" t:zone="documentZone"
+					              			t:blankLabel="------- Выберите из группы требуемый документ -------" 
+					              			t:value="event.documentGroup" t:encoder="documentGroupValueEncoder"
+					              			t:model="documentGroupSelectModel" style="width: 1000px;"/>
+				                 </td>       
+				            </tr>
+                            <tr valign="bottom">
+                                  <td colspan="3" t:type="zone" t:id="documentZone" t:update="show" id="documentZone">
+                                      <p style="margin-bottom:1px;">Требуемый документ</p>
+                                          <input t:type="select" t:id="eventDocumentType" t:blankLabel="------------------------"
+                                              t:value="event.documentType" t:encoder="documentTypeValueEncoder" t:zone="resultZone"
+                                              t:model="documentTypeSelectModel" t:blankOption="always" style="width: 1000px;"/>
+                                  </td> 
+                            </tr>
+				            <tr valign="top">
+				                <td>
+				                   <p style="margin-bottom:1px;">Основание для создания мероприятия</p>
+				                   <input t:type="select" t:id="eventFoundation" t:blankLabel="------------------------"
+								          t:value="event.sourceDoc" t:encoder="sourceDocValueEncoder"
+								          t:model="sourceDocSelectModel" t:blankOption="always" style="width:420px"/>
+				                </td>
+				                <td colspan="2">
+				                	<table style="width: 100%">
+				                    	<tr>
+				                        	<td>
+							                    <p style="margin-bottom:1px;margin-top:1px;">Уточнение</p>
+							                    <t:textArea t:id="eventFoundationDetails" cols="60" rows="5" value="event.sourceDocComment"/>
+							               	</td>
+							               	<td>
+							                    <p style="margin-bottom:1px;margin-top:1px;">№ документа</p>
+							                    <t:textfield t:id="eventSourceDocNumber" size="15" value="event.sourceDocNumber" />
+							               	</td>
+							               	<td>
+							                    <p style="margin-bottom:1px;margin-top:1px;">Дата документа</p>
+								                <t:dynarchCalendar size="8" t:id="eventSourceDocDate" format="prop:dateInputPattern" 
+								                		value="event?.sourceDocDate" disabled="false"/>
+					                		</td>
+					              		</tr>
+					            	</table> 
+				                </td>
+				            </tr>
+						    <tr valign="bottom" t:type="if" t:test="event.event.punitiveMeasure?.id">
+				                <td>
+				                   <p style="margin-bottom:1px;margin-top:1px;">Санкции за невыполнение</p>
+				                   <t:textArea t:id="planEventPunitiveMeasureName" cols="100" rows="3" 
+				                   		t:value="event.event.punitiveMeasure?.name" disabled="true"/>
+				                </td>
+				                <td colspan="2">
+				                   <p style="margin-bottom:1px;margin-top:1px;">Описание санкции</p>
+				                   <t:textArea t:id="planEventPunitiveMeasureDescr" cols="100" rows="3" 
+				                   		t:value="event.event.punitiveMeasure?.sumDesc" disabled="true"/>
+				                </td>
+				            </tr>
+						</table>
+					</fieldset>
+					</span>
+				</td>
+            </tr>
+ 	        <tr valign="bottom">
+                <td>
+                	<span t:type="zone" t:id="resultZone" id="resultZone" t:update="show">
+					<fieldset>
+						<legend>
+							<t:if test="showResult">
+								<a t:type="eventLink" t:event="toggleResult" t:zone="^">
+									<img src="${context:/img/toClose.gif}" style="margin-bottom: -3px;" title="Скрыть"/></a>
+								<p:else>
+									<a t:type="eventLink" t:event="toggleResult" t:zone="^">
+										<img src="${context:/img/toOpen.gif}" style="margin-bottom: -1px;" title="Показать"/></a>
+								</p:else>
+							</t:if>
+							Результат исполнения мероприятия
+						</legend>
+						<table t:type="if" t:test="showResult" style="width: 100%">            
+				            <tr valign="bottom">
+				                <td colspan="5">
+				                   <table style="width: 100%">
+					                   <tr valign="bottom">
+						                    <td>
+						                        <p style="margin-bottom:1px;margin-top:1px;">Результат</p>
+						                        <input t:type="select" t:id="eventResult" t:value="event.result" size="8"  t:zone="^" 
+						                            t:encoder="eventResultValueEncoder" t:model="eventResultSelectModel" style="width: 330px" />
+						                    </td>
+						                    <td t:type="if" t:test="event.result?.commentMandatory">
+						                        <p style="margin-bottom:1px;margin-top:1px;">Комментарий по исполнению/отмене</p>
+						                        <t:textArea t:id="result_comment" cols="50" rows="5" value="event.resultNote"/>
+						                    </td>
+						                    <td>
+						                    	<t:if test="event.documentType?.id">
+							                       <p style="margin-bottom:1px;margin-top:1px;">Подтверждающий документ</p>
+							                       <input t:type="Upload" t:id="confirmFile" t:clientid="prop:confirmFileId" onClick="try{fileUpload.hideResults();}catch(e){}"/>
+							                       <img src="${context:/img/word.png}" style="margin-right: 2px; margin-left: 4px;" title="Скачать"/>
+							                       <br/>
+							                       <t:textArea t:id="event_doc_approve" cols="50" rows="3" value="event.documentType?.name" disabled="true"/>
+							                    </t:if>
+						                    </td>
+					                   </tr>
+				                  </table>
+				                </td>
+					        </tr>
+					        <tr valign="bottom">
+                                <td>
+                                   <p style="margin-bottom:1px;margin-top:1px;">Связанные мероприятия/процесс</p>
+                                   <t:textfield t:id="event_referenced_events" size="60"  value="literal: " disabled="true"/>
+                                </td>
+					        </tr>
+					        <tr t:type="if" t:test="event.result?.processCRF" valign="bottom">
+					        	<td align="left" colspan="5">
+	                            <fieldset>
+	                                <legend>Определены ФКР</legend>
+										<table t:type="grid" t:source="event.fkrList" t:row="fkr" t:rowsPerPage="5" t:pagerPosition="bottom"
+											t:model="fkrModel" t:inPlace="true" t:lean="true" style="width: 100%; text-align: left;">
+									  		<p:editCell>
+									            <t:pagelink t:page="fkr/FkrEdit" t:context="[fkr.id, pageName]">
+									                <img src="${context:/img/edit18.png}" style="margin-bottom: -6px;"/>
+									            </t:pagelink>           
+									        </p:editCell>
+									  		<p:createdCell>
+                                                <t:output format="dateListPattern" value="fkr.created"/>
+                                            </p:createdCell>
+									  		<p:fkrTypeCell>
+									            ${fkr.type.name}
+									        </p:fkrTypeCell>
+									      	<p:statusCell>
+									            ${fkr.status.name}
+									        </p:statusCell>
+											<p:signCell>
+												<t:if test="fkr.significant">
+													<img src="${context:img/ihigh_obj.gif}" title="существенный ФКР"/>
+												</t:if>
+									        </p:signCell>
+									        <p:finishedCell>
+                                                <t:output format="dateListPattern" value="fkr.finished"/> 
+                                            </p:finishedCell>
+									        <p:empty><h4>ФКР не найдены</h4></p:empty>									        	                                	
+	                                	</table>
+	                                	<table style="width: 100%; margin-top:5px;">
+	                                        <tr valign="bottom">
+		                                         <td colspan="5">
+		                                         	<t:pagelink t:page="fkr/FkrAdd" t:context="[event.id, pageName]" title="Добавление ФКР">
+										            	Добавить ФКР</t:pagelink>
+										    	</td>
+			                                </tr>
+			                          	</table>
+	                            </fieldset>
+                               	</td>
+					        </tr>
+					        <tr t:type="if" t:test="event.result?.sanction">
+						        <td align="left" colspan="5">
+                                   <fieldset>
+                                        <legend>Санкции за невыполнение</legend>
+                                        <table style="width: 100%">
+				                            <tr valign="top">
+				                                <td>
+				                                   <p style="margin-bottom:1px;margin-top:1px;">Санкции за невыполнение</p>
+								                   <input t:type="select" style="width:1000px;" t:id="punitiveMeasureResult" t:blankLabel="------------------------"
+														t:value="event.punitiveMeasure" t:encoder="punitiveMeasureValueEncoder" size="10"
+									              		t:model="punitiveMeasureSelectModel" t:blankOption="always" t:zone="punitiveMeasureZone"/>
+				                                </td>
+				                            </tr>   
+				                            <tr valign="top">
+                                                <td t:type="zone" t:id="punitiveMeasureZone" t:update="show" id="punitiveMeasureZone">
+                                                   <p style="margin-bottom:1px;margin-top:1px;">Описание санкции</p>
+                                                   <t:textArea t:id="punitiveMeasureDescrResult" cols="190" rows="3" 
+                                                        t:value="event.punitiveMeasureDescr" disabled="false"/>
+                                                </td>
+                                            </tr>   
+                                                        
+				                            <tr valign="bottom">
+				                                <td colspan="5">
+				                                	<t:radiogroup t:value="event.isSanction">
+					                                    <input type="radio" t:type="radio" value="0" 
+					                                    	onclick='document.getElementById( "isSanction_1").setAttribute("style", "visibility: collapse");
+					                                    	document.getElementById( "isSanction_0").setAttribute("style", "visibility: visible");'/>Санкции применяются
+					                                    <input type="radio" t:type="radio" value="1"
+					                                    	onclick='document.getElementById( "isSanction_0").setAttribute("style", "visibility: collapse");
+					                                    	document.getElementById( "isSanction_1").setAttribute("style", "visibility: visible");'/>Санкции отменены решением
+				                                    </t:radiogroup>   
+				                                </td>
+				                            </tr>
+				                            <tr valign="bottom" id="isSanction_0" style="visibility: ${applySanctionClass};">
+				                                <td colspan="5">
+				                                    <table style="width: 100%">
+				                                        <tr>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Дата</p>
+				                                                <t:dynarchCalendar t:id="eventSanctionDate" t:value="event.sanctionDate"/>
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">В размере</p>
+				                                                <t:textfield t:id="eventSanctionValue" size="6" value="event.sanctionValue" disabled="false"/>
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Валюта</p>
+				                                              	<t:select t:id="eventSanctionCurrency" t:value="event.sanctionCurrency" model="sanctionCurrencyModel"/>
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Документ по санкции</p>
+				                                                <t:textfield t:id="punitiveMeasureResult_yes_doc" size="60"  value="literal:Распоряжение о взимании неустойки" disabled="true"/>
+				                                                <img src="${context:/img/word.png}" style="margin-bottom: -6px; margin-right: 2px; margin-left: 2px;" title="Скачать"/>
+				                                            </td>
+				                                            <td>
+				                                               <p style="margin-bottom:1px;margin-top:1px;">Связанные мероприятия/процесс</p>
+				                                               <t:textfield t:id="punitiveMeasureResult_yes_referenced_events" size="60"  value="literal: " disabled="true"/>
+				                                            </td>
+				                                        </tr>
+				                                    </table>
+				                                </td>
+				                            </tr>
+				                            <tr valign="bottom" id="isSanction_1" style="visibility: ${revokeSanctionClass};">
+				                                <td colspan = "5">
+				                                    <table style="width: 60%">
+				                                        <tr>
+							                                <td>
+							                                    <p style="margin-bottom:1px;margin-top:1px;">Уполномоченный орган/лицо</p>
+							                                    <t:textfield t:id="eventSanctionRefusedBy" size="80" value="event.sanctionRefusedBy"/>
+				                                			</td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">№ документа</p>
+				                                                <t:textfield t:id="eventSanctionRefusedDocNum" size="15" value="event.sanctionRefusedDocNum"/>
+				                                                <img src="${context:/img/word.png}" title="Скачать"/>        
+				                                            </td>
+				                                            <td>
+				                                                <p style="margin-bottom:1px;margin-top:1px;">Дата документа</p>
+				                                                   <t:dynarchCalendar t:id="eventSanctionRefusedDate" t:value="event.sanctionRefusedDate"/>
+				                                            </td>
+				                                        </tr>
+				                                    </table>
+				                                </td>
+				                            </tr>
+                                        </table>
+                                    </fieldset>
+                               </td>
+                            </tr>
+						</table>
+					</fieldset>
+					</span>
+				</td>
+            </tr>
+	        <tr valign="bottom">
+                <td>
+                	<span t:type="zone" t:id="chronologyZone" id="chronologyZone" t:update="show">
+					<fieldset>
+						<legend>
+							<t:if test="showChronology">
+								<a t:type="eventLink" t:event="toggleChronology" t:zone="^">
+									<img src="${context:/img/toClose.gif}" style="margin-bottom: -3px;" title="Скрыть"/></a>
+								<p:else>
+									<a t:type="eventLink" t:event="toggleChronology" t:zone="^">
+										<img src="${context:/img/toOpen.gif}" style="margin-bottom: -1px;" title="Показать"/></a>
+								</p:else>
+							</t:if>
+							Хронология исполнения мероприятия
+						</legend>
+						<table t:type="if" t:test="showChronology" style="width: 70%" class="Basic">
+							<tr>
+								<th>Операция</th>
+								<th>Подразделение</th>
+								<th>Сотрудник</th>
+								<th>Контрольная дата</th>
+								<th>Дата-время</th>
+								<th>Комментарий</th>
+							</tr>
+							<tr>
+								<td>Создание КМ</td>
+								<td>КБ-КД1-УРКК1</td>
+								<td>Бабичев С.А.</td>
+								<td>15.04.2013</td>
+								<td>&nbsp;</td>
+								<td>&nbsp;</td>
+							</tr>
+						</table>
+					</fieldset>
+					</span>
+				</td>
+            </tr>
+		</table>
+		<div class="buttons">
+			<span t:type="zone" t:id="buttonZone" id="buttonZone" t:update="show">
+				<t:if test="showExecuteButton">
+					<input t:type="submit" t:id="executeEventButton" t:value="Завершить" class="button"/>
+				</t:if>
+				<t:if test="showSaveButton">
+					<input t:type="submit" t:id="saveEventButton" t:value="Сохранить" class="button"/>
+				</t:if>
+			</span>
+			<input t:type="submit"  t:id="cancelButton" t:value="Вернуться" class="button" t:mode="cancel"/>
+		</div>
+	</form>
+</t:layout>

@@ -1,0 +1,24 @@
+/**
+ * 
+ */
+package ru.masterdm.km.common.dictionary;
+
+/**
+ * Тип плановой периодичности мероприятий.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public enum EventRepeatTypeDictionary {
+	ONCE(1L), EVERY_DAY(2L);
+	private final Long id;
+
+	private EventRepeatTypeDictionary(Long id) {
+		this.id = id;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+}

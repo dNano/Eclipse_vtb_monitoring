@@ -1,0 +1,274 @@
+package ru.masterdm.km.web.pages.buildingEvent;
+
+import java.util.List;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.Environmental;
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.grid.SortConstraint;
+import org.apache.tapestry5.internal.services.StringValueEncoder;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+import org.apache.tapestry5.services.SelectModelFactory;
+import org.apache.tapestry5.services.ajax.AjaxResponseRenderer;
+import org.apache.tapestry5.services.ajax.JavaScriptCallback;
+import org.apache.tapestry5.services.javascript.JavaScriptSupport;
+import org.got5.tapestry5.jquery.components.Dialog;
+
+import ru.masterdm.km.common.entity.ContractorGroup;
+import ru.masterdm.km.common.entity.ContractorInstance;
+import ru.masterdm.km.common.entity.KmFkr;
+import ru.masterdm.km.common.searchfilter.EventsByContractorFilter;
+import ru.masterdm.km.dao.ContractorDao;
+import ru.masterdm.km.dao.DictionaryDao;
+import ru.masterdm.km.util.query.SortCriterion;
+import ru.masterdm.km.web.base.SimpleBasePage;
+import ru.masterdm.km.web.model.fkr.FkrsForContractorDataSource;
+import ru.masterdm.km.web.util.SortUtil;
+
+/**
+ * Формирование мероприятий по клиентам. Список клиентов.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ByContractor extends SimpleBasePage {
+	@Persist
+	@Property(write = false)
+	private String contractorID;
+
+	@Inject
+	private DictionaryDao dictionaryDao;
+	@Inject
+	private ContractorDao contractorDao;
+	@Inject
+	private BeanModelSource beanModelSource;
+	@Inject
+	private AjaxResponseRenderer ajaxResponseRenderer;
+	@Inject
+	private SelectModelFactory selectModelFactory;
+
+	@InjectComponent
+	private Zone contractorGroupListZone;
+	@InjectComponent
+	private Zone contractorGroupZone;
+	@InjectComponent
+	private Zone contractorHistoryListZone;
+	@InjectComponent
+	private Zone contractorFkrListZone;
+	@InjectComponent
+	private Zone contractorInstancesZone;
+
+	@InjectComponent
+	private Dialog selectContractorGroupDialog;
+
+	@Property(write = false)
+	private boolean contractorGroupDialogAppeared;
+	@Property(write = false)
+	private boolean contractorHistoryDialogAppeared;
+	@Property(write = false)
+	private boolean contractorFkrDialogAppeared;
+
+	@Property
+	private ContractorGroup contractorGroup;
+	@Property
+	private ContractorInstance contractorInstance;
+	@Property
+	private KmFkr fkrForContractor;
+
+	@Persist
+	@Property
+	private EventsByContractorFilter filter;
+	@Persist
+	@Property
+	private String contractorGroupNamePattern;
+	@Persist
+	@Property
+	private String contractorName;
+
+	@Property
+	private final StringValueEncoder stringValueEncoder = new StringValueEncoder();
+
+	@Environmental
+	private JavaScriptSupport javaScriptSupport;
+
+	void setupRender() {
+		if (filter != null) {
+			String focusField = "contractorNameInput";
+			if (filter.getContractorName() != null) {
+				focusField = "contractorNameInput";
+			} else if (filter.getContractorINN() != null) {
+				focusField = "contractorInnInput";
+			} else if (filter.getContractorNumber() != null) {
+				focusField = "contractorNumberInput";
+			}
+			javaScriptSupport.addScript("document.getElementById('%s').focus();", focusField);
+		}
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "selectContractorGroupLink")
+	void selectContractorGroup(String contractorGroupId) {
+		filter.setContractorGroup(dictionaryDao.getContractorGroup(contractorGroupId));
+		ajaxResponseRenderer.addCallback(new JavaScriptCallback() {
+
+			@Override
+			public void run(JavaScriptSupport javaScriptSupport) {
+				javaScriptSupport.addScript("jQuery('#%1s').dialog('close');", selectContractorGroupDialog.getClientId());
+			}
+		});
+		ajaxResponseRenderer.addRender(contractorGroupZone);
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "deleteContractorGroupLink")
+	void deleteContractorGroup() {
+		filter.setContractorGroup(null);
+		ajaxResponseRenderer.addRender(contractorGroupZone);
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "contractorGroupSearchButton")
+	void searchContractorGroups() {
+		ajaxResponseRenderer.addRender(contractorGroupListZone);
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "showContractorGroupListDialogLink")
+	void prepareContractorGroupSelectDialog() {
+		contractorGroupDialogAppeared = true;
+		contractorGroupNamePattern = null;
+		ajaxResponseRenderer.addRender(contractorGroupListZone);
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "showContractorHistoryListDialogLink")
+	void prepareContractorHistorySelectDialog(String idContractor) {
+		contractorHistoryDialogAppeared = true;
+		contractorID = idContractor;
+		ajaxResponseRenderer.addRender(contractorHistoryListZone);
+	}
+
+	public GridDataSource getContractorInstances() {
+		return new GridDataSource() {
+			private int startIndex;
+			private List<ContractorInstance> instances;
+
+			@Override
+			public int getAvailableRows() {
+				return contractorDao.getInstanceCount(filter);
+			}
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				List<SortCriterion> sortCriteria = SortUtil.toSortCriteria(sortConstraints);
+				instances = contractorDao.getInstances(startIndex, endIndex - startIndex + 1, filter, sortCriteria);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return instances.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return ContractorInstance.class;
+			}
+		};
+	}
+
+	public BeanModel<ContractorInstance> getContractorInstanceModel() {
+		BeanModel<ContractorInstance> model = beanModelSource.createDisplayModel(ContractorInstance.class, getMessages());
+		model.exclude("id", "status", "fkr", "expared");
+		model.addEmpty("fkrContractor");
+		model.addEmpty("statusName");
+		model.addEmpty("historyContractor");
+		model.addEmpty("contractorName").sortable(true);
+		model.addEmpty("contractorNumber").sortable(true);
+		model.addEmpty("contractorINN").sortable(true);
+		return model;
+	}
+
+	public BeanModel<ContractorGroup> getContractorGroupModel() {
+		BeanModel<ContractorGroup> contractorGroupModel = beanModelSource.createDisplayModel(ContractorGroup.class, getMessages());
+		for (String prop : contractorGroupModel.getPropertyNames()) {
+			contractorGroupModel.get(prop).sortable(false);
+		}
+		return contractorGroupModel;
+	}
+
+	public GridDataSource getContractorGroups() {
+		return new GridDataSource() {
+
+			private int startIndex;
+			private List<ContractorGroup> contractorGroups;
+
+			@Override
+			public void prepare(int startIndex, int endIndex, List<SortConstraint> sortConstraints) {
+				this.startIndex = startIndex;
+				contractorGroups = dictionaryDao.getContractorGroups(startIndex, endIndex - startIndex + 1, contractorGroupNamePattern);
+			}
+
+			@Override
+			public Object getRowValue(int index) {
+				return contractorGroups.get(index - startIndex);
+			}
+
+			@Override
+			public Class<?> getRowType() {
+				return ContractorGroup.class;
+			}
+
+			@Override
+			public int getAvailableRows() {
+				return dictionaryDao.getContractorGroupCount(contractorGroupNamePattern);
+			}
+		};
+	}
+
+	public GridDataSource getFkrsForContractor() {
+		return new FkrsForContractorDataSource(contractorID, contractorDao);
+	}
+
+	public BeanModel<KmFkr> getFkrsForContractorModel() {
+		BeanModel<KmFkr> fkrModel = beanModelSource.createDisplayModel(KmFkr.class, getMessages());
+		for (String prop : fkrModel.getPropertyNames()) {
+			fkrModel.get(prop).sortable(false);
+		}
+		return fkrModel;
+	}
+
+	@OnEvent(value = EventConstants.ACTIVATE)
+	void prepare() {
+		if (filter == null) {
+			filter = emptyFilter();
+		}
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "clearFilterButton")
+	void clearFilter() {
+		filter = emptyFilter();
+	}
+
+	@OnEvent(value = EventConstants.ACTION, component = "showContractorFkrListDialogLink")
+	void prepareContractorFkrListDialog(String idContractor, String clientName) {
+		contractorFkrDialogAppeared = true;
+		contractorID = idContractor;
+		contractorName = clientName;
+		ajaxResponseRenderer.addRender(contractorFkrListZone);
+	}
+
+	private EventsByContractorFilter emptyFilter() {
+		return new EventsByContractorFilter();
+	}
+
+	public String getContractorRowClass() {
+		return (contractorInstance != null && contractorInstance.getStatus() != null) ? contractorInstance.getStatus().name() : "";
+	}
+
+	public String getPageName() {
+		return "buildingEvent/ByContractor";
+	}
+}

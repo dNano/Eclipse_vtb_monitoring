@@ -1,0 +1,212 @@
+package ru.masterdm.km.common.entity;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Календарь instance
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class KmEventCalendar extends BaseNamedEntity<Long> {
+	private KmClassifier classifier;
+	private KmRepeatType repeatType;
+	private KmConfirmationType confirmationType;
+	private DocumentGroup documentGroup;
+	private DocumentType documentType;
+	private KmSourceDoc sourceDoc;
+	private String sourceDocComment;
+	private String sourceDocNumber;
+	private Date sourceDocDate;
+	private String docTypeByHand;
+	private KmEventNotification notification;
+	private Date startDate;
+	private Date endDate;
+	private List<DayOfWeek> daysOfWeek;
+	private Long periodDate;
+	private Long periodDetails;
+	private Long periodWeekend;
+	private boolean excludeHoliday;
+	private List<Date> schedule;
+	private PunitiveMeasure punitiveMeasure;
+	private Long fkrCandLong;
+
+	public Long getPeriodWeekend() {
+		return periodWeekend;
+	}
+
+	public void setPeriodWeekend(Long periodWeekend) {
+		this.periodWeekend = periodWeekend;
+	}
+
+	public boolean isExcludeHoliday() {
+		return excludeHoliday;
+	}
+
+	public void setExcludeHoliday(boolean excludeHoliday) {
+		this.excludeHoliday = excludeHoliday;
+	}
+
+	public KmClassifier getClassifier() {
+		return classifier;
+	}
+
+	public void setClassifier(KmClassifier classifier) {
+		this.classifier = classifier;
+	}
+
+	public KmRepeatType getRepeatType() {
+		return repeatType;
+	}
+
+	public void setRepeatType(KmRepeatType repeatType) {
+		this.repeatType = repeatType;
+	}
+
+	public KmEventNotification getNotification() {
+		return notification;
+	}
+
+	public void setNotification(KmEventNotification notification) {
+		this.notification = notification;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date entDate) {
+		this.endDate = entDate;
+	}
+
+	public List<DayOfWeek> getDaysOfWeek() {
+		if (daysOfWeek == null) {
+			daysOfWeek = new ArrayList<DayOfWeek>();
+		}
+		return daysOfWeek;
+	}
+
+	public void setDaysOfWeek(List<DayOfWeek> daysOfWeek) {
+		this.daysOfWeek = daysOfWeek;
+	}
+
+	public Long getPeriodDetails() {
+		// считаем, что 0 или null здесь быть не может. Значение по умолчанию - 1 (то есть каждый месяц, каждую неделю, каждый квартал).
+		if ((periodDetails == null) || (periodDetails.longValue() == 0)) return 1L;
+		else return periodDetails;
+	}
+
+	public void setPeriodDetails(Long periodDetails) {
+		this.periodDetails = periodDetails;
+	}
+
+	public Long getPeriodDate() {
+		// считаем, что 0 или null здесь быть не может. Значение по умолчанию - 1 (то есть каждый месяц, каждую неделю, каждый квартал).
+		if ((periodDate == null) || (periodDate.longValue() == 0)) return 1L;
+		return periodDate;
+	}
+
+	public void setPeriodDate(Long periodDate) {
+		this.periodDate = periodDate;
+	}
+
+	public List<Date> getSchedule() {
+		return schedule;
+	}
+
+	public void setSchedule(List<Date> schedule) {
+		this.schedule = schedule;
+	}
+
+	public KmConfirmationType getConfirmationType() {
+		return confirmationType;
+	}
+
+	public void setConfirmationType(KmConfirmationType confirmationType) {
+		this.confirmationType = confirmationType;
+	}
+
+	public DocumentGroup getDocumentGroup() {
+		return documentGroup;
+	}
+
+	public void setDocumentGroup(DocumentGroup documentGroup) {
+		this.documentGroup = documentGroup;
+	}
+
+	public DocumentType getDocumentType() {
+		return documentType;
+	}
+
+	public void setDocumentType(DocumentType documentType) {
+		this.documentType = documentType;
+	}
+
+	public String getDocTypeByHand() {
+		return docTypeByHand;
+	}
+
+	public void setDocTypeByHand(String docTypeByHand) {
+		this.docTypeByHand = docTypeByHand;
+	}
+
+	public KmSourceDoc getSourceDoc() {
+		return sourceDoc;
+	}
+
+	public void setSourceDoc(KmSourceDoc sourceDoc) {
+		this.sourceDoc = sourceDoc;
+	}
+
+	public String getSourceDocComment() {
+		return sourceDocComment;
+	}
+
+	public void setSourceDocComment(String docComment) {
+		this.sourceDocComment = docComment;
+	}
+
+	public String getSourceDocNumber() {
+		return sourceDocNumber;
+	}
+
+	public void setSourceDocNumber(String sourceDocNumber) {
+		this.sourceDocNumber = sourceDocNumber;
+	}
+
+	public Date getSourceDocDate() {
+		return sourceDocDate;
+	}
+
+	public void setSourceDocDate(Date sourceDocDate) {
+		this.sourceDocDate = sourceDocDate;
+	}
+
+	public PunitiveMeasure getPunitiveMeasure() {
+		return punitiveMeasure;
+	}
+
+	public void setPunitiveMeasure(PunitiveMeasure punitiveMeasure) {
+		this.punitiveMeasure = punitiveMeasure;
+	}
+
+	public Long getFkrCandLong() {
+		return fkrCandLong;
+	}
+
+	public void setFkrCandLong(Long fkrCandLong) {
+		this.fkrCandLong = fkrCandLong;
+	}
+
+}

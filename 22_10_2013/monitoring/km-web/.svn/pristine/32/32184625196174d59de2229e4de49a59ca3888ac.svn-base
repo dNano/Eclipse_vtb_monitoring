@@ -1,0 +1,13 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * Список выявленных ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrList extends SimpleBasePage {
+
+}

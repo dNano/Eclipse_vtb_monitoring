@@ -1,0 +1,48 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_INSTANCES;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_INSTANCE_COUNT;
+
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+import ru.masterdm.km.dao.mapper.DealInstanceRm;
+import ru.masterdm.km.util.BaseJdbcDao;
+
+/**
+ * Реализация DAO интерфейса для сущности "Сделка".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class DealDaoImpl extends BaseJdbcDao<DealDaoSqlKey> implements DealDao {
+
+	@Override
+	public int getInstanceCount(EventsByDealFilter filter) {
+		String query = sql.getValue(DEAL_INSTANCE_COUNT);
+		query = filterQuery(filter, query);
+		System.out.println(query);// TODO
+		return queryForInt(query, "Error selecting event instance count.");
+	}
+
+	private String filterQuery(EventsByDealFilter filter, String query) {
+		if (filter.getCurrency() != null) {
+			query += " AND m.currency = '" + filter.getCurrency().getId() + "'";
+		}
+		if (filter.getAmountFrom() != null) {
+			query += " AND m.MDTASK_SUM >= " + filter.getAmountFrom();
+		}
+		if (filter.getAmountTo() != null) {
+			query += " AND m.MDTASK_SUM <= " + filter.getAmountTo();
+		}
+		return query;
+	}
+
+	@Override
+	public List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter) {
+		String query = sql.getValue(DEAL_INSTANCES);
+		query = filterQuery(filter, query);
+		System.out.println(query);// TODO
+		return queryForList(query, new DealInstanceRm(), "Error selecting event instances.");
+	}
+}

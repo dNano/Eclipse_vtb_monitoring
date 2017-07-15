@@ -1,0 +1,108 @@
+package ru.masterdm.km.dao;
+
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_CALENDAR;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_CALENDAR_COUNT;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_INSTANCES;
+import static ru.masterdm.km.dao.DealDaoSqlKey.DEAL_INSTANCE_COUNT;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.masterdm.km.common.entity.DealInstance;
+import ru.masterdm.km.common.entity.KmClassifier;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.searchfilter.EventsByDealFilter;
+import ru.masterdm.km.dao.mapper.DealInstanceRm;
+import ru.masterdm.km.dao.mapper.KmClassifiersRm;
+import ru.masterdm.km.dao.mapper.KmEventInstanceRm;
+import ru.masterdm.km.util.BaseJdbcDao;
+
+/**
+ * Реализация DAO интерфейса для сущности "Сделка".
+ * 
+ * @author Shafigullin Ildar
+ */
+public class DealDaoImpl extends BaseJdbcDao<DealDaoSqlKey> implements DealDao {
+
+	@Override
+	public int getInstanceCount(EventsByDealFilter filter) {
+		String query = sql.getValue(DEAL_INSTANCE_COUNT);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		System.out.println(query);// TODO
+		return queryForInt(query, "Error selecting event instance count.", params.toArray());
+	}
+
+	private String filterQuery(EventsByDealFilter filter, String query, List<Object> params) {
+		if (filter.getCurrency() != null) {
+			query += " AND m.currency = '" + filter.getCurrency().getId() + "'";
+		}
+		if (filter.getAmountFrom() != null) {
+			query += " AND m.MDTASK_SUM >= " + filter.getAmountFrom();
+		}
+		if (filter.getAmountTo() != null) {
+			query += " AND m.MDTASK_SUM <= " + filter.getAmountTo();
+		}
+		if (filter.getDateFrom() != null) {
+			query += " AND m.VALIDTO >= ? ";
+			params.add(new java.sql.Date(filter.getDateFrom().getTime()));
+		}
+		if (filter.getDateTo() != null) {
+			query += " AND m.VALIDTO <= ? ";
+			params.add(new java.sql.Date(filter.getDateTo().getTime()));
+		}
+
+		return query;
+	}
+
+	@Override
+	public List<DealInstance> getInstances(int startIndex, int amount, EventsByDealFilter filter) {
+		String query = sql.getValue(DEAL_INSTANCES);
+		ArrayList<Object> params = new ArrayList<Object>();
+		query = filterQuery(filter, query, params);
+		System.out.println(query);// TODO
+		return queryForList(query, new DealInstanceRm(), "Error selecting event instances.", params.toArray());
+	}
+
+	@Override
+	public List<KmEventInstance> getDealCalendar(int startIndex, int i, long dealID) {
+		String query = sql.getValue(DEAL_CALENDAR);
+		query += " where m.id_mdtask = ? order by ei.plan_date desc";
+		System.out.println(query);// TODO
+		return queryForList(query, new KmEventInstanceRm(), "Error selecting deal calendar.", dealID);
+	}
+
+	@Override
+	public int getDealCalendarCount(long dealID) {
+		String query = sql.getValue(DEAL_CALENDAR_COUNT);
+		System.out.println(query);// TODO
+		return queryForInt(query, "Error selecting Deal Calendar count.", dealID);
+
+	}
+
+	@Override
+	public List<KmClassifier> getClassifiers(int startIndex, int i) {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_CLASSIFIERS);
+		System.out.println(query);// TODO
+		return queryForList(query, new KmClassifiersRm(), "Error selecting classifiers.");
+	}
+
+	@Override
+	public int getClassifiersCount() {
+		String query = sql.getValue(DealDaoSqlKey.DEAL_CLASSIFIERS_COUNT);
+		System.out.println(query);// TODO
+		return queryForInt(query, "Error selecting Classifiers count.");
+	}
+
+	@Override
+	public List<KmClassifier> getDealPlan(int startIndex, int i, long dealID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getDealPlanCount(long dealID) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+}

@@ -1,0 +1,115 @@
+package ru.masterdm.km.common.searchfilter;
+
+import java.util.Date;
+
+import ru.masterdm.km.common.entity.FkrGroup;
+import ru.masterdm.km.common.entity.FkrType;
+import ru.masterdm.km.common.entity.KmFkrStatus;
+
+/**
+ * Фильтр-поиск ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrFilter {
+	private String contractorName;
+	private String spkpNumber;
+	private Date dealDate;
+	private boolean showClientForDeal = true;
+	private Date dateCreatedFrom;
+	private Date dateCreatedTo;
+	private Date dateFinishedFrom;
+	private Date dateFinishedTo;
+	private KmFkrStatus fkrStatus;
+	private FkrGroup fkrGroup;
+	private FkrType fkrType;
+
+	public String getContractorName() {
+		return contractorName;
+	}
+
+	public void setContractorName(String contractorName) {
+		this.contractorName = contractorName;
+	}
+
+	public String getSpkpNumber() {
+		return spkpNumber;
+	}
+
+	public void setSpkpNumber(String spkpNumber) {
+		this.spkpNumber = spkpNumber;
+	}
+
+	public Date getDealDate() {
+		return dealDate;
+	}
+
+	public void setDealDate(Date dealDate) {
+		this.dealDate = dealDate;
+	}
+
+	public boolean isShowClientForDeal() {
+		return showClientForDeal;
+	}
+
+	public void setShowClientForDeal(boolean showClientForDeal) {
+		this.showClientForDeal = showClientForDeal;
+	}
+
+	public Date getDateCreatedFrom() {
+		return dateCreatedFrom;
+	}
+
+	public void setDateCreatedFrom(Date dateCreatedFrom) {
+		this.dateCreatedFrom = dateCreatedFrom;
+	}
+
+	public Date getDateCreatedTo() {
+		return dateCreatedTo;
+	}
+
+	public void setDateCreatedTo(Date dateCreatedTo) {
+		this.dateCreatedTo = dateCreatedTo;
+	}
+
+	public Date getDateFinishedFrom() {
+		return dateFinishedFrom;
+	}
+
+	public void setDateFinishedFrom(Date dateFinishedFrom) {
+		this.dateFinishedFrom = dateFinishedFrom;
+	}
+
+	public Date getDateFinishedTo() {
+		return dateFinishedTo;
+	}
+
+	public void setDateFinishedTo(Date dateFinishedTo) {
+		this.dateFinishedTo = dateFinishedTo;
+	}
+
+	public KmFkrStatus getFkrStatus() {
+		return fkrStatus;
+	}
+
+	public void setFkrStatus(KmFkrStatus fkrStatus) {
+		this.fkrStatus = fkrStatus;
+	}
+
+	public FkrGroup getFkrGroup() {
+		return fkrGroup;
+	}
+
+	public void setFkrGroup(FkrGroup fkrGroup) {
+		this.fkrGroup = fkrGroup;
+	}
+
+	public FkrType getFkrType() {
+		return fkrType;
+	}
+
+	public void setFkrType(FkrType fkrType) {
+		this.fkrType = fkrType;
+	}
+}

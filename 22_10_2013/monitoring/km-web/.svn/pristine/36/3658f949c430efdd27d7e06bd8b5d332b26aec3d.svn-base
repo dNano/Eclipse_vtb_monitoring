@@ -1,0 +1,10 @@
+<t:layout xmlns="http://www.w3.org/1999/xhtml" xmlns:t="http://tapestry.apache.org/schema/tapestry_5_3.xsd"
+	xmlns:p="tapestry:parameter" t:title="Список контрольных мероприятий клиента ${contractor?.name}">
+	<h1 style="text-align: left;">
+	<t:pagelink t:page="eventInstances/ContractorPlan" t:context="contractor?.id" style="text-decoration: none">
+		План контрольных мероприятий клиента "${contractor?.name}"
+	</t:pagelink>
+		 | Календарь контрольных мероприятий клиента "${contractor?.name}"
+	</h1>
+
+</t:layout>

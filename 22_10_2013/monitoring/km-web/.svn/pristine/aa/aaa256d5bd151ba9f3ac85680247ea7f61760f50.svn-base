@@ -1,0 +1,228 @@
+package ru.masterdm.km.web.components;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.Date;
+
+import org.apache.tapestry5.Asset;
+import org.apache.tapestry5.Binding;
+import org.apache.tapestry5.BindingConstants;
+import org.apache.tapestry5.ComponentEventCallback;
+import org.apache.tapestry5.ComponentResources;
+import org.apache.tapestry5.FieldValidationSupport;
+import org.apache.tapestry5.FieldValidator;
+import org.apache.tapestry5.MarkupWriter;
+import org.apache.tapestry5.ValidationException;
+import org.apache.tapestry5.ValidationTracker;
+import org.apache.tapestry5.annotations.Environmental;
+import org.apache.tapestry5.annotations.Import;
+import org.apache.tapestry5.annotations.Parameter;
+import org.apache.tapestry5.annotations.Path;
+import org.apache.tapestry5.annotations.RequestParameter;
+import org.apache.tapestry5.corelib.base.AbstractField;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.json.JSONObject;
+import org.apache.tapestry5.services.ComponentDefaultProvider;
+import org.apache.tapestry5.services.Request;
+import org.apache.tapestry5.services.javascript.JavaScriptSupport;
+import org.apache.tapestry5.services.javascript.StylesheetLink;
+
+import ru.masterdm.km.common.util.DataTypeUtil;
+
+/**
+ * 
+ * @author Alexey Chalov
+ */
+@Import(stack = { "DynarchCalendarStack" }, library = "DynarchCalendar.js")
+public class DynarchCalendar extends AbstractField {
+
+    @Inject
+    private JavaScriptSupport javaScriptSupport;
+    @Inject
+    private ComponentResources componentResources;
+    @Inject
+    private Messages messages;
+    @Inject
+    private Request request;
+    @Inject
+    private FieldValidationSupport fieldValidationSupport;
+    @Inject
+    private ComponentDefaultProvider defaultProvider;
+
+    @Environmental
+    private ValidationTracker tracker;
+
+    @Inject
+    @Path("calendar/css/reduce-spacing.css")
+    private Asset reduceSpacingCss;
+    @Inject
+    @Path("calendar/css/steel/steel.css")
+    private Asset defaultThemeCss;
+
+    @Parameter(defaultPrefix = BindingConstants.LITERAL, value = "true")
+    private boolean compact;
+    @Parameter(defaultPrefix = BindingConstants.LITERAL)
+    private String styleSheet;
+    @Parameter
+    private boolean hideTextField;
+    @Parameter(defaultPrefix = BindingConstants.ASSET, value = "calendar/css/calendar.jpg")
+    private Asset icon;
+    @Parameter(defaultPrefix = BindingConstants.ASSET, value = "calendar/css/cross.gif")
+    private Asset deleteIcon;
+    @Parameter(defaultPrefix = BindingConstants.LITERAL)
+    private String zone;
+    @Parameter
+    private Object[] context;
+    @Parameter(required = true, principal = true, autoconnect = true)
+    private Date value;
+    @Parameter(defaultPrefix = BindingConstants.VALIDATE)
+    private FieldValidator<Object> validate;
+    @Parameter(defaultPrefix = BindingConstants.LITERAL, value = "false")
+    private boolean immediate;
+    @Parameter(defaultPrefix = BindingConstants.LITERAL, value = "symbol:dmy-format")
+    private DateFormat javaDateFormat;
+    @Parameter(defaultPrefix = BindingConstants.LITERAL, value = "message:calendar-date-format")
+    private String calendarDateFormat;
+    @Parameter(value = "message:error-class-name")
+    private String errorClassName;
+    @Parameter(defaultPrefix = BindingConstants.LITERAL, value = "true")
+    private boolean skipOnFormatViolation;
+
+    private static final String ERROR = "error";
+    private static final String INPUT_PARAMETER = "input";
+
+    public static final String DATE_SELECTED = "dateSelected";
+
+    void beginRender(MarkupWriter writer) {
+        if (compact) {
+            javaScriptSupport.importStylesheet(new StylesheetLink(reduceSpacingCss));
+        }
+        if (styleSheet != null) {
+            javaScriptSupport.importStylesheet(new StylesheetLink(styleSheet));
+        } else {
+            javaScriptSupport.importStylesheet(defaultThemeCss);
+        }
+
+        String clientId = javaScriptSupport.allocateClientId(componentResources);
+        String triggerId = clientId + "-trigger";
+        String deleteId = clientId + "-delete";
+        writer.writeRaw("<table class=\"dynarchcalendar\">");
+        writer.writeRaw("<tr>");
+        writer.writeRaw("<td>");
+        /* input field */
+        writer.element(
+            "input", "type", hideTextField ? "hidden" : "text", "id", clientId,
+                     "name", getControlName(), "value", value != null ? javaDateFormat.format(value) : ""
+        );
+        if (isDisabled()) {
+            writer.attributes("disabled", "disabled");
+        }
+        putPropertyNameIntoBeanValidationContext("value");
+        validate.render(writer);
+        removePropertyNameFromBeanValidationContext();
+        componentResources.renderInformalParameters(writer);
+        writer.end();
+        writer.writeRaw("</td>");
+        writer.writeRaw("<td>");
+        /* icon */
+        writer.element(
+            "input", "type", "image", "id", triggerId, "class", "adv-calendar-trigger",
+                     "src", icon.toClientURL(), "alt", messages.get("icon-alt-message"),
+                     "onclick", "return false;"
+        );
+        writer.end();
+        writer.writeRaw("</td>");
+        writer.writeRaw("<td>");
+        /* delete icon */
+        writer.element(
+            "input", "type", "image", "id", deleteId, "class", "adv-calendar-delete",
+                     "src", deleteIcon.toClientURL(), "alt", messages.get("delete-icon-alt-message"),
+                     "onclick", "return false;"
+        );
+        writer.end();
+        writer.writeRaw("</td>");
+        writer.writeRaw("</tr>");
+        writer.writeRaw("</table>");
+        /* JavaScript initialization */
+        JSONObject spec = new JSONObject();
+        spec.put("inputFieldId", clientId);
+        spec.put("inputFieldHidden", hideTextField);
+        spec.put("inputFieldDisabled", isDisabled());
+        spec.put("errorClassName", errorClassName);
+        spec.put("immediate", immediate);
+        if (zone != null) {
+            spec.put("zone", zone);
+            spec.put("zoneUpdateURL", componentResources.createEventLink(DATE_SELECTED, context).toURI());
+        }
+        spec.put("dateFormat", calendarDateFormat);
+        spec.put("parseURL", componentResources.createEventLink("parse").toURI());
+        javaScriptSupport.addInitializerCall("dynarchCalendar", spec);
+    }
+
+    JSONObject onParse(@RequestParameter(value = INPUT_PARAMETER, allowBlank = true) String input) {
+        JSONObject response = new JSONObject();
+        try {
+            Date date = null;
+            if (!DataTypeUtil.isEmpty(input)) {
+                date = javaDateFormat.parse(input);
+            }
+            this.value = date;
+            if (zone == null) {
+                ComponentEventCallback<Object> callback = new ComponentEventCallback<Object>() {
+
+                    @Override
+                    public boolean handleResult(Object result) {
+                        return true;
+                    }
+                };
+                componentResources.triggerEvent(DATE_SELECTED, context, callback);
+            }
+        } catch (ParseException ex) {
+            response.put(ERROR, messages.get("date-value-not-parseable"));
+        }
+        return response;
+    }
+
+    @Override
+    protected void processSubmission(String controlName) {
+        String value = request.getParameter(controlName);
+        Date parsedValue = null;
+        try {
+            if (!DataTypeUtil.isEmpty(value)) {
+                parsedValue = javaDateFormat.parse(value);
+            }
+            tracker.recordInput(this, value);
+        } catch (ParseException ex) {
+            if (!skipOnFormatViolation) {
+                tracker.recordInput(this, value);
+                tracker.recordError(this, messages.get("date-value-not-parseable"));
+            } else {
+                this.value = null;
+            }
+            return;
+        }
+
+        if (skipOnFormatViolation) {
+            this.value = parsedValue;
+            return;
+        }
+        putPropertyNameIntoBeanValidationContext("value");
+        try {
+            fieldValidationSupport.validate(parsedValue, componentResources, validate);
+            this.value = parsedValue;
+        } catch (ValidationException ex) {
+            tracker.recordError(this, ex.getMessage());
+        }
+        removePropertyNameFromBeanValidationContext();
+    }
+
+    Binding defaultValidate() {
+        return defaultProvider.defaultValidatorBinding("value", componentResources);
+    }
+
+    @Override
+    public boolean isRequired() {
+        return validate.isRequired();
+    }
+}

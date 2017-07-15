@@ -1,0 +1,200 @@
+package ru.masterdm.km.web.pages.eventInstances;
+
+import java.util.HashSet;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.Import;
+import org.apache.tapestry5.annotations.InjectComponent;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.corelib.components.Zone;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.got5.tapestry5.jquery.ImportJQueryUI;
+
+import ru.masterdm.km.common.entity.KmEventCalendar;
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.common.entity.KmFkrInstance;
+import ru.masterdm.km.common.searchfilter.CalendarFilter;
+import ru.masterdm.km.dao.DealDao;
+import ru.masterdm.km.web.base.event.ClassifierBasePage;
+import ru.masterdm.km.web.util.BuildingEventUtil;
+
+/**
+ * таб. панель "классификатор-план-календарь" КМ для сделки.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+
+@ImportJQueryUI(theme = "context:css/jquery/themes/smoothness/jquery-ui-1.8.23.custom.css")
+@Import(stylesheet = { "context:css/jquerydatatables.css" })
+public class DealClassifier extends ClassifierBasePage {
+	@Persist
+	private long dealID;
+	@Inject
+	private DealDao dealDao;
+	@InjectComponent
+	private Zone dealCalendarZone;
+
+	void onActivate(long dealID, int curTab) {
+		this.curTab = curTab;
+		deal = dealDao.getDealInstance(dealID);
+		this.dealID = dealID;
+		init();
+	}
+
+	@OnEvent(component = "addEventType")
+	void addEventType(long eventTypeID, String eventName) {
+		// if (!dealDao.isExistEventType(dealID, eventTypeID)) {
+		dealDao.addEventType(dealID, eventTypeID, eventName);
+		arrayPlanForTree.add(Long.valueOf(eventTypeID));
+		selectedEventTypeID = eventTypeID;
+		clearPlan();
+		// }
+	}
+
+	@OnEvent(component = "removeEventType")
+	void removeEventType(long eventTypeID) {
+		dealDao.removeEventType(dealID, eventTypeID);
+		arrayPlanForTree.remove(Long.valueOf(eventTypeID));
+		clearSelectedRow();
+		clearPlan();
+	}
+
+	@OnEvent(component = "acceptEventType")
+	void acceptEventType(long eventCalendarID, long eventTypeID) {
+		dealDao.acceptEventType(dealID, eventCalendarID);
+		// clearSelectedRow();
+		selectedEventTypeID = eventTypeID;
+		initCalendar();
+	}
+
+	@OnEvent(component = "acceptAll")
+	void acceptAllEvent() {
+		dealDao.acceptPlan(dealID, filter);
+		clearSelectedRow();
+		initCalendar();
+	}
+
+	@OnEvent(component = "removeEventInstance")
+	void removeEventInstance(long eventInstanceID) {
+		eventDao.removeEventInstance(eventInstanceID);
+		clearSelectedRow();
+		cleanCalendar();
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "cleanCalendarFilterButton")
+	void cleanCalendarFilter() {
+		calendarFilter = new CalendarFilter();
+		cleanCalendar();
+		ajaxResponseRenderer.addRender(dealCalendarZone);
+	}
+
+	@OnEvent(value = EventConstants.SELECTED, component = "getCalendarButton")
+	void getCalendarRequested() {
+		cleanCalendar();
+		ajaxResponseRenderer.addRender(dealCalendarZone);
+	}
+
+	protected void initPlan() {
+		planList = dealDao.getDealPlan(0, Integer.MAX_VALUE, dealID, filter);
+		arrayPlanForTree = new HashSet<Long>();
+		for (KmEventCalendar planEvent : planList) {
+			arrayPlanForTree.add(planEvent.getClassifier().getEventType().getId());
+		}
+	}
+
+	protected void initCalendar() {
+		calendarList = dealDao.getDealCalendar(dealID, calendarFilter);
+		arrayCalendar = new HashSet<Long>();
+		for (KmEventInstance event : calendarList) {
+			arrayCalendar.add(event.getEvent().getId());
+		}
+	}
+
+	protected void initFkrList() {
+		fkrList = dealDao.getDealFkr(0, Integer.MAX_VALUE, dealID);
+	}
+
+	public boolean isDisabledLeaf() {
+		if (valueWrapper != null && valueWrapper.isType()) {
+			Long typeId = Long.valueOf(valueWrapper.getPageName());
+			if (arrayPlanForTree.contains(typeId)) {
+				return true;
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isSelectedRow() {
+		if (calendar != null && calendar.getClassifier().getEventType().getId().longValue() == selectedEventTypeID) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isSelectedRowCalendar() {
+		if (eventInstance != null && eventInstance.getEvent().getEventType().getId().longValue() == selectedEventTypeID) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isRenderAcceptAllButton() {
+		return (arrayPlanForTree != null) && (arrayCalendar != null) && (arrayPlanForTree.size() > arrayCalendar.size());
+	}
+
+	public BeanModel<KmEventInstance> getEventInstanceModel() {
+		BeanModel<KmEventInstance> eventModel = beanModelSource.createDisplayModel(KmEventInstance.class, getMessages());
+		eventModel.include("planExecutionDate");
+		eventModel.addEmpty("eventName").sortable(true);
+		eventModel.addEmpty("info");
+		eventModel.addEmpty("mailTo");
+		eventModel.addEmpty("executor").sortable(true);
+		eventModel.addEmpty("remove");
+		return eventModel;
+	}
+
+	public BeanModel<KmEventCalendar> getPlanModel() {
+		BeanModel<KmEventCalendar> model = beanModelSource.createDisplayModel(KmEventCalendar.class, getMessages());
+		model.exclude("id", "name", "startDate", "endDate", "periodDate", "periodDetails", "excludeHoliday", "periodWeekend", "docTypeByHand",
+				"sourceDocComment", "sourceDocNumber", "sourceDocDate");
+		model.addEmpty("edit");
+		model.addEmpty("remove");
+		model.addEmpty("eventTypeName").sortable(true);
+		model.addEmpty("accept").sortable(true);
+		return model;
+	}
+
+	public BeanModel<KmFkrInstance> getFkrInstanceModel() {
+		BeanModel<KmFkrInstance> fkrModel = beanModelSource.createDisplayModel(KmFkrInstance.class, getMessages());
+		fkrModel.addEmpty("created").sortable(true);
+		fkrModel.addEmpty("finished").sortable(true);
+		fkrModel.addEmpty("fkrType").sortable(true);
+		fkrModel.addEmpty("note").sortable(true);
+		fkrModel.addEmpty("sign").sortable(true);
+		fkrModel.addEmpty("status").sortable(true);
+		return fkrModel;
+	}
+
+	public long getDealID() {
+		return dealID;
+	}
+
+	public void setDealID(long dealID) {
+		this.dealID = dealID;
+	}
+
+	public String getPageName() {
+		return "eventInstances/dealClassifier";
+	}
+
+	public String getDealInfo() {
+		return BuildingEventUtil.getDealInfo(deal, getDateListFormat(), getAmountViewFormat());
+	}
+}

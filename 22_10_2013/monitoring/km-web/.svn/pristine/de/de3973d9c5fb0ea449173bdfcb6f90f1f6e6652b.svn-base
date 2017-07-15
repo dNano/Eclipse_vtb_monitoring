@@ -1,0 +1,50 @@
+package ru.masterdm.km.web.components;
+
+import org.apache.tapestry5.annotations.Parameter;
+import org.apache.tapestry5.annotations.Property;
+import org.apache.tapestry5.beaneditor.BeanModel;
+import org.apache.tapestry5.grid.GridDataSource;
+import org.apache.tapestry5.ioc.Messages;
+import org.apache.tapestry5.ioc.annotations.Inject;
+import org.apache.tapestry5.services.BeanModelSource;
+
+import ru.masterdm.km.common.entity.KmEventInstance;
+import ru.masterdm.km.dao.ContractorDao;
+import ru.masterdm.km.web.model.EventsForContractorDataSource;
+
+/**
+ * Список календарных мероприятий для клиента.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class KmEventListForContractor {
+	@Parameter(required = true)
+	@Property
+	private String contractorID;
+	@Parameter(required = true)
+	@Property
+	private String dateListPattern;
+
+	@Property
+	private KmEventInstance eventForContractor;
+
+	@Inject
+	private ContractorDao contractorDao;
+	@Inject
+	private Messages messages;
+	@Inject
+	private BeanModelSource beanModelSource;
+
+	public GridDataSource getEventsForContractor() {
+		return new EventsForContractorDataSource(contractorDao, contractorID);
+	}
+
+	public BeanModel<KmEventInstance> getEventsForContractorModel() {
+		BeanModel<KmEventInstance> eventModel = beanModelSource.createDisplayModel(KmEventInstance.class, messages);
+		for (String prop : eventModel.getPropertyNames()) {
+			eventModel.get(prop).sortable(false);
+		}
+		return eventModel;
+	}
+}

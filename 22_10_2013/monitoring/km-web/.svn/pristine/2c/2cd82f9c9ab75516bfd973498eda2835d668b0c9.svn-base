@@ -1,0 +1,32 @@
+package ru.masterdm.km.web.pages.fkr;
+
+import org.apache.tapestry5.EventConstants;
+import org.apache.tapestry5.annotations.OnEvent;
+import org.apache.tapestry5.annotations.Persist;
+import org.apache.tapestry5.annotations.Property;
+
+import ru.masterdm.km.common.searchfilter.FkrFilter;
+import ru.masterdm.km.web.base.SimpleBasePage;
+
+/**
+ * Список выявленных ФКР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class FkrList extends SimpleBasePage {
+	@Persist
+	@Property
+	private FkrFilter filter;
+
+	@OnEvent(value = EventConstants.ACTIVATE)
+	void prepare() {
+		if (filter == null) {
+			filter = emptyFilter();
+		}
+	}
+
+	private FkrFilter emptyFilter() {
+		return new FkrFilter();
+	}
+}

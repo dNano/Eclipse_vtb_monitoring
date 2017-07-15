@@ -1,0 +1,11 @@
+name-label=Наименование
+executor-label=Исполнитель
+planExecutionDate-label=Дата
+eventName-label=Название мероприятия
+edit-label=
+fullName-label=ФИО
+email-label=E-mail
+remove-label=
+mailTo-label=
+accept-label=
+serverRoot=https://192.128.0.153:9443

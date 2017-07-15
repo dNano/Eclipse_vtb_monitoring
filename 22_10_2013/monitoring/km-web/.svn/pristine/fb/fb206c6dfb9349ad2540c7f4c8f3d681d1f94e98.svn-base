@@ -1,0 +1,77 @@
+package ru.masterdm.km.web.util;
+
+import java.util.List;
+
+import ru.masterdm.km.common.dictionary.EventRepeatTypeDictionary;
+import ru.masterdm.km.common.entity.DayOfWeek;
+import ru.masterdm.km.common.entity.Deal;
+import ru.masterdm.km.common.entity.KmEvent;
+import ru.masterdm.km.common.util.Formats;
+
+/**
+ * Util Для режима "Исполнение контрольных мероприятий"
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+public class ExecuteEventUtil {
+	/**
+	 * Инфо о сделке.
+	 * 
+	 * @param deal
+	 * @return
+	 */
+	public final static String getDealInfo(Deal deal) {
+		String info = "Соглашение действует до ";
+		if (deal != null && deal.getValidTo() != null) {
+			info += Formats.formatDate(deal.getValidTo());
+			long days = (deal.getValidTo().getTime() - System.currentTimeMillis()) / (24 * 60 * 60 * 1000);
+			info += ", осталось " + days + " дней. ";
+			info += deal.getType().getName() + ". ";
+			info += deal.getAmount() + " " + deal.getCurrency().getId() + ".";
+		}
+		return info;
+	}
+
+	/**
+	 * Инфо по периодичности мероприятия.
+	 * 
+	 * @param planEvent
+	 * @return
+	 */
+	public final static String getRepeatTypeInfo(KmEvent planEvent) {
+		// return "01 числа каждого месяца, начиная с 03.04.2013 temp";//TODO
+		String info = "СРОК: ";
+		if (planEvent != null && planEvent.getRepeatType() != null) {
+			if (EventRepeatTypeDictionary.ONCE.getId().equals(planEvent.getRepeatType().getId())) {
+				info += "однократно: " + Formats.formatDate(planEvent.getStartDate());
+			} else if (EventRepeatTypeDictionary.EVERY_DAY.getId().equals(planEvent.getRepeatType().getId())) {
+				if (planEvent.getPeriodDetails() != null) {
+					info += "Один раз в " + planEvent.getPeriodDetails() + " дней.";
+				}
+			} else if (EventRepeatTypeDictionary.EVERY_WEEK.getId().equals(planEvent.getRepeatType().getId())) {
+				List<DayOfWeek> daysOfWeek = planEvent.getDaysOfWeek();
+				if (planEvent.getPeriodDetails() != null) {
+					info += "Один раз в " + planEvent.getPeriodDetails() + " недели.";
+				}
+				if (daysOfWeek != null && !daysOfWeek.isEmpty()) {
+					info += "Дни недели: ";
+					for (DayOfWeek day : daysOfWeek) {
+						info += day.getName() + " ";
+					}
+				}
+			} else if (EventRepeatTypeDictionary.EVERY_MONTH.getId().equals(planEvent.getRepeatType().getId())) {
+
+			} else if (EventRepeatTypeDictionary.EVERY_QUARTER.getId().equals(planEvent.getRepeatType().getId())) {
+
+			} else if (EventRepeatTypeDictionary.EVERY_HALF_YEAR.getId().equals(planEvent.getRepeatType().getId())) {
+
+			} else if (EventRepeatTypeDictionary.YEAR.getId().equals(planEvent.getRepeatType().getId())) {
+
+			} else if (EventRepeatTypeDictionary.RANDOM.getId().equals(planEvent.getRepeatType().getId())) {
+
+			}
+		}
+		return info;
+	}
+}

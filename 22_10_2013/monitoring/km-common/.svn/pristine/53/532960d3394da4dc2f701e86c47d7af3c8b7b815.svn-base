@@ -1,0 +1,42 @@
+/**
+ * 
+ */
+package ru.masterdm.km.common.entity;
+
+/**
+ * Экземпляры ФКР / ФЗР.
+ * 
+ * @author Shafigullin Ildar
+ * 
+ */
+@SuppressWarnings("serial")
+public class KmFkr extends BaseIndexedEntity<Long> {
+	private FkrType type;
+	private String notes;
+	private long dealID;
+
+	public FkrType getType() {
+		return type;
+	}
+
+	public void setType(FkrType type) {
+		this.type = type;
+	}
+
+	public String getNotes() {
+		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
+	}
+
+	public long getDealID() {
+		return dealID;
+	}
+
+	public void setDealID(long dealID) {
+		this.dealID = dealID;
+	}
+
+}

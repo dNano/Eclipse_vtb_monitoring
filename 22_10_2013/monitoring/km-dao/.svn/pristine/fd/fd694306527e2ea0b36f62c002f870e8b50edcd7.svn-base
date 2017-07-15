@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-3.1.xsd
+                           http://www.springframework.org/schema/jee
+                           http://www.springframework.org/schema/jee/spring-jee-3.1.xsd">
+    <bean class="ru.masterdm.km.dao.FkrDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="sql">
+            <util:map key-type="ru.masterdm.km.dao.FkrDaoSqlKey" value-type="java.lang.String" map-class="ru.masterdm.km.util.StrictMap">
+                <entry key="FKR_INSTANCE_COUNT">
+                    <value>
+                        <![CDATA[
+                              select count(id_event)
+                                        from km_event ei left join users u on u.id_user = ei.id_executor
+	                              			inner join km_event_calendar e on e.id_event_calendar = ei.id_event_calendar
+	                              			left join mdtask m on m.id_mdtask = e.id_mdtask
+	                             			left join crm_organization o on o.id_org = e.id_organization
+	                              		where 1=1  
+                        ]]>
+                    </value>
+                </entry>
+                 <entry key="FKR_INSTANCES">
+                    <value>
+                        <![CDATA[
+                            select ei.id_event ei_id, ei.plan_date ei_plan_date, ei.executed_date ei_executed_date,
+                            	   ei.id_event_status kes_id, kes.event_status kes_name,
+                            	   ei.id_event_result er_id, cer.event_result er_name, cer.comment_mandatory er_comment_mandatory,
+						     	   cer.sanction er_sanction, cer.process_crf er_process_crf,
+                                   u.id_user u_id, u.name u_first_name, u.surname u_last_name, u.patronymic u_patronymic, u.mail_user u_email,
+                                   e.id_event_calendar e_id, e.event_name e_name,
+                                   e.id_mdtask d_id, m.mdtask_number d_spkp_number, m.mdtask_sum d_amount, m.currency c_code,
+                                   m.mdtask_number d_number, m.validTo d_valid_to,
+                                   o.id_org co_id, o.organization_name co_name
+                         ]]>
+                    </value>
+                </entry>
+            </util:map>
+        </property>
+    </bean>
+</beans>
